@@ -3844,6 +3844,8 @@ document.addEventListener('visibilitychange',async()=>{
 });
 
 (async function init(){
+  // Supabase CDNの読み込みを最大5秒待機
+  for(let i=0;i<50&&typeof supabase==='undefined';i++)await new Promise(r=>setTimeout(r,100));
   DB.init();
   setInterval(updateClock,1000);
   updateClock();
