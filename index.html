@@ -3702,12 +3702,6 @@ aSaveVisits=function(){
   _origASaveVisits();
   buildVisitDateNav('aVisitDateNav','aVisitLockBanner','aVDate',session?.id);
 };
-const _origSaveVisitsA=saveVisitsA;
-saveVisitsA=function(){
-  const dk=document.getElementById('aVDate')?.value||todayKey();
-  if(isMonthLocked(dk.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
-  _origSaveVisitsA();
-};
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
