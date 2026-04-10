@@ -1434,10 +1434,12 @@ function calcOdoDiff(){
 }
 function saveOdoOnly(){
   if(!session)return;
+  const dk=todayKey();
+  if(isMonthLocked(dk.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const odoStr=document.getElementById('odoNow').value;
   if(!odoStr){showToast('⚠ オドメーター値を入力してください');return;}
   const odoNum=parseFloat(odoStr);if(isNaN(odoNum)){showToast('⚠ 正しい数値を入力してください');return;}
-  const empId=session.id,dk=todayKey();
+  const empId=session.id;
   const health=document.getElementById('healthSt')?.value||'良好';
   const alcohol=document.getElementById('alcVal')?.value||'0.00';
   if(!records[empId])records[empId]=[];
@@ -2157,6 +2159,14 @@ function saveEdit(i){
   if(newOd!==null){
     r.odometer=newOd;r.todayKm=null;
     recalcOdoKm(empId,r.date);
+  }else if(r.odometer!=null){
+    // ODOを空欄にして削除する場合: 隣接レコードのtodayKmを再計算
+    const recs=records[empId],ri=recs.findIndex(x=>x.date===r.date);
+    let newerOdo=null,olderIdx=-1;
+    for(let j=ri-1;j>=0;j--){if(recs[j].odometer!=null){newerOdo=recs[j].odometer;break;}}
+    for(let j=ri+1;j<recs.length;j++){if(recs[j].odometer!=null){olderIdx=j;break;}}
+    r.odometer=null;r.todayKm=null;
+    if(olderIdx>=0){recs[olderIdx].todayKm=newerOdo!=null&&newerOdo>recs[olderIdx].odometer?parseFloat((newerOdo-recs[olderIdx].odometer).toFixed(1)):null;}
   }
   if(r.checkin&&r.checkout){r.workMinutes=toMins(r.checkout)-toMins(r.checkin);r.overtimeMinutes=Math.max(0,toMins(r.checkout)-toMins(empEnd(session.id)));}
   S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditList();
@@ -2777,6 +2787,8 @@ async function getLocA(){
 
 // ── 打刻 (共通stamp関数に統一: DOM切替) ──
 async function stamp(type){
+  const dk0=todayKey();
+  if(isMonthLocked(dk0.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const isAdmin=curAcc()?.role==='admin';
   const n=new Date();
   const time=[n.getHours(),n.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');
@@ -2838,9 +2850,13 @@ function autoSaveRecordA(td,dateOverride){
   rec.overtimeMinutes=Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
-  if(idx>=0)records[empId][idx]=rec;else records[empId].unshift(rec);
+  if(idx>=0){
+    const existing=records[empId][idx];
+    if(odoNum==null&&existing.odometer!=null){rec.odometer=existing.odometer;rec.todayKm=existing.todayKm;}
+    records[empId][idx]=rec;
+  }else records[empId].unshift(rec);
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
-  if(odoNum!=null)recalcOdoKm(empId,dk);
+  if(rec.odometer!=null)recalcOdoKm(empId,dk);
   S.set('ka_records',records);
   todayMap[empId]={};S.set('ka_today',todayMap);
   if(!dateOverride){
@@ -2877,10 +2893,12 @@ function calcOdoDiffA(){
 }
 function saveOdoOnlyA(){
   if(!session)return;
+  const dk=todayKey();
+  if(isMonthLocked(dk.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const odoStr=document.getElementById('aOdoNow').value;
   if(!odoStr){showToast('⚠ オドメーター値を入力してください');return;}
   const odoNum=parseFloat(odoStr);if(isNaN(odoNum)){showToast('⚠ 正しい数値を入力してください');return;}
-  const empId=session.id,dk=todayKey();
+  const empId=session.id;
   const health=document.getElementById('aHealthSt')?.value||'良好';
   const alcohol=document.getElementById('aAlcVal')?.value||'0.00';
   if(!records[empId])records[empId]=[];
@@ -3116,6 +3134,13 @@ function saveEditA(i){
   if(newOd!==null){
     r.odometer=newOd;r.todayKm=null;
     recalcOdoKm(empId,r.date);
+  }else if(r.odometer!=null){
+    const recs=records[empId],ri=recs.findIndex(x=>x.date===r.date);
+    let newerOdo=null,olderIdx=-1;
+    for(let j=ri-1;j>=0;j--){if(recs[j].odometer!=null){newerOdo=recs[j].odometer;break;}}
+    for(let j=ri+1;j<recs.length;j++){if(recs[j].odometer!=null){olderIdx=j;break;}}
+    r.odometer=null;r.todayKm=null;
+    if(olderIdx>=0){recs[olderIdx].todayKm=newerOdo!=null&&newerOdo>recs[olderIdx].odometer?parseFloat((newerOdo-recs[olderIdx].odometer).toFixed(1)):null;}
   }
   if(r.checkin&&r.checkout){r.workMinutes=toMins(r.checkout)-toMins(r.checkin);r.overtimeMinutes=Math.max(0,toMins(r.checkout)-toMins(empEnd(empId)));}
   S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditListA();
@@ -3244,6 +3269,8 @@ async function confirmAdminCheckin(){
 
 // ── 管理者 打刻 ──
 async function adminStamp(type){
+  const dk0a=todayKey();
+  if(isMonthLocked(dk0a.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const n=new Date();
   const time=[n.getHours(),n.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');
   if(!todayMap[session.id])todayMap[session.id]={};
@@ -3320,9 +3347,13 @@ function adminAutoSave(td){
   rec.overtimeMinutes=Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
-  if(idx>=0)records[empId][idx]=rec;else records[empId].unshift(rec);
+  if(idx>=0){
+    const existing=records[empId][idx];
+    if(odoNum==null&&existing.odometer!=null){rec.odometer=existing.odometer;rec.todayKm=existing.todayKm;}
+    records[empId][idx]=rec;
+  }else records[empId].unshift(rec);
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
-  if(odoNum!=null)recalcOdoKm(empId,dk);
+  if(rec.odometer!=null)recalcOdoKm(empId,dk);
   S.set('ka_records',records);
   todayMap[empId]={};S.set('ka_today',todayMap);
   const ciT=document.getElementById('aCiTime');if(ciT)ciT.textContent='未打刻';
@@ -3349,10 +3380,12 @@ function aCalcOdo(){
 }
 function aSaveOdoOnly(){
   if(!session)return;
+  const dk=todayKey();
+  if(isMonthLocked(dk.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const odoStr=document.getElementById('aOdoNow').value;
   if(!odoStr){showToast('⚠ オドメーター値を入力してください');return;}
   const odoNum=parseFloat(odoStr);if(isNaN(odoNum)){showToast('⚠ 正しい数値を入力してください');return;}
-  const empId=session.id,dk=todayKey();
+  const empId=session.id;
   const health=document.getElementById('aHealthSt')?.value||'良好';
   const alcohol=document.getElementById('aAlcVal')?.value||'0.00';
   if(!records[empId])records[empId]=[];
