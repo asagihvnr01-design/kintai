@@ -932,7 +932,7 @@ const S={
 };
 
 const DB={
-  _url:null,_key:null,_pending:{},_syncing:false,
+  _url:null,_key:null,_dirtyKeys:new Set(),_pushQueue:Promise.resolve(),
 
   init(){
     const EMBED_URL='https://iqzribygnisedxbaxuoc.supabase.co';
@@ -947,6 +947,8 @@ const DB={
       this._key=localStorage.getItem('sb_key');
     }
     if(this._url&&this._key)SB.init(this._url,this._key);
+    // 起動時に未同期キーを復元
+    try{const saved=JSON.parse(localStorage.getItem('ka_dirty_keys')||'[]');saved.forEach(k=>this._dirtyKeys.add(k));}catch(e){}
   },
 
   configured(){return !!(this._url&&this._key);},
@@ -960,27 +962,74 @@ const DB={
     };
   },
 
-  // Fire-and-forget push to Supabase
-  async _push(k,v){
-    if(!this.configured())return;
-    try{
-      await fetch(this._url+'/rest/v1/kv_store',{
-        method:'POST',
-        headers:this._hdr(),
-        body:JSON.stringify({key:k,value:v})
-      });
-    }catch(e){console.warn('Supabase push error:',k,e);}
+  _saveDirtyKeys(){
+    try{localStorage.setItem('ka_dirty_keys',JSON.stringify([...this._dirtyKeys]));}catch(e){}
   },
 
-  // Pull all keys from Supabase → localStorage
+  // Push to Supabase with dirty tracking
+  async _push(k,v){
+    if(!this.configured())return;
+    this._dirtyKeys.add(k);
+    this._saveDirtyKeys();
+    // キューで順序保証
+    this._pushQueue=this._pushQueue.then(async()=>{
+      try{
+        const res=await fetch(this._url+'/rest/v1/kv_store',{
+          method:'POST',
+          headers:this._hdr(),
+          body:JSON.stringify({key:k,value:v})
+        });
+        if(res.ok||res.status===201||res.status===200){
+          this._dirtyKeys.delete(k);
+          this._saveDirtyKeys();
+        }else{
+          console.warn('Supabase push failed:',k,'status:',res.status);
+        }
+      }catch(e){
+        console.warn('Supabase push error:',k,e);
+      }
+    });
+    return this._pushQueue;
+  },
+
+  // 未同期のローカル変更をすべてSupabaseに送信
+  async _flushDirty(){
+    if(!this._dirtyKeys.size||!this.configured())return;
+    const keys=[...this._dirtyKeys];
+    for(const k of keys){
+      const raw=localStorage.getItem(k);
+      if(raw===null)continue;
+      try{
+        const v=JSON.parse(raw);
+        const res=await fetch(this._url+'/rest/v1/kv_store',{
+          method:'POST',
+          headers:this._hdr(),
+          body:JSON.stringify({key:k,value:v})
+        });
+        if(res.ok||res.status===201||res.status===200){
+          this._dirtyKeys.delete(k);
+        }
+      }catch(e){console.warn('Flush error:',k,e);}
+    }
+    this._saveDirtyKeys();
+  },
+
+  // Pull all keys from Supabase → localStorage (未同期分を先にpush)
   async pullAll(){
     if(!this.configured())return false;
+    // 未同期データを先にSupabaseへ送信して保護
+    await this._flushDirty();
     try{
       const res=await fetch(this._url+'/rest/v1/kv_store?select=key,value',{headers:this._hdr()});
       if(!res.ok)throw new Error('HTTP '+res.status);
       const rows=await res.json();
       if(!Array.isArray(rows))return false;
-      rows.forEach(r=>{if(r.key!=='ka_session')localStorage.setItem(r.key,JSON.stringify(r.value));});
+      rows.forEach(r=>{
+        // 未同期キーは上書きしない（ローカルが最新）
+        if(r.key!=='ka_session'&&!this._dirtyKeys.has(r.key)){
+          localStorage.setItem(r.key,JSON.stringify(r.value));
+        }
+      });
       return true;
     }catch(e){console.warn('Supabase pull error:',e);return false;}
   },
@@ -1278,9 +1327,11 @@ function updateClock(){
   const c2=document.getElementById('clock2');if(c2)c2.textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
   if(session&&(curAcc()?.role==='admin'||curAcc()?.role==='executive')){const tdA=todayMap[session.id]||{};if(tdA.checkinTime&&!tdA.checkoutTime)renderWorkHoursA(toMins(tdA.checkinTime),n.getHours()*60+n.getMinutes());}
   if(session){const td=todayMap[session.id]||{};if(td.checkinTime&&!td.checkoutTime)renderWorkHours(toMins(td.checkinTime),n.getHours()*60+n.getMinutes());}
-  // Update checkin modal clock
+  // Update checkin modal clock (スタッフ・管理者両方)
   const cmt=document.getElementById('ciModalTime');
   if(cmt&&document.getElementById('ciModal').classList.contains('open'))cmt.textContent=[n.getHours(),n.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');
+  const acmt=document.getElementById('aciModalTime');
+  if(acmt&&document.getElementById('aciModal')?.classList.contains('open'))acmt.textContent=[n.getHours(),n.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');
   // 日付変更検知: 0時を跨いだらボタン状態をリセット
   const curDate=todayKey();
   if(lastDateKey&&lastDateKey!==curDate&&session){
@@ -1495,13 +1546,14 @@ function exportCSV(month,targetStoreId){
   if(!targetAccs.length){showToast('⚠ 対象従業員がいません');return;}
   const [y,m]=month.split('-');
   const storeName=targetStoreId?stores.find(s=>s.id===targetStoreId)?.name||'':'全店舗';
-  // ヘッダー行
-  const headers=['店舗','氏名','役職','日付','出勤','退勤','勤務時間(分)','残業(分)','走行距離(km)','体調','アルコール','メモ','自動退勤',
-    '営業','介護②-1','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール'];
+  // ヘッダー行（30分と40分を分離）
+  const headers=['店舗','氏名','役職','短時間設定','日付','出勤','退勤','勤務時間(分)','残業(分)','走行距離(km)','体調','アルコール','メモ','自動退勤',
+    '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール'];
   const rows=[headers];
   targetAccs.forEach(emp=>{
     const stName=stores.find(s=>s.id===emp.storeId)?.name||'';
     const roleMap={executive:'役員',admin:'管理者',employee:'スタッフ',staff:'スタッフ'};
+    const empShortMin=emp.shortMin||30;
     const recs=(records[emp.id]||[]).filter(r=>r.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
     const viss=(visits[emp.id]||[]).filter(v=>v.date.startsWith(month));
     // 月内の全日を列挙
@@ -1511,14 +1563,18 @@ function exportCSV(month,targetStoreId){
       const rec=recs.find(r=>r.date===dk);
       const vis=viss.find(v=>v.date===dk);
       if(!rec&&!vis)continue; // データがない日はスキップ
+      // 30分/40分の振り分け: スタッフの設定に応じてc30の値を正しい列に配置
+      const c30val=vis?.c30||'';
+      const col30=empShortMin===30?c30val:'';
+      const col40=empShortMin===40?c30val:'';
       rows.push([
-        stName, emp.name, roleMap[emp.role]||emp.role, dk,
+        stName, emp.name, roleMap[emp.role]||emp.role, empShortMin+'分', dk,
         rec?.checkin||'', rec?.checkout||'',
         rec?.workMinutes!=null?rec.workMinutes:'', rec?.overtimeMinutes!=null?rec.overtimeMinutes:'',
         rec?.todayKm!=null?rec.todayKm:'',
         rec?.health||'', rec?.alcohol||'', rec?.memo||'',
         rec?.autoCheckout?'○':'',
-        vis?.sales||'', vis?.c30||'', vis?.c60||'', vis?.c90||'',
+        vis?.sales||'', col30, col40, vis?.c60||'', vis?.c90||'',
         vis?.medical||'', vis?.staff||'', vis?.pre||'', vis?.contract||'',
         vis?.training||'', vis?.overtime||'', vis?.oncall||''
       ]);
@@ -2891,27 +2947,8 @@ function calcOdoDiffA(){
   else if(num<=last)h.innerHTML=`⚠ 前回値（<span>${last.toFixed(1)} km</span>）より小さいです`;
   else h.innerHTML=`本日走行距離: <span>${(num-last).toFixed(1)} km</span>（前回ODO: ${last.toFixed(1)} km）`;
 }
-function saveOdoOnlyA(){
-  if(!session)return;
-  const dk=todayKey();
-  if(isMonthLocked(dk.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
-  const odoStr=document.getElementById('aOdoNow').value;
-  if(!odoStr){showToast('⚠ オドメーター値を入力してください');return;}
-  const odoNum=parseFloat(odoStr);if(isNaN(odoNum)){showToast('⚠ 正しい数値を入力してください');return;}
-  const empId=session.id;
-  const health=document.getElementById('aHealthSt')?.value||'良好';
-  const alcohol=document.getElementById('aAlcVal')?.value||'0.00';
-  if(!records[empId])records[empId]=[];
-  const rec=records[empId].find(r=>r.date===dk);
-  if(rec){rec.odometer=odoNum;rec.todayKm=null;rec.health=health;rec.alcohol=alcohol;}
-  else records[empId].unshift({date:dk,odometer:odoNum,todayKm:null,health,alcohol});
-  records[empId].sort((a,b)=>b.date.localeCompare(a.date));
-  recalcOdoKm(empId,dk);
-  S.set('ka_records',records);document.getElementById('aOdoNow').value='';updateOdoHintA();showToast('🚗 走行距離・体調を保存しました');
-  }
-
 // ── 訪問実績 (管理者版) ──
-function updateCare30LabelA(){const e=document.getElementById('care-lblA');if(e)e.textContent=`②-1 ${getShortMin()}分`;}
+function updateCare30LabelA(){const e=document.getElementById('aCare30Lbl');if(e)e.textContent=`②-1 ${getShortMin()}分`;}
 function renderVSummaryA(){
   const empId=session?.id;if(!empId)return;
   const month=selectedMonthA||thisMonth();
@@ -3085,7 +3122,7 @@ function renderRecordsA(){
 }
 function deleteRecordA(i){
   const r=records[session.id][i];
-  if(r&&lockedMonths[r.date.slice(0,7)]){showToast('🔒 この月はロックされています');return;}
+  if(r&&isMonthLocked(r.date.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   confirmAction('この記録を削除しますか？',()=>{
     addALog('delete',records[session.id][i].date,'記録を削除しました');
     records[session.id].splice(i,1);S.set('ka_records',records);renderRecordsA();showToast('🗑 削除しました');
@@ -3330,7 +3367,7 @@ async function adminStamp(type){
     const ot=Math.max(0,toMins(time)-toMins(empEnd(session.id)));
     if(wh)wh.textContent=toHHMM(w);if(oh)oh.textContent=toHHMM(ot);
     S.set('ka_today',todayMap);
-    adminAutoSave(td);renderTodayRecord('A');showToast('✅ 退勤・記録を自動保存しました');
+    adminAutoSave(td);showToast('✅ 退勤・記録を自動保存しました');
   }
 }
 function adminAutoSave(td){
@@ -3600,7 +3637,13 @@ function renderVisitEdit(){
   const el=document.getElementById('editVisitList');if(!el)return;
   el.innerHTML=buildVisitEditHTML(empId,month,'');
 }
-function changeVisitEditMonth(d){visitEditMonth=d;renderVisitEdit();}
+function changeVisitEditMonth(dir){
+  const months=getAvailableMonths(session?.id);const cur=visitEditMonth||thisMonth();const idx=months.indexOf(cur);
+  if(dir==='prev'&&idx<months.length-1)visitEditMonth=months[idx+1];
+  else if(dir==='next'&&idx>0)visitEditMonth=months[idx-1];
+  else if(dir==='today')visitEditMonth=null;
+  renderVisitEdit();
+}
 let aVisitEditMonth=null;
 function renderVisitEditA(){
   const empId=session?.id;if(!empId)return;
@@ -3609,11 +3652,17 @@ function renderVisitEditA(){
   const el=document.getElementById('aEditVisitList');if(!el)return;
   el.innerHTML=buildVisitEditHTML(empId,month,'A');
 }
-function changeAVisitEditMonth(d){aVisitEditMonth=d;renderVisitEditA();}
+function changeAVisitEditMonth(dir){
+  const months=getAvailableMonthsA();const cur=aVisitEditMonth||thisMonth();const idx=months.indexOf(cur);
+  if(dir==='prev'&&idx<months.length-1)aVisitEditMonth=months[idx+1];
+  else if(dir==='next'&&idx>0)aVisitEditMonth=months[idx-1];
+  else if(dir==='today')aVisitEditMonth=null;
+  renderVisitEditA();
+}
 
 function buildVisitEditHTML(empId, month, prefix){
   // prefix = '' (従業員) or 'A' (管理者)
-  const isLocked=lockedMonths[month];
+  const isLocked=isMonthLocked(month, empId);
   const vRecs=(visits[empId]||[]).filter(v=>v.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
   const allV=visits[empId]||[];
   if(!vRecs.length) return '<div class="empty">この月の訪問実績がありません</div>';
@@ -3842,6 +3891,23 @@ async function syncAndEnter(){
     else{showScreen('login');restoreRemembered();}
   }
 }
+
+// ページ離脱時に未同期データをフラッシュ（keepalive fetchで確実に送信）
+window.addEventListener('beforeunload',()=>{
+  if(DB._dirtyKeys.size>0&&DB.configured()){
+    for(const k of DB._dirtyKeys){
+      const raw=localStorage.getItem(k);if(!raw)continue;
+      try{
+        const v=JSON.parse(raw);
+        fetch(DB._url+'/rest/v1/kv_store',{
+          method:'POST',keepalive:true,
+          headers:DB._hdr(),
+          body:JSON.stringify({key:k,value:v})
+        }).catch(()=>{});
+      }catch(e){}
+    }
+  }
+});
 
 // Auto-sync when tab becomes visible (multi-device sync)
 document.addEventListener('visibilitychange',async()=>{
