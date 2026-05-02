@@ -783,6 +783,13 @@ select.fi{appearance:none;cursor:pointer}
       <input type="number" class="fi" id="ci-odo" placeholder="例: 12450" min="0" step="0.1">
       <div class="odo-h" id="ci-odo-h"></div>
     </div>
+    <div id="ci-ft-wrap" style="display:none;margin:8px 0;padding:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+        <input type="checkbox" id="ci-fulltime" style="width:18px;height:18px;accent-color:var(--ac)">
+        <span>📋 常勤時間で出勤する</span>
+      </label>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px;padding-left:26px" id="ci-ft-hint"></div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="sbv" onclick="closeCheckinModal()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
       <button class="sbv" onclick="confirmCheckin()" style="background:var(--gn)">出勤する</button>
@@ -799,6 +806,13 @@ select.fi{appearance:none;cursor:pointer}
       <label class="fl">オドメーター総距離 (km)　<span style="color:var(--dim);font-size:11px">任意</span></label>
       <input type="number" class="fi" id="aci-odo" placeholder="例: 12450" min="0" step="0.1">
       <div class="odo-h" id="aci-odo-h"></div>
+    </div>
+    <div id="aci-ft-wrap" style="display:none;margin:8px 0;padding:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+        <input type="checkbox" id="aci-fulltime" style="width:18px;height:18px;accent-color:var(--ac)">
+        <span>📋 常勤時間で出勤する</span>
+      </label>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px;padding-left:26px" id="aci-ft-hint"></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="sbv" onclick="closeAdminCheckinModal()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
@@ -1369,7 +1383,13 @@ function resetStampButtons(){
 function renderWorkHours(ci,co){
   const id=session?.id;
   const w=co-ci;
-  const ot=Math.max(0,co-toMins(empEnd(id)));
+  const td=todayMap[id]||{};
+  let ot;
+  if(td.fullTimeFlag){
+    ot=Math.max(0,toMins(empStart(id))-ci)+Math.max(0,co-toMins(empEnd(id)));
+  }else{
+    ot=Math.max(0,co-toMins(empEnd(id)));
+  }
   document.getElementById('wkH').textContent=toHHMM(w);
   document.getElementById('otH').textContent=toHHMM(ot);
 }
@@ -1386,7 +1406,7 @@ function checkPendingAutoCheckout(){
     if(td.checkinDate<today&&td.checkoutTime){todayMap[e.id]={};return;}
     if(!td.checkinTime||td.checkoutTime)return;
     if(td.checkinDate<today){
-      const autoTime=empEnd(e.id);
+      const autoTime=td.fullTimeFlag?settings.end:empEnd(e.id);
       td.checkoutTime=autoTime;td.autoCheckout=true;td.checkoutLoc=null;
       const prevSession=session;
       // temporarily set session to save for this employee
@@ -1401,7 +1421,7 @@ function checkPendingAutoCheckout(){
   if(session&&curAcc()?.role==='employee'){
     const td=todayMap[session.id]||{};
     if(td.checkinTime&&!td.checkoutTime&&td.checkinDate&&td.checkinDate<today){
-      const autoTime=empEnd(session.id);
+      const autoTime=td.fullTimeFlag?settings.end:empEnd(session.id);
       td.checkoutTime=autoTime;td.autoCheckout=true;td.checkoutLoc=null;
       autoSaveRecordA(td,td.checkinDate);
       document.getElementById('coTimeEmp').textContent=autoTime;
@@ -1449,14 +1469,25 @@ function openCheckinModal(){
   const h=document.getElementById('ci-odo-h');
   h.innerHTML=last!=null?`前回ODO: <span>${last.toFixed(1)} km</span>`:'初回入力です';
   document.getElementById('ci-odo').value='';
+  // 常勤時間出勤チェックボックスの表示制御
+  const acc=curAcc();
+  const ftWrap=document.getElementById('ci-ft-wrap');
+  const ftCb=document.getElementById('ci-fulltime');
+  const ftHint=document.getElementById('ci-ft-hint');
+  if(ftWrap&&acc&&acc.workStart&&acc.workEnd&&(acc.workStart!==settings.start||acc.workEnd!==settings.end)){
+    ftWrap.style.display='';
+    if(ftCb)ftCb.checked=false;
+    if(ftHint)ftHint.textContent=`通常: ${acc.workStart}〜${acc.workEnd} → 常勤: ${settings.start}〜${settings.end}`;
+  }else if(ftWrap){ftWrap.style.display='none';}
   document.getElementById('ciModal').classList.add('open');
 }
 function closeCheckinModal(){document.getElementById('ciModal').classList.remove('open');}
 async function confirmCheckin(){
+  const ftFlag=document.getElementById('ci-fulltime')?.checked||false;
   closeCheckinModal();
   const odoVal=document.getElementById('ci-odo').value;
   if(odoVal){document.getElementById('odoNow').value=odoVal;calcOdoDiff();}
-  await stamp('checkin');
+  await stamp('checkin',ftFlag);
 }
 
 
@@ -1547,7 +1578,7 @@ function exportCSV(month,targetStoreId){
   const [y,m]=month.split('-');
   const storeName=targetStoreId?stores.find(s=>s.id===targetStoreId)?.name||'':'全店舗';
   // ヘッダー行（30分と40分を分離）
-  const headers=['店舗','氏名','役職','短時間設定','日付','出勤','退勤','勤務時間(分)','残業(分)','走行距離(km)','体調','アルコール','メモ','自動退勤',
+  const headers=['店舗','氏名','役職','短時間設定','日付','出勤','退勤','勤務時間(分)','残業(分)','常勤出勤','走行距離(km)','体調','アルコール','メモ','自動退勤',
     '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール'];
   const rows=[headers];
   targetAccs.forEach(emp=>{
@@ -1571,6 +1602,7 @@ function exportCSV(month,targetStoreId){
         stName, emp.name, roleMap[emp.role]||emp.role, empShortMin+'分', dk,
         rec?.checkin||'', rec?.checkout||'',
         rec?.workMinutes!=null?rec.workMinutes:'', rec?.overtimeMinutes!=null?rec.overtimeMinutes:'',
+        rec?.fullTimeFlag?'○':'',
         rec?.todayKm!=null?rec.todayKm:'',
         rec?.health||'', rec?.alcohol||'', rec?.memo||'',
         rec?.autoCheckout?'○':'',
@@ -2139,7 +2171,7 @@ function renderRecords(){
     const globalIdx=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
     return`<div class="ri">
       <div style="flex:1">
-        <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
+        <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
         <div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>
         <div class="rd">${r.overtimeMinutes>0?'残業 '+toHHMM(r.overtimeMinutes)+' ／ ':''}体調:${r.health||'-'} ／ アルコール:${r.alcohol||'0.00'}mg/L${r.todayKm!=null?' ／ 🚗 '+r.todayKm+'km':''}${r.memo?' ／ 📝'+r.memo:''}</div>
         ${r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
@@ -2191,6 +2223,7 @@ function renderEditList(){
         <div class="ef"><label>アルコール(mg/L)</label><input type="number" class="einp" id="e_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div>
         <div class="ef"><label>メモ</label><input type="text" class="einp" id="e_me_${i}" value="${r.memo||''}"${dis}></div>
       </div>
+      ${(()=>{const ea=accounts.find(a=>a.id===empId);return ea&&ea.workStart&&ea.workEnd&&(ea.workStart!==settings.start||ea.workEnd!==settings.end)?`<div class="er"><div class="ef"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="e_ft_${i}" ${r.fullTimeFlag?'checked':''}${dis} style="width:16px;height:16px;accent-color:var(--ac)"> 常勤時間出勤</label></div></div>`:`<input type="hidden" id="e_ft_${i}">`})()}
       ${isLocked?'':'<div style="display:flex;gap:6px"><button class="esbtn" onclick="saveEdit('+i+')">✏ 修正する</button><button class="esbtn" style="background:rgba(247,95,95,.1);border-color:var(--rd);color:var(--rd)" onclick="deleteEditRecord('+i+')">🗑 削除</button></div>'}
     </div>`;
   }).join('');
@@ -2210,8 +2243,11 @@ function saveEdit(i){
   if(newHl!==r.health)ch.push(`体調:${r.health}→${newHl}`);
   if(newAl!==(r.alcohol||'0.00'))ch.push(`アルコール:${r.alcohol}→${newAl}`);
   if(newMe!==(r.memo||''))ch.push(`メモ:「${r.memo||''}」→「${newMe}」`);
+  const ftEl=document.getElementById(`e_ft_${i}`);
+  const newFt=ftEl?.type==='checkbox'?ftEl.checked:false;
+  if(newFt!==(r.fullTimeFlag||false))ch.push(`常勤出勤:${r.fullTimeFlag?'ON':'OFF'}→${newFt?'ON':'OFF'}`);
   if(!ch.length){showToast('変更はありませんでした');return;}
-  r.checkin=newCi;r.checkout=newCo;r.health=newHl;r.alcohol=newAl;r.memo=newMe;
+  r.checkin=newCi;r.checkout=newCo;r.health=newHl;r.alcohol=newAl;r.memo=newMe;r.fullTimeFlag=newFt;
   if(newOd!==null){
     r.odometer=newOd;r.todayKm=null;
     recalcOdoKm(empId,r.date);
@@ -2224,7 +2260,14 @@ function saveEdit(i){
     r.odometer=null;r.todayKm=null;
     if(olderIdx>=0){recs[olderIdx].todayKm=newerOdo!=null&&newerOdo>recs[olderIdx].odometer?parseFloat((newerOdo-recs[olderIdx].odometer).toFixed(1)):null;}
   }
-  if(r.checkin&&r.checkout){r.workMinutes=toMins(r.checkout)-toMins(r.checkin);r.overtimeMinutes=Math.max(0,toMins(r.checkout)-toMins(empEnd(session.id)));}
+  if(r.checkin&&r.checkout){
+    r.workMinutes=toMins(r.checkout)-toMins(r.checkin);
+    if(r.fullTimeFlag){
+      r.overtimeMinutes=Math.max(0,toMins(empStart(session.id))-toMins(r.checkin))+Math.max(0,toMins(r.checkout)-toMins(empEnd(session.id)));
+    }else{
+      r.overtimeMinutes=Math.max(0,toMins(r.checkout)-toMins(empEnd(session.id)));
+    }
+  }
   S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditList();
 }
 function addALog(type,date,msg){
@@ -2819,7 +2862,13 @@ let selectedMonthA=null;
 function setStA(txt,col){const e=document.getElementById('aWkSt');if(e){e.textContent=txt;e.style.color=col;}}
 function renderWorkHoursA(ci,co){
   const id=session?.id;const w=co-ci;
-  const ot=Math.max(0,co-toMins(empEnd(id)));
+  const td=todayMap[id]||{};
+  let ot;
+  if(td.fullTimeFlag){
+    ot=Math.max(0,toMins(empStart(id))-ci)+Math.max(0,co-toMins(empEnd(id)));
+  }else{
+    ot=Math.max(0,co-toMins(empEnd(id)));
+  }
   const wh=document.getElementById('aWkH');const oh=document.getElementById('aOtH');
   if(wh)wh.textContent=toHHMM(w);if(oh)oh.textContent=toHHMM(ot);
 }
@@ -2842,7 +2891,7 @@ async function getLocA(){
 }
 
 // ── 打刻 (共通stamp関数に統一: DOM切替) ──
-async function stamp(type){
+async function stamp(type,fullTimeFlag){
   const dk0=todayKey();
   if(isMonthLocked(dk0.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const isAdmin=curAcc()?.role==='admin';
@@ -2855,6 +2904,7 @@ async function stamp(type){
   const ciTime=isAdmin?'aCiTime':'ciTimeEmp', coTime=isAdmin?'aCoTime':'coTimeEmp';
   if(type==='checkin'){
     td.checkinTime=time;td.checkinLoc=loc;td.checkinDate=todayKey();
+    if(fullTimeFlag)td.fullTimeFlag=true;else delete td.fullTimeFlag;
     const ctEl=document.getElementById(ciTime);if(ctEl)ctEl.textContent=time;
     const cbEl=document.getElementById(ciBtn);if(cbEl)cbEl.disabled=true;
     const coEl2=document.getElementById(coBtn);if(coEl2)coEl2.disabled=false;
@@ -2901,9 +2951,13 @@ function autoSaveRecordA(td,dateOverride){
   const aEl=isAdmin?document.getElementById('aAlcVal'):document.getElementById('alcVal');
   const mEl=isAdmin?document.getElementById('aTodayMemo'):document.getElementById('todayMemo');
   const rec={date:dk,checkin:td.checkinTime,checkout:td.checkoutTime,checkinLoc:td.checkinLoc,checkoutLoc:td.checkoutLoc,
-    health:hEl?.value||'良好',alcohol:aEl?.value||'0.00',memo:mEl?.value||'',odometer:odoNum,todayKm:null,autoCheckout:td.autoCheckout||false};
+    health:hEl?.value||'良好',alcohol:aEl?.value||'0.00',memo:mEl?.value||'',odometer:odoNum,todayKm:null,autoCheckout:td.autoCheckout||false,fullTimeFlag:td.fullTimeFlag||false};
   rec.workMinutes=toMins(rec.checkout)-toMins(rec.checkin);
-  rec.overtimeMinutes=Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+  if(rec.fullTimeFlag){
+    rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-toMins(rec.checkin))+Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+  }else{
+    rec.overtimeMinutes=Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+  }
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
   if(idx>=0){
@@ -3113,7 +3167,7 @@ function renderRecordsA(){
     if(rShowO&&r.todayKm!=null)detailParts.push('🚗 '+r.todayKm+'km');
     if(r.memo)detailParts.push('📝'+r.memo);
     return`<div class="ri"><div style="flex:1">
-      <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
+      <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
       ${rShowK?`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`:''}
       ${detailParts.length?`<div class="rd">${detailParts.join(' ／ ')}</div>`:''}
       ${rShowK&&r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
@@ -3147,6 +3201,7 @@ function renderEditListA(){
       ${showKintai?`<div class="er"><div class="ef"><label>出勤時刻</label><input type="time" class="einp" id="ea_ci_${i}" value="${r.checkin||''}"${dis}></div><div class="ef"><label>退勤時刻</label><input type="time" class="einp" id="ea_co_${i}" value="${r.checkout||''}"${dis}></div></div>`:`<input type="hidden" id="ea_ci_${i}" value="${r.checkin||''}"><input type="hidden" id="ea_co_${i}" value="${r.checkout||''}">`}
       <div class="er">${showOdo?`<div class="ef"><label>ODO(km)</label><input type="number" class="einp" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}" step="0.1"${dis}></div>`:`<input type="hidden" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}">`}${showHealth?`<div class="ef"><label>体調</label><select class="einp" id="ea_hl_${i}"${dis}>${['良好','普通','不調'].map(v=>`<option${r.health===v?' selected':''}>${v}</option>`).join('')}</select></div>`:`<input type="hidden" id="ea_hl_${i}" value="${r.health||'良好'}">`}</div>
       <div class="er">${showHealth?`<div class="ef"><label>アルコール</label><input type="number" class="einp" id="ea_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div>`:`<input type="hidden" id="ea_al_${i}" value="${r.alcohol||'0.00'}">`}<div class="ef"><label>メモ</label><input type="text" class="einp" id="ea_me_${i}" value="${r.memo||''}"${dis}></div></div>
+      ${(()=>{const ea=accounts.find(a=>a.id===empId);return ea&&ea.workStart&&ea.workEnd&&(ea.workStart!==settings.start||ea.workEnd!==settings.end)?`<div class="er"><div class="ef"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="ea_ft_${i}" ${r.fullTimeFlag?'checked':''}${dis} style="width:16px;height:16px;accent-color:var(--ac)"> 常勤時間出勤</label></div></div>`:`<input type="hidden" id="ea_ft_${i}">`})()}
       ${isLocked?'':'<div style="display:flex;gap:6px"><button class="esbtn" onclick="saveEditA('+i+')">✏ 修正する</button><button class="esbtn" style="background:rgba(247,95,95,.1);border-color:var(--rd);color:var(--rd)" onclick="aDeleteEditRecord('+i+')">🗑 削除</button></div>'}
     </div>`;
   }).join('');
@@ -3166,8 +3221,11 @@ function saveEditA(i){
   if(newHl!==r.health)ch.push(`体調:${r.health}→${newHl}`);
   if(newAl!==(r.alcohol||'0.00'))ch.push(`アルコール:${r.alcohol}→${newAl}`);
   if(newMe!==(r.memo||''))ch.push(`メモ:「${r.memo||''}」→「${newMe}」`);
+  const ftElA=document.getElementById(`ea_ft_${i}`);
+  const newFtA=ftElA?.type==='checkbox'?ftElA.checked:false;
+  if(newFtA!==(r.fullTimeFlag||false))ch.push(`常勤出勤:${r.fullTimeFlag?'ON':'OFF'}→${newFtA?'ON':'OFF'}`);
   if(!ch.length){showToast('変更はありませんでした');return;}
-  r.checkin=newCi;r.checkout=newCo;r.health=newHl;r.alcohol=newAl;r.memo=newMe;
+  r.checkin=newCi;r.checkout=newCo;r.health=newHl;r.alcohol=newAl;r.memo=newMe;r.fullTimeFlag=newFtA;
   if(newOd!==null){
     r.odometer=newOd;r.todayKm=null;
     recalcOdoKm(empId,r.date);
@@ -3179,7 +3237,14 @@ function saveEditA(i){
     r.odometer=null;r.todayKm=null;
     if(olderIdx>=0){recs[olderIdx].todayKm=newerOdo!=null&&newerOdo>recs[olderIdx].odometer?parseFloat((newerOdo-recs[olderIdx].odometer).toFixed(1)):null;}
   }
-  if(r.checkin&&r.checkout){r.workMinutes=toMins(r.checkout)-toMins(r.checkin);r.overtimeMinutes=Math.max(0,toMins(r.checkout)-toMins(empEnd(empId)));}
+  if(r.checkin&&r.checkout){
+    r.workMinutes=toMins(r.checkout)-toMins(r.checkin);
+    if(r.fullTimeFlag){
+      r.overtimeMinutes=Math.max(0,toMins(empStart(empId))-toMins(r.checkin))+Math.max(0,toMins(r.checkout)-toMins(empEnd(empId)));
+    }else{
+      r.overtimeMinutes=Math.max(0,toMins(r.checkout)-toMins(empEnd(empId)));
+    }
+  }
   S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditListA();
 }
 function renderAuditLogA(){
@@ -3294,18 +3359,29 @@ function openAdminCheckinModal(){
   const h=document.getElementById('aci-odo-h');
   if(h)h.innerHTML=last!=null?`前回ODO: <span style="color:var(--gn);font-family:var(--mo)">${last.toFixed(1)} km</span>`:'初回入力です';
   const oi=document.getElementById('aci-odo');if(oi)oi.value='';
+  // 常勤時間出勤チェックボックスの表示制御
+  const acc=curAcc();
+  const ftWrap=document.getElementById('aci-ft-wrap');
+  const ftCb=document.getElementById('aci-fulltime');
+  const ftHint=document.getElementById('aci-ft-hint');
+  if(ftWrap&&acc&&acc.workStart&&acc.workEnd&&(acc.workStart!==settings.start||acc.workEnd!==settings.end)){
+    ftWrap.style.display='';
+    if(ftCb)ftCb.checked=false;
+    if(ftHint)ftHint.textContent=`通常: ${acc.workStart}〜${acc.workEnd} → 常勤: ${settings.start}〜${settings.end}`;
+  }else if(ftWrap){ftWrap.style.display='none';}
   document.getElementById('aciModal').classList.add('open');
 }
 function closeAdminCheckinModal(){document.getElementById('aciModal').classList.remove('open');}
 async function confirmAdminCheckin(){
+  const ftFlag=document.getElementById('aci-fulltime')?.checked||false;
   closeAdminCheckinModal();
   const ov=document.getElementById('aci-odo').value;
   if(ov){document.getElementById('aOdoNow').value=ov;aCalcOdo();}
-  await adminStamp('checkin');
+  await adminStamp('checkin',ftFlag);
 }
 
 // ── 管理者 打刻 ──
-async function adminStamp(type){
+async function adminStamp(type,fullTimeFlag){
   const dk0a=todayKey();
   if(isMonthLocked(dk0a.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const n=new Date();
@@ -3335,6 +3411,7 @@ async function adminStamp(type){
   }
   if(type==='checkin'){
     td.checkinTime=time;td.checkinLoc=loc;td.checkinDate=todayKey();
+    if(fullTimeFlag)td.fullTimeFlag=true;else delete td.fullTimeFlag;
     const ciT=document.getElementById('aCiTime');if(ciT)ciT.textContent=time;
     const ciB=document.getElementById('aCiBtn');if(ciB)ciB.disabled=true;
     const coB2=document.getElementById('aCoBtn');if(coB2)coB2.disabled=false;
@@ -3364,7 +3441,12 @@ async function adminStamp(type){
     const st=document.getElementById('aWkSt');if(st){st.textContent='退勤済';st.style.color='var(--ac2)';}
     const wh=document.getElementById('aWkH'),oh=document.getElementById('aOtH');
     const w=toMins(time)-toMins(td.checkinTime);
-    const ot=Math.max(0,toMins(time)-toMins(empEnd(session.id)));
+    let ot;
+    if(td.fullTimeFlag){
+      ot=Math.max(0,toMins(empStart(session.id))-toMins(td.checkinTime))+Math.max(0,toMins(time)-toMins(empEnd(session.id)));
+    }else{
+      ot=Math.max(0,toMins(time)-toMins(empEnd(session.id)));
+    }
     if(wh)wh.textContent=toHHMM(w);if(oh)oh.textContent=toHHMM(ot);
     S.set('ka_today',todayMap);
     adminAutoSave(td);showToast('✅ 退勤・記録を自動保存しました');
@@ -3379,9 +3461,13 @@ function adminAutoSave(td){
     health:document.getElementById('aHealthSt')?.value||'良好',
     alcohol:document.getElementById('aAlcVal')?.value||'0.00',
     memo:document.getElementById('aTodayMemo')?.value||'',
-    odometer:odoNum,todayKm:null,autoCheckout:false};
+    odometer:odoNum,todayKm:null,autoCheckout:false,fullTimeFlag:td.fullTimeFlag||false};
   rec.workMinutes=toMins(rec.checkout)-toMins(rec.checkin);
-  rec.overtimeMinutes=Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+  if(rec.fullTimeFlag){
+    rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-toMins(rec.checkin))+Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+  }else{
+    rec.overtimeMinutes=Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+  }
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
   if(idx>=0){
