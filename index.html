@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>勤怠・訪問管理</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -485,12 +488,9 @@ select.fi{appearance:none;cursor:pointer}
       <div style="font-size:11px;color:var(--dim);margin-top:6px" id="emp-stg-hint"></div>
       <button class="sbv" onclick="saveEmpWorkTime()" style="margin-top:10px">この設定を保存</button>
     </div>
-    <div class="card" id="care21-setting-card">
-      <div class="ct">介護保険②-1 訪問時間（個人設定）</div>
-      <div class="trow">
-        <button class="tbtn" id="btn30" onclick="setShortMin(30)">30分</button>
-        <button class="tbtn" id="btn40" onclick="setShortMin(40)">40分</button>
-      </div>
+    <div class="card" id="care21-setting-card" style="display:none">
+      <div class="ct">介護保険②-1 訪問時間</div>
+      <div style="padding:8px 0;font-size:13px;color:var(--dim)">職種設定により自動決定されます（看護師=30分 / リハビリ=40分）</div>
     </div>
     <div class="card">
       <div class="ct">パスワード変更</div>
@@ -1538,7 +1538,7 @@ function saveOdoOnly(){
 // ═══════════════════════════════════
 // VISITS
 // ═══════════════════════════════════
-const getShortMin=()=>(curAcc()?.shortMin||30);
+const getShortMin=()=>((curAcc()?.profession||'nurse')==='rehab'?40:30);
 function updateCare30Label(){const e=document.getElementById('care-lbl');if(e)e.textContent=`②-1 ${getShortMin()}分`;}
 function updateShortToggle(){const sm=getShortMin();document.getElementById('btn30')?.classList.toggle('active',sm===30);document.getElementById('btn40')?.classList.toggle('active',sm===40);}
 function setShortMin(m){const acc=curAcc();if(!acc)return;acc.shortMin=m;S.set('ka_accounts',accounts);updateCare30Label();updateShortToggle();renderVSummary();showToast(`✅ 短時間訪問を${m}分に変更しました`);}
@@ -1584,8 +1584,8 @@ function exportCSV(month,targetStoreId){
   targetAccs.forEach(emp=>{
     const stName=stores.find(s=>s.id===emp.storeId)?.name||'';
     const roleMap={executive:'役員',admin:'管理者',employee:'スタッフ',staff:'スタッフ'};
-    const empShortMin=emp.shortMin||30;
     const empProf=(emp.profession||'nurse')==='rehab'?'リハビリ':'看護師';
+    const empShortMin=empProf==='リハビリ'?40:30;
     const recs=(records[emp.id]||[]).filter(r=>r.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
     const viss=(visits[emp.id]||[]).filter(v=>v.date.startsWith(month));
     // 月内の全日を列挙
@@ -1614,7 +1614,7 @@ function exportCSV(month,targetStoreId){
         rec?.autoCheckout?'○':'',
         vis?.sales||'', col30, col40, vis?.c60||'', vis?.c90||'',
         vis?.medical||'', vis?.staff||'', vis?.pre||'', vis?.contract||'',
-        vis?.training||'', vis?.overtime||'', vis?.oncall||'',
+        vis?.training||'', empProf!=='リハビリ'?(vis?.overtime||''):'', empProf!=='リハビリ'?(vis?.oncall||''):'',
         isNY?'¥10,000':''
       ]);
     }
@@ -1629,7 +1629,7 @@ function exportCSV(month,targetStoreId){
     rows.push([stName,emp.name,'【月計】',empProf,empShortMin+'分','',
       '',`出勤${mRecs.length}日`,mWork,mWork-mBreak,mOT,'',mKm.toFixed(1),'','','',`INC:¥${vc.incAmt.toLocaleString()}`,
       vc.sales,vc.c30*(empShortMin===30?1:0),vc.c30*(empShortMin===40?1:0),vc.c60,vc.c90,
-      vc.medical,vc.staff,vc.pre,vc.contract,vc.training,vc.overtime,vc.oncall,
+      vc.medical,vc.staff,vc.pre,vc.contract,vc.training,vc.prof!=='rehab'?vc.overtime:'',vc.prof!=='rehab'?vc.oncall:'',
       nyc.amount>0?`¥${nyc.amount.toLocaleString()}`:'']);
   });
   // BOM + CSV生成
@@ -1715,8 +1715,8 @@ function calcNenmatsu(empId,month){
 }
 function calcVisits(empId,month){
   const emp=accounts.find(a=>a.id===empId)||{};
-  const sm=emp.shortMin||30;
   const prof=emp.profession||'nurse';
+  const sm=prof==='rehab'?40:30;
   const incRate=prof==='rehab'?1800:1900;
   const vr=(visits[empId]||[]).filter(v=>v.date.startsWith(month));
   const t={sales:0,c30:0,c60:0,c90:0,medical:0,staff:0,pre:0,contract:0,training:0,overtime:0,oncall:0};
@@ -1754,11 +1754,11 @@ function renderVSummary(overrideMonth){
       <div class="inc-s">${fmtH(c.totalH)} − 50時間 = ${fmtH(c.incH)}</div>
       <div class="inc-s" style="margin-top:4px;font-weight:700;color:var(--pu)">${fmtH(c.incH)} × ¥${c.incRate.toLocaleString()}（${c.prof==='rehab'?'リハビリ':'看護'}） = ¥${c.incAmt.toLocaleString()}</div>
     </div>
-    <div class="ot-box">
+    ${c.prof!=='rehab'?`<div class="ot-box">
       <div><div class="ot-l">⏰ 時間外訪問手当</div><div class="ot-s">${c.overtime}回 × ¥4,000</div></div>
       <div class="ot-v">¥${c.otAmt.toLocaleString()}</div>
     </div>
-    <div class="vsr" style="margin-top:3px"><span class="vsl">📞 オンコール（${c.oncall}回）</span><span class="vsv">${c.oncall}回</span></div>
+    <div class="vsr" style="margin-top:3px"><span class="vsl">📞 オンコール（${c.oncall}回）</span><span class="vsv">${c.oncall}回</span></div>`:''}
   </div>`;
   const e1=document.getElementById('vSummary');if(e1)e1.innerHTML=html;
   const e2=document.getElementById('vSummaryRec');if(e2)e2.innerHTML=html;
@@ -2357,7 +2357,7 @@ function renderAdmin(){
   const n=new Date();const [ay,am]=month.split('-');
   const emps=storeAccounts(); // 現在の店舗のアカウント
   let tD=0,tW=0,tOT=0,tKm=0,tInc=0,tIncAmt=0,tOtAmt=0,tOC=0,tBrk=0,tNY=0;
-  emps.forEach(e=>{const mr=(records[e.id]||[]).filter(r=>r.date.startsWith(month));tD+=mr.filter(r=>r.workMinutes).length;tW+=mr.reduce((s,r)=>s+(r.workMinutes||0),0);tOT+=mr.reduce((s,r)=>s+(r.overtimeMinutes||0),0);tKm+=mr.reduce((s,r)=>s+(r.todayKm||0),0);tBrk+=mr.filter(r=>(r.workMinutes||0)>360).length*60;const vc=calcVisits(e.id,month);tInc+=vc.incH;tIncAmt+=vc.incAmt;tOtAmt+=vc.otAmt;tOC+=vc.oncall;tNY+=calcNenmatsu(e.id,month).amount;});
+  emps.forEach(e=>{const mr=(records[e.id]||[]).filter(r=>r.date.startsWith(month));tD+=mr.filter(r=>r.workMinutes).length;tW+=mr.reduce((s,r)=>s+(r.workMinutes||0),0);tOT+=mr.reduce((s,r)=>s+(r.overtimeMinutes||0),0);tKm+=mr.reduce((s,r)=>s+(r.todayKm||0),0);tBrk+=mr.filter(r=>(r.workMinutes||0)>360).length*60;const vc=calcVisits(e.id,month);tInc+=vc.incH;tIncAmt+=vc.incAmt;if(vc.prof!=='rehab'){tOtAmt+=vc.otAmt;tOC+=vc.oncall;}tNY+=calcNenmatsu(e.id,month).amount;});
   document.getElementById('adminOverall').innerHTML=`
     <div class="smc">
       <div class="smm">📊 ${parseInt(am)}月 全社サマリー（全${emps.length}名）</div>
@@ -2409,11 +2409,11 @@ function renderAdmin(){
       <div class="ag3" style="margin-top:6px">
         <div class="as"><div class="asl">インセンティブ</div><div class="asv" style="color:var(--pu)">${fmtH(vc.incH)}</div></div>
         <div class="as"><div class="asl">INC金額(${vc.prof==='rehab'?'リハ':'看護'})</div><div class="asv" style="color:var(--pu)">¥${vc.incAmt.toLocaleString()}</div></div>
-        <div class="as"><div class="asl">時間外訪問</div><div class="asv">${vc.overtime}回</div></div>
+        ${vc.prof!=='rehab'?`<div class="as"><div class="asl">時間外訪問</div><div class="asv">${vc.overtime}回</div></div>`:''}
       </div>
       <div class="ag3" style="margin-top:4px">
-        <div class="as"><div class="asl">時間外手当</div><div class="asv" style="color:var(--yw)">¥${vc.otAmt.toLocaleString()}</div></div>
-        <div class="as"><div class="asl">📞 オンコール</div><div class="asv" style="color:var(--ac2)">${vc.oncall}回</div></div>
+        ${vc.prof!=='rehab'?`<div class="as"><div class="asl">時間外手当</div><div class="asv" style="color:var(--yw)">¥${vc.otAmt.toLocaleString()}</div></div>`:''}
+        ${vc.prof!=='rehab'?`<div class="as"><div class="asl">📞 オンコール</div><div class="asv" style="color:var(--ac2)">${vc.oncall}回</div></div>`:''}
         ${ny.count>0?`<div class="as"><div class="asl">🎍 年末年始</div><div class="asv" style="color:var(--ac2)">${ny.count}日 ¥${ny.amount.toLocaleString()}</div></div>`:''}
       </div>
       ${bal?`<div class="sec-sep">有給残数</div><div class="ag3"><div class="as"><div class="asl">日数残</div><div class="asv" style="color:var(--pu)">${bal.remDays}日</div></div><div class="as"><div class="asl">使用済み</div><div class="asv">${bal.dayUsed}日</div></div>${bal.hasHourlyPool?`<div class="as"><div class="asl">時間給残</div><div class="asv" style="color:var(--gn)">${bal.remHourlyH}h</div></div>`:`<div class="as"><div class="asl">付与合計</div><div class="asv">${bal.totalDays}日</div></div>`}</div>`:''}
@@ -2473,15 +2473,10 @@ function renderEmpMgmt(){
         ${e.workStart?`<button class="mb" style="background:none;border:1px solid var(--dim);color:var(--dim)" onclick="adminClearEmpWorkTime('${e.id}')">解除</button>`:''}
       </div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px">
-        <span style="font-size:11px;color:var(--dim);flex-shrink:0">介護保険②-1:</span>
-        <button class="mb" id="empCare30_${e.id}" style="padding:5px 12px;${(e.shortMin||30)===30?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpShortMin('${e.id}',30)">30分</button>
-        <button class="mb" id="empCare40_${e.id}" style="padding:5px 12px;${(e.shortMin||30)===40?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpShortMin('${e.id}',40)">40分</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px">
         <span style="font-size:11px;color:var(--dim);flex-shrink:0">職種:</span>
         <button class="mb" id="empProf_nurse_${e.id}" style="padding:5px 12px;${(e.profession||'nurse')==='nurse'?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpProfession('${e.id}','nurse')">看護師</button>
         <button class="mb" id="empProf_rehab_${e.id}" style="padding:5px 12px;${e.profession==='rehab'?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpProfession('${e.id}','rehab')">リハビリ</button>
-        <span style="font-size:10px;color:var(--dim);margin-left:4px">${(e.profession||'nurse')==='nurse'?'¥1,900/h':'¥1,800/h'}</span>
+        <span style="font-size:10px;color:var(--dim);margin-left:4px">${(e.profession||'nurse')==='nurse'?'¥1,900/h・②-1 30分':'¥1,800/h・②-1 40分'}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px">
         <span style="font-size:11px;color:var(--dim);flex-shrink:0">オンコール:</span>
@@ -2722,8 +2717,8 @@ function adminSetEmpShortMin(id,m){
 }
 function adminSetEmpProfession(id,prof){
   const e=accounts.find(a=>a.id===id);if(!e)return;
-  e.profession=prof;S.set('ka_accounts',accounts);
-  renderEmpMgmt();showToast(`✅ ${e.name} の職種を${prof==='nurse'?'看護師':'リハビリ'}に変更しました`);
+  e.profession=prof;e.shortMin=prof==='rehab'?40:30;S.set('ka_accounts',accounts);
+  renderEmpMgmt();showToast(`✅ ${e.name} の職種を${prof==='nurse'?'看護師（30分）':'リハビリ（40分）'}に変更しました`);
 }
 function adminSetEmpOncallVisible(id,val){
   const e=accounts.find(a=>a.id===id);if(!e)return;
@@ -3094,8 +3089,8 @@ function renderVSummaryA(){
     <div class="vst"><span class="vstl">訪問合計時間</span><span class="vstv" style="color:var(--ac)">${fmtH(c.totalH)}</span></div>
     <div class="inc-box"><div class="inc-l">🏆 インセンティブ対象時間</div><div class="inc-v">${fmtH(c.incH)}</div><div class="inc-s">${fmtH(c.totalH)} − 50時間 = ${fmtH(c.incH)}</div>
     <div class="inc-s" style="margin-top:4px;font-weight:700;color:var(--pu)">${fmtH(c.incH)} × ¥${c.incRate.toLocaleString()}（${c.prof==='rehab'?'リハビリ':'看護'}） = ¥${c.incAmt.toLocaleString()}</div></div>
-    <div class="ot-box"><div><div class="ot-l">⏰ 時間外訪問手当</div><div class="ot-s">${c.overtime}回 × ¥4,000</div></div><div class="ot-v">¥${c.otAmt.toLocaleString()}</div></div>
-    <div class="vsr" style="margin-top:3px"><span class="vsl">📞 オンコール（${c.oncall}回）</span><span class="vsv">${c.oncall}回</span></div>
+    ${c.prof!=='rehab'?`<div class="ot-box"><div><div class="ot-l">⏰ 時間外訪問手当</div><div class="ot-s">${c.overtime}回 × ¥4,000</div></div><div class="ot-v">¥${c.otAmt.toLocaleString()}</div></div>
+    <div class="vsr" style="margin-top:3px"><span class="vsl">📞 オンコール（${c.oncall}回）</span><span class="vsv">${c.oncall}回</span></div>`:''}
   </div>`;
   const e1=document.getElementById('aVSummary');if(e1)e1.innerHTML=html;
   const e2=document.getElementById('aVSummaryRec');if(e2)e2.innerHTML=html;
@@ -3707,7 +3702,8 @@ async function changeAdmPw(){
 // HEALTH DETAIL (admin summary)
 // ═══════════════════════════════════
 function buildVisitDetail(empId, month){
-  const sm=(accounts.find(a=>a.id===empId)||{}).shortMin||30;
+  const empAcc=accounts.find(a=>a.id===empId)||{};
+  const sm=(empAcc.profession||'nurse')==='rehab'?40:30;
   const vRecs=(visits[empId]||[]).filter(v=>v.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
   if(!vRecs.length) return '<div class="empty" style="padding:12px">この月の訪問実績がありません</div>';
   // ヘッダー
@@ -3846,7 +3842,7 @@ function buildVisitEditHTML(empId, month, prefix){
   const allV=visits[empId]||[];
   if(!vRecs.length) return '<div class="empty">この月の訪問実績がありません</div>';
   const dis=isLocked?' disabled':'';
-  const sm=(empId===session?.id)?(curAcc()?.shortMin||30):((accounts.find(a=>a.id===empId)||{}).shortMin||30);
+  const sm=(()=>{const a=empId===session?.id?curAcc():(accounts.find(x=>x.id===empId)||{});return(a.profession||'nurse')==='rehab'?40:30;})();
   return (isLocked?'<div class="lock-banner" style="margin-bottom:10px">🔒 この月はロックされています（閲覧のみ）</div>':'')+vRecs.map(v=>{
     const gi=allV.findIndex(x=>x.date===v.date);
     const flds=[
