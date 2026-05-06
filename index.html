@@ -1578,13 +1578,14 @@ function exportCSV(month,targetStoreId){
   const [y,m]=month.split('-');
   const storeName=targetStoreId?stores.find(s=>s.id===targetStoreId)?.name||'':'全店舗';
   // ヘッダー行（30分と40分を分離）
-  const headers=['店舗','氏名','役職','短時間設定','日付','出勤','退勤','勤務時間(分)','残業(分)','常勤出勤','走行距離(km)','体調','アルコール','メモ','自動退勤',
-    '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール'];
+  const headers=['店舗','氏名','役職','職種','短時間設定','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','走行距離(km)','体調','アルコール','メモ','自動退勤',
+    '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール','年末年始手当'];
   const rows=[headers];
   targetAccs.forEach(emp=>{
     const stName=stores.find(s=>s.id===emp.storeId)?.name||'';
     const roleMap={executive:'役員',admin:'管理者',employee:'スタッフ',staff:'スタッフ'};
     const empShortMin=emp.shortMin||30;
+    const empProf=(emp.profession||'nurse')==='rehab'?'リハビリ':'看護師';
     const recs=(records[emp.id]||[]).filter(r=>r.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
     const viss=(visits[emp.id]||[]).filter(v=>v.date.startsWith(month));
     // 月内の全日を列挙
@@ -1598,19 +1599,38 @@ function exportCSV(month,targetStoreId){
       const c30val=vis?.c30||'';
       const col30=empShortMin===30?c30val:'';
       const col40=empShortMin===40?c30val:'';
+      const recOdoOnly=rec&&!rec.checkin&&!rec.checkout&&rec.odometer!=null;
+      const wm=rec?.workMinutes!=null?rec.workMinutes:'';
+      const netWm=wm!==''&&wm>360?wm-60:wm;
+      const mm=parseInt(dk.slice(5,7)),dd=parseInt(dk.slice(8,10));
+      const isNY=rec?.workMinutes&&((mm===12&&dd>=29)||(mm===1&&dd<=3));
       rows.push([
-        stName, emp.name, roleMap[emp.role]||emp.role, empShortMin+'分', dk,
-        rec?.checkin||'', rec?.checkout||'',
-        rec?.workMinutes!=null?rec.workMinutes:'', rec?.overtimeMinutes!=null?rec.overtimeMinutes:'',
+        stName, emp.name, roleMap[emp.role]||emp.role, empProf, empShortMin+'分', dk,
+        recOdoOnly?'車両のみ':(rec?.checkin||''), recOdoOnly?'':(rec?.checkout||''),
+        recOdoOnly?'':wm, recOdoOnly?'':netWm, recOdoOnly?'':(rec?.overtimeMinutes!=null?rec.overtimeMinutes:''),
         rec?.fullTimeFlag?'○':'',
         rec?.todayKm!=null?rec.todayKm:'',
         rec?.health||'', rec?.alcohol||'', rec?.memo||'',
         rec?.autoCheckout?'○':'',
         vis?.sales||'', col30, col40, vis?.c60||'', vis?.c90||'',
         vis?.medical||'', vis?.staff||'', vis?.pre||'', vis?.contract||'',
-        vis?.training||'', vis?.overtime||'', vis?.oncall||''
+        vis?.training||'', vis?.overtime||'', vis?.oncall||'',
+        isNY?'¥10,000':''
       ]);
     }
+    // 月次集計行
+    const vc=calcVisits(emp.id,month);
+    const nyc=calcNenmatsu(emp.id,month);
+    const mRecs=recs.filter(r=>r.workMinutes);
+    const mWork=mRecs.reduce((s,r)=>s+(r.workMinutes||0),0);
+    const mBreak=mRecs.filter(r=>r.workMinutes>360).length*60;
+    const mOT=mRecs.reduce((s,r)=>s+(r.overtimeMinutes||0),0);
+    const mKm=recs.reduce((s,r)=>s+(r.todayKm||0),0);
+    rows.push([stName,emp.name,'【月計】',empProf,empShortMin+'分','',
+      '',`出勤${mRecs.length}日`,mWork,mWork-mBreak,mOT,'',mKm.toFixed(1),'','','',`INC:¥${vc.incAmt.toLocaleString()}`,
+      vc.sales,vc.c30*(empShortMin===30?1:0),vc.c30*(empShortMin===40?1:0),vc.c60,vc.c90,
+      vc.medical,vc.staff,vc.pre,vc.contract,vc.training,vc.overtime,vc.oncall,
+      nyc.amount>0?`¥${nyc.amount.toLocaleString()}`:'']);
   });
   // BOM + CSV生成
   const csvContent='\uFEFF'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
@@ -1684,8 +1704,20 @@ function exportLeaveCSV(empId){
   showToast(`📥 ${acc.name}の有給CSVをダウンロードしました`);
 }
 
+function calcNenmatsu(empId,month){
+  const recs=(records[empId]||[]).filter(r=>r.date.startsWith(month)&&r.workMinutes);
+  const [y,m]=month.split('-').map(Number);
+  const holidays=new Set();
+  if(m===12){[29,30,31].forEach(d=>holidays.add(`${month}-${String(d).padStart(2,'0')}`));}
+  if(m===1){[1,2,3].forEach(d=>holidays.add(`${month}-${String(d).padStart(2,'0')}`));}
+  const days=recs.filter(r=>holidays.has(r.date));
+  return{count:days.length,amount:days.length*10000,dates:days.map(r=>r.date)};
+}
 function calcVisits(empId,month){
-  const sm=(accounts.find(a=>a.id===empId)||{}).shortMin||30;
+  const emp=accounts.find(a=>a.id===empId)||{};
+  const sm=emp.shortMin||30;
+  const prof=emp.profession||'nurse';
+  const incRate=prof==='rehab'?1800:1900;
   const vr=(visits[empId]||[]).filter(v=>v.date.startsWith(month));
   const t={sales:0,c30:0,c60:0,c90:0,medical:0,staff:0,pre:0,contract:0,training:0,overtime:0,oncall:0};
   vr.forEach(v=>Object.keys(t).forEach(k=>t[k]+=(v[k]||0)));
@@ -1693,8 +1725,9 @@ function calcVisits(empId,month){
   const medH=t.medical,staffH=t.staff*0.5,preH=t.pre*0.5,conH=t.contract,trnH=t.training;
   const totalH=careH+medH+staffH+preH+conH+trnH;
   const incH=Math.max(0,totalH-50);
+  const incAmt=Math.round(incH*incRate);
   const otAmt=t.overtime*4000;
-  return{...t,sm,careH,medH,staffH,preH,conH,trnH,totalH,incH,otAmt};
+  return{...t,sm,prof,incRate,careH,medH,staffH,preH,conH,trnH,totalH,incH,incAmt,otAmt};
 }
 function renderVSummary(overrideMonth){
   const empId=session?.id;if(!empId)return;
@@ -1719,6 +1752,7 @@ function renderVSummary(overrideMonth){
       <div class="inc-l">🏆 インセンティブ対象時間</div>
       <div class="inc-v">${fmtH(c.incH)}</div>
       <div class="inc-s">${fmtH(c.totalH)} − 50時間 = ${fmtH(c.incH)}</div>
+      <div class="inc-s" style="margin-top:4px;font-weight:700;color:var(--pu)">${fmtH(c.incH)} × ¥${c.incRate.toLocaleString()}（${c.prof==='rehab'?'リハビリ':'看護'}） = ¥${c.incAmt.toLocaleString()}</div>
     </div>
     <div class="ot-box">
       <div><div class="ot-l">⏰ 時間外訪問手当</div><div class="ot-s">${c.overtime}回 × ¥4,000</div></div>
@@ -2151,17 +2185,30 @@ function renderRecords(){
   buildMonthNav('recMonthNav',month,allMonths,'changeRecordMonth',false);
   const mr=(records[empId]||[]).filter(r=>r.date.startsWith(month));
   const tW=mr.reduce((s,r)=>s+(r.workMinutes||0),0),tOT=mr.reduce((s,r)=>s+(r.overtimeMinutes||0),0),tKm=mr.reduce((s,r)=>s+(r.todayKm||0),0),days=mr.filter(r=>r.workMinutes).length;
+  const tBreak=mr.filter(r=>(r.workMinutes||0)>360).length*60;
+  const tNet=tW-tBreak;
   const [y,m]=month.split('-');
   document.getElementById('attSummary').innerHTML=`
     <div class="smc">
       <div class="smm">📅 ${parseInt(m)}月 勤怠サマリー</div>
       <div class="smg">
         <div><div class="sml">出勤日数</div><div class="smv" style="color:var(--gn)">${days}<span style="font-size:11px;font-weight:400"> 日</span></div></div>
-        <div><div class="sml">総勤務時間</div><div class="smv" style="color:var(--ac)">${toHHMM(tW)}</div></div>
+        <div><div class="sml">総勤務時間</div><div class="smv" style="color:var(--ac)">${toHHMM(tNet)}</div><div style="font-size:10px;color:var(--dim);text-align:center">休憩${toHHMM(tBreak)}控除</div></div>
         <div><div class="sml">総残業時間</div><div class="smv" style="color:var(--ac2)">${toHHMM(tOT)}</div></div>
         <div><div class="sml">月間走行距離</div><div class="smv" style="color:var(--yw)">${tKm.toFixed(1)}<span style="font-size:11px;font-weight:400"> km</span></div></div>
       </div>
     </div>`;
+  const nm=calcNenmatsu(empId,month);
+  if(nm.count>0){
+    document.getElementById('attSummary').innerHTML+=`<div class="smc" style="margin-top:8px;background:linear-gradient(135deg,rgba(247,95,95,.08),rgba(247,211,79,.08));border:1px solid rgba(247,211,79,.3)">
+      <div class="smm">🎍 年末年始手当</div>
+      <div class="smg">
+        <div><div class="sml">対象日数</div><div class="smv" style="color:var(--ac2)">${nm.count}<span style="font-size:11px"> 日</span></div></div>
+        <div><div class="sml">手当金額</div><div class="smv" style="color:var(--ac2)">¥${nm.amount.toLocaleString()}</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--dim);margin-top:6px;padding:0 4px">対象日: ${nm.dates.map(d=>d.slice(5)).join(', ')}（¥10,000/日）</div>
+    </div>`;
+  }
   renderVSummary(month);
   const list=document.getElementById('recordsList'),recs=(records[empId]||[]).filter(r=>r.date.startsWith(month));
   if(!recs.length){list.innerHTML='<div class="empty">この月の記録がありません</div>';return;}
@@ -2169,11 +2216,14 @@ function renderRecords(){
   const allRecs=records[empId]||[];
   list.innerHTML=recs.map(r=>{
     const globalIdx=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
-    return`<div class="ri">
+    const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
+    return`<div class="ri"${isOdoOnly?' style="border-left:3px solid var(--ac);opacity:.85"':''}>
       <div style="flex:1">
-        <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
-        <div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>
-        <div class="rd">${r.overtimeMinutes>0?'残業 '+toHHMM(r.overtimeMinutes)+' ／ ':''}体調:${r.health||'-'} ／ アルコール:${r.alcohol||'0.00'}mg/L${r.todayKm!=null?' ／ 🚗 '+r.todayKm+'km':''}${r.memo?' ／ 📝'+r.memo:''}</div>
+        <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isOdoOnly?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
+        ${isOdoOnly
+          ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
+          :`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`}
+        <div class="rd">${!isOdoOnly&&r.overtimeMinutes>0?'残業 '+toHHMM(r.overtimeMinutes)+' ／ ':''}体調:${r.health||'-'} ／ アルコール:${r.alcohol||'0.00'}mg/L${!isOdoOnly&&r.todayKm!=null?' ／ 🚗 '+r.todayKm+'km':''}${r.memo?' ／ 📝'+r.memo:''}</div>
         ${r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
       </div>
       <button class="delbtn" onclick="deleteRecord(${globalIdx})">🗑</button>
@@ -2208,9 +2258,10 @@ function renderEditList(){
   const dis=isLocked?' disabled':'';
   list.innerHTML=monthRecs.map(r=>{
     const i=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
+    const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
     return`
-    <div class="ei">
-      <div class="ed">📅 ${r.date}</div>
+    <div class="ei"${isOdoOnly?' style="border-left:3px solid var(--ac)"':''}>
+      <div class="ed">📅 ${r.date}${isOdoOnly?' <span style="font-size:11px;background:rgba(79,142,247,.12);color:var(--ac);padding:2px 6px;border-radius:4px;font-weight:700">🚗 車両のみ</span>':''}</div>
       <div class="er">
         <div class="ef"><label>出勤時刻</label><input type="time" class="einp" id="e_ci_${i}" value="${r.checkin||''}"${dis}></div>
         <div class="ef"><label>退勤時刻</label><input type="time" class="einp" id="e_co_${i}" value="${r.checkout||''}"${dis}></div>
@@ -2305,18 +2356,21 @@ function renderAdmin(){
   buildMonthNav('adminMonthNav',month,allMonths,'changeAdminMonth',true);
   const n=new Date();const [ay,am]=month.split('-');
   const emps=storeAccounts(); // 現在の店舗のアカウント
-  let tD=0,tW=0,tOT=0,tKm=0,tInc=0,tOtAmt=0;
-  emps.forEach(e=>{const mr=(records[e.id]||[]).filter(r=>r.date.startsWith(month));tD+=mr.filter(r=>r.workMinutes).length;tW+=mr.reduce((s,r)=>s+(r.workMinutes||0),0);tOT+=mr.reduce((s,r)=>s+(r.overtimeMinutes||0),0);tKm+=mr.reduce((s,r)=>s+(r.todayKm||0),0);const vc=calcVisits(e.id,month);tInc+=vc.incH;tOtAmt+=vc.otAmt;});
+  let tD=0,tW=0,tOT=0,tKm=0,tInc=0,tIncAmt=0,tOtAmt=0,tOC=0,tBrk=0,tNY=0;
+  emps.forEach(e=>{const mr=(records[e.id]||[]).filter(r=>r.date.startsWith(month));tD+=mr.filter(r=>r.workMinutes).length;tW+=mr.reduce((s,r)=>s+(r.workMinutes||0),0);tOT+=mr.reduce((s,r)=>s+(r.overtimeMinutes||0),0);tKm+=mr.reduce((s,r)=>s+(r.todayKm||0),0);tBrk+=mr.filter(r=>(r.workMinutes||0)>360).length*60;const vc=calcVisits(e.id,month);tInc+=vc.incH;tIncAmt+=vc.incAmt;tOtAmt+=vc.otAmt;tOC+=vc.oncall;tNY+=calcNenmatsu(e.id,month).amount;});
   document.getElementById('adminOverall').innerHTML=`
     <div class="smc">
       <div class="smm">📊 ${parseInt(am)}月 全社サマリー（全${emps.length}名）</div>
       <div class="smg">
         <div><div class="sml">総出勤日数</div><div class="smv" style="color:var(--gn)">${tD}<span style="font-size:11px"> 日</span></div></div>
-        <div><div class="sml">総勤務時間</div><div class="smv" style="color:var(--ac)">${toHHMM(tW)}</div></div>
+        <div><div class="sml">総勤務時間</div><div class="smv" style="color:var(--ac)">${toHHMM(tW-tBrk)}</div><div style="font-size:9px;color:var(--dim);text-align:center">休憩${toHHMM(tBrk)}控除</div></div>
         <div><div class="sml">総残業時間</div><div class="smv" style="color:var(--ac2)">${toHHMM(tOT)}</div></div>
         <div><div class="sml">総走行距離</div><div class="smv" style="color:var(--yw)">${tKm.toFixed(1)}<span style="font-size:11px"> km</span></div></div>
         <div><div class="sml">総インセンティブ</div><div class="smv" style="color:var(--pu)">${fmtH(tInc)}</div></div>
+        <div><div class="sml">INC金額合計</div><div class="smv" style="color:var(--pu)">¥${tIncAmt.toLocaleString()}</div></div>
         <div><div class="sml">時間外訪問手当合計</div><div class="smv" style="color:var(--yw)">¥${tOtAmt.toLocaleString()}</div></div>
+        <div><div class="sml">総オンコール</div><div class="smv" style="color:var(--ac2)">${tOC}<span style="font-size:11px"> 回</span></div></div>
+        ${tNY>0?`<div><div class="sml">🎍 年末年始手当</div><div class="smv" style="color:var(--ac2)">¥${tNY.toLocaleString()}</div></div>`:''}
       </div>
       <div style="margin-top:12px;text-align:right"><button class="mb mb-b" style="padding:8px 16px;font-size:12px" onclick="exportCSV('${month}','${curAcc()?.storeId||''}')">📥 CSV出力（${parseInt(am)}月）</button></div>
     </div>`;
@@ -2324,7 +2378,8 @@ function renderAdmin(){
   document.getElementById('adminEmpCards').innerHTML=emps.map(e=>{
     const mr=(records[e.id]||[]).filter(r=>r.date.startsWith(month));
     const days=mr.filter(r=>r.workMinutes).length,work=mr.reduce((s,r)=>s+(r.workMinutes||0),0),ot=mr.reduce((s,r)=>s+(r.overtimeMinutes||0),0),km=mr.reduce((s,r)=>s+(r.todayKm||0),0);
-    const vc=calcVisits(e.id,month),bal=e.leaveConfig?.grantDate?getLeaveBal(e.id):null;
+    const brk=mr.filter(r=>(r.workMinutes||0)>360).length*60,netWork=work-brk;
+    const vc=calcVisits(e.id,month),bal=e.leaveConfig?.grantDate?getLeaveBal(e.id):null,ny=calcNenmatsu(e.id,month);
     const isCurrentMonth=month===thisMonth();
     const td=todayMap[e.id]||{},todayRec=(records[e.id]||[]).find(r=>r.date===dk);
     let chipCls='tc-a',chipLbl=isCurrentMonth?'未出勤':'';
@@ -2340,7 +2395,7 @@ function renderAdmin(){
       <div class="sec-sep">勤怠</div>
       <div class="ag">
         <div class="as"><div class="asl">出勤日数</div><div class="asv" style="color:var(--gn)">${days}日</div></div>
-        <div class="as"><div class="asl">勤務時間</div><div class="asv" style="color:var(--ac)">${toHHMM(work)}</div></div>
+        <div class="as"><div class="asl">勤務時間</div><div class="asv" style="color:var(--ac)">${toHHMM(netWork)}</div><div style="font-size:9px;color:var(--dim);text-align:center">休憩${toHHMM(brk)}控除</div></div>
         <div class="as"><div class="asl">残業</div><div class="asv" style="color:var(--ac2)">${toHHMM(ot)}</div></div>
         <div class="as"><div class="asl">走行km</div><div class="asv" style="color:var(--yw)">${km.toFixed(1)}</div></div>
       </div>
@@ -2353,8 +2408,13 @@ function renderAdmin(){
       </div>
       <div class="ag3" style="margin-top:6px">
         <div class="as"><div class="asl">インセンティブ</div><div class="asv" style="color:var(--pu)">${fmtH(vc.incH)}</div></div>
+        <div class="as"><div class="asl">INC金額(${vc.prof==='rehab'?'リハ':'看護'})</div><div class="asv" style="color:var(--pu)">¥${vc.incAmt.toLocaleString()}</div></div>
         <div class="as"><div class="asl">時間外訪問</div><div class="asv">${vc.overtime}回</div></div>
+      </div>
+      <div class="ag3" style="margin-top:4px">
         <div class="as"><div class="asl">時間外手当</div><div class="asv" style="color:var(--yw)">¥${vc.otAmt.toLocaleString()}</div></div>
+        <div class="as"><div class="asl">📞 オンコール</div><div class="asv" style="color:var(--ac2)">${vc.oncall}回</div></div>
+        ${ny.count>0?`<div class="as"><div class="asl">🎍 年末年始</div><div class="asv" style="color:var(--ac2)">${ny.count}日 ¥${ny.amount.toLocaleString()}</div></div>`:''}
       </div>
       ${bal?`<div class="sec-sep">有給残数</div><div class="ag3"><div class="as"><div class="asl">日数残</div><div class="asv" style="color:var(--pu)">${bal.remDays}日</div></div><div class="as"><div class="asl">使用済み</div><div class="asv">${bal.dayUsed}日</div></div>${bal.hasHourlyPool?`<div class="as"><div class="asl">時間給残</div><div class="asv" style="color:var(--gn)">${bal.remHourlyH}h</div></div>`:`<div class="as"><div class="asl">付与合計</div><div class="asv">${bal.totalDays}日</div></div>`}</div>`:''}
       <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
@@ -2416,6 +2476,12 @@ function renderEmpMgmt(){
         <span style="font-size:11px;color:var(--dim);flex-shrink:0">介護保険②-1:</span>
         <button class="mb" id="empCare30_${e.id}" style="padding:5px 12px;${(e.shortMin||30)===30?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpShortMin('${e.id}',30)">30分</button>
         <button class="mb" id="empCare40_${e.id}" style="padding:5px 12px;${(e.shortMin||30)===40?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpShortMin('${e.id}',40)">40分</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px">
+        <span style="font-size:11px;color:var(--dim);flex-shrink:0">職種:</span>
+        <button class="mb" id="empProf_nurse_${e.id}" style="padding:5px 12px;${(e.profession||'nurse')==='nurse'?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpProfession('${e.id}','nurse')">看護師</button>
+        <button class="mb" id="empProf_rehab_${e.id}" style="padding:5px 12px;${e.profession==='rehab'?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpProfession('${e.id}','rehab')">リハビリ</button>
+        <span style="font-size:10px;color:var(--dim);margin-left:4px">${(e.profession||'nurse')==='nurse'?'¥1,900/h':'¥1,800/h'}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px">
         <span style="font-size:11px;color:var(--dim);flex-shrink:0">オンコール:</span>
@@ -2653,6 +2719,11 @@ function adminSetEmpShortMin(id,m){
   const e=accounts.find(a=>a.id===id);if(!e)return;
   e.shortMin=m;S.set('ka_accounts',accounts);
   renderEmpMgmt();showToast(`✅ ${e.name} の介護保険②-1を${m}分に変更しました`);
+}
+function adminSetEmpProfession(id,prof){
+  const e=accounts.find(a=>a.id===id);if(!e)return;
+  e.profession=prof;S.set('ka_accounts',accounts);
+  renderEmpMgmt();showToast(`✅ ${e.name} の職種を${prof==='nurse'?'看護師':'リハビリ'}に変更しました`);
 }
 function adminSetEmpOncallVisible(id,val){
   const e=accounts.find(a=>a.id===id);if(!e)return;
@@ -3021,7 +3092,8 @@ function renderVSummaryA(){
     <div class="vsr"><span class="vsl">⑦ 外部研修（${c.training}回）</span><span class="vsv">${fmtH(c.trnH)}</span></div>
     <div class="vsdiv"></div>
     <div class="vst"><span class="vstl">訪問合計時間</span><span class="vstv" style="color:var(--ac)">${fmtH(c.totalH)}</span></div>
-    <div class="inc-box"><div class="inc-l">🏆 インセンティブ対象時間</div><div class="inc-v">${fmtH(c.incH)}</div><div class="inc-s">${fmtH(c.totalH)} − 50時間 = ${fmtH(c.incH)}</div></div>
+    <div class="inc-box"><div class="inc-l">🏆 インセンティブ対象時間</div><div class="inc-v">${fmtH(c.incH)}</div><div class="inc-s">${fmtH(c.totalH)} − 50時間 = ${fmtH(c.incH)}</div>
+    <div class="inc-s" style="margin-top:4px;font-weight:700;color:var(--pu)">${fmtH(c.incH)} × ¥${c.incRate.toLocaleString()}（${c.prof==='rehab'?'リハビリ':'看護'}） = ¥${c.incAmt.toLocaleString()}</div></div>
     <div class="ot-box"><div><div class="ot-l">⏰ 時間外訪問手当</div><div class="ot-s">${c.overtime}回 × ¥4,000</div></div><div class="ot-v">¥${c.otAmt.toLocaleString()}</div></div>
     <div class="vsr" style="margin-top:3px"><span class="vsl">📞 オンコール（${c.oncall}回）</span><span class="vsv">${c.oncall}回</span></div>
   </div>`;
@@ -3145,14 +3217,27 @@ function renderRecordsA(){
   buildMonthNav('aRecMonthNav',month,getAvailableMonthsA(),'changeRecordMonthA',false);
   const mr=(records[empId]||[]).filter(r=>r.date.startsWith(month));
   const tW=mr.reduce((s,r)=>s+(r.workMinutes||0),0),tOT=mr.reduce((s,r)=>s+(r.overtimeMinutes||0),0),tKm=mr.reduce((s,r)=>s+(r.todayKm||0),0),days=mr.filter(r=>r.workMinutes).length;
+  const tBreakA=mr.filter(r=>(r.workMinutes||0)>360).length*60;
+  const tNetA=tW-tBreakA;
   const[y,m]=month.split('-');
   const asEl=document.getElementById('aAttSummary');
   if(asEl)asEl.innerHTML=`<div class="smc"><div class="smm">📅 ${parseInt(m)}月 勤怠サマリー</div><div class="smg">
     <div><div class="sml">出勤日数</div><div class="smv" style="color:var(--gn)">${days}<span style="font-size:11px;font-weight:400"> 日</span></div></div>
-    <div><div class="sml">総勤務時間</div><div class="smv" style="color:var(--ac)">${toHHMM(tW)}</div></div>
+    <div><div class="sml">総勤務時間</div><div class="smv" style="color:var(--ac)">${toHHMM(tNetA)}</div><div style="font-size:10px;color:var(--dim);text-align:center">休憩${toHHMM(tBreakA)}控除</div></div>
     <div><div class="sml">総残業時間</div><div class="smv" style="color:var(--ac2)">${toHHMM(tOT)}</div></div>
     <div><div class="sml">月間走行距離</div><div class="smv" style="color:var(--yw)">${tKm.toFixed(1)}<span style="font-size:11px;font-weight:400"> km</span></div></div>
   </div></div>`;
+  const nmA=calcNenmatsu(empId,month);
+  if(nmA.count>0&&asEl){
+    asEl.innerHTML+=`<div class="smc" style="margin-top:8px;background:linear-gradient(135deg,rgba(247,95,95,.08),rgba(247,211,79,.08));border:1px solid rgba(247,211,79,.3)">
+      <div class="smm">🎍 年末年始手当</div>
+      <div class="smg">
+        <div><div class="sml">対象日数</div><div class="smv" style="color:var(--ac2)">${nmA.count}<span style="font-size:11px"> 日</span></div></div>
+        <div><div class="sml">手当金額</div><div class="smv" style="color:var(--ac2)">¥${nmA.amount.toLocaleString()}</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--dim);margin-top:6px;padding:0 4px">対象日: ${nmA.dates.map(d=>d.slice(5)).join(', ')}（¥10,000/日）</div>
+    </div>`;
+  }
   renderVSummaryA();
   const allRecs=records[empId]||[];const recs=allRecs.filter(r=>r.date.startsWith(month));
   const list=document.getElementById('aRecordsList');if(!list)return;
@@ -3161,16 +3246,19 @@ function renderRecordsA(){
   const rShowK=rfeat.kintai!==false,rShowH=rfeat.health!==false,rShowO=rfeat.odo!==false;
   list.innerHTML=recs.map(r=>{
     const gi=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
+    const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
     const detailParts=[];
-    if(rShowK&&r.overtimeMinutes>0)detailParts.push('残業 '+toHHMM(r.overtimeMinutes));
+    if(rShowK&&!isOdoOnly&&r.overtimeMinutes>0)detailParts.push('残業 '+toHHMM(r.overtimeMinutes));
     if(rShowH){detailParts.push('体調:'+(r.health||'-'));detailParts.push('アルコール:'+(r.alcohol||'0.00')+'mg/L');}
-    if(rShowO&&r.todayKm!=null)detailParts.push('🚗 '+r.todayKm+'km');
+    if(rShowO&&!isOdoOnly&&r.todayKm!=null)detailParts.push('🚗 '+r.todayKm+'km');
     if(r.memo)detailParts.push('📝'+r.memo);
-    return`<div class="ri"><div style="flex:1">
-      <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
-      ${rShowK?`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`:''}
+    return`<div class="ri"${isOdoOnly?' style="border-left:3px solid var(--ac);opacity:.85"':''}><div style="flex:1">
+      <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isOdoOnly?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
+      ${isOdoOnly
+        ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
+        :(rShowK?`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`:'')}
       ${detailParts.length?`<div class="rd">${detailParts.join(' ／ ')}</div>`:''}
-      ${rShowK&&r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
+      ${rShowK&&!isOdoOnly&&r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
     </div><button class="delbtn" onclick="deleteRecordA(${gi})">🗑</button></div>`;
   }).join('');
 }
@@ -3197,7 +3285,8 @@ function renderEditListA(){
   const dis=isLocked?' disabled':'';
   list.innerHTML=monthRecs.map(r=>{
     const i=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
-    return`<div class="ei"><div class="ed">📅 ${r.date}</div>
+    const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
+    return`<div class="ei"${isOdoOnly?' style="border-left:3px solid var(--ac)"':''}><div class="ed">📅 ${r.date}${isOdoOnly?' <span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac);font-size:10px;margin-left:6px">🚗 車両のみ</span>':''}</div>
       ${showKintai?`<div class="er"><div class="ef"><label>出勤時刻</label><input type="time" class="einp" id="ea_ci_${i}" value="${r.checkin||''}"${dis}></div><div class="ef"><label>退勤時刻</label><input type="time" class="einp" id="ea_co_${i}" value="${r.checkout||''}"${dis}></div></div>`:`<input type="hidden" id="ea_ci_${i}" value="${r.checkin||''}"><input type="hidden" id="ea_co_${i}" value="${r.checkout||''}">`}
       <div class="er">${showOdo?`<div class="ef"><label>ODO(km)</label><input type="number" class="einp" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}" step="0.1"${dis}></div>`:`<input type="hidden" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}">`}${showHealth?`<div class="ef"><label>体調</label><select class="einp" id="ea_hl_${i}"${dis}>${['良好','普通','不調'].map(v=>`<option${r.health===v?' selected':''}>${v}</option>`).join('')}</select></div>`:`<input type="hidden" id="ea_hl_${i}" value="${r.health||'良好'}">`}</div>
       <div class="er">${showHealth?`<div class="ef"><label>アルコール</label><input type="number" class="einp" id="ea_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div>`:`<input type="hidden" id="ea_al_${i}" value="${r.alcohol||'0.00'}">`}<div class="ef"><label>メモ</label><input type="text" class="einp" id="ea_me_${i}" value="${r.memo||''}"${dis}></div></div>
@@ -3665,18 +3754,22 @@ function buildHealthDetail(empId, month){
   const fmtLoc=loc=>loc&&loc.address?loc.address:loc?`${loc.lat},${loc.lon}`:'—';
   return recs.map(r=>{
     const dow=getDow(r.date);
-    return`<div style="padding:8px 0;border-top:1px solid var(--bd)">
+    const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
+    return`<div style="padding:8px 0;border-top:1px solid var(--bd)${isOdoOnly?';opacity:.8':''}">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
         <span class="health-row-date" style="font-weight:700">${r.date.slice(5)}${dow}</span>
+        ${isOdoOnly?'<span style="font-size:10px;background:rgba(79,142,247,.12);color:var(--ac);padding:2px 6px;border-radius:4px;font-weight:700">🚗 車両のみ</span>':''}
         <span class="health-badge ${healthClass(r.health||'良好')}">${r.health||'良好'}</span>
         <span class="${alcClass(r.alcohol)}" style="font-family:var(--mo);font-size:12px">${parseFloat(r.alcohol||0).toFixed(2)} <span style="font-size:10px">mg/L</span></span>
         <span style="font-family:var(--mo);font-size:12px;color:var(--yw)">${r.todayKm!=null?r.todayKm+' km':'—'}</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--dim);padding-left:4px">
-        <div>出勤: <span style="color:var(--gn);font-family:var(--mo)">${r.checkin||'—'}</span></div>
-        <div>退勤: <span style="color:var(--ac2);font-family:var(--mo)">${r.checkout||'—'}</span></div>
-        <div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${fmtLoc(r.checkinLoc)}">📍出: ${fmtLoc(r.checkinLoc)}</div>
-        <div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${fmtLoc(r.checkoutLoc)}">📍退: ${fmtLoc(r.checkoutLoc)}</div>
+        ${isOdoOnly
+          ?`<div style="grid-column:span 2;color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）</div>`
+          :`<div>出勤: <span style="color:var(--gn);font-family:var(--mo)">${r.checkin||'—'}</span></div>
+        <div>退勤: <span style="color:var(--ac2);font-family:var(--mo)">${r.checkout||'—'}</span></div>`}
+        ${isOdoOnly?'':`<div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${fmtLoc(r.checkinLoc)}">📍出: ${fmtLoc(r.checkinLoc)}</div>
+        <div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${fmtLoc(r.checkoutLoc)}">📍退: ${fmtLoc(r.checkoutLoc)}</div>`}
       </div>
     </div>`;
   }).join('');
