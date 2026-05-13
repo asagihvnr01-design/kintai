@@ -2,10 +2,15 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="勤怠管理">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1117">
 <title>勤怠・訪問管理</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -255,6 +260,99 @@ select.fi{appearance:none;cursor:pointer}
 .lock-btn{border-radius:7px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--fn);font-weight:700;border:none}
 .lock-btn-on{background:var(--rd);color:#fff}
 .lock-btn-off{background:rgba(61,214,140,.15);border:1px solid var(--gn)!important;color:var(--gn)}
+
+/* ── モバイル最適化 ── */
+/* iPhone safe area対応 */
+body{padding-bottom:env(safe-area-inset-bottom,20px)}
+.hdr{padding-top:max(11px,env(safe-area-inset-top,11px))}
+
+/* スマートフォン（幅430px以下） */
+@media(max-width:430px){
+  body{font-size:14px;-webkit-text-size-adjust:100%}
+  .hdr{padding:8px 10px}
+  .hdr-title{font-size:13px}
+  .card{padding:12px 10px;margin-bottom:8px;border-radius:10px}
+  .ct{font-size:13px}
+
+  /* ナビゲーションタブ */
+  .nav{gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nb{font-size:10px;padding:8px 3px;min-width:42px}
+
+  /* 打刻ボタン */
+  .sbtn{padding:12px 8px;font-size:13px;border-radius:8px}
+  .stamp-row{gap:8px!important}
+
+  /* フォーム */
+  .fi{font-size:14px;padding:10px}
+  .fl{font-size:11px}
+  .fr{margin-bottom:8px}
+
+  /* 訪問実績入力 */
+  .vrow{padding:8px 9px;margin-bottom:4px}
+  .vr-l{font-size:12px}
+  .vr-s{font-size:9px}
+  .vi{width:58px;font-size:14px;padding:7px 5px}
+  .vu{font-size:11px}
+  .vsec{font-size:12px;padding:5px 8px}
+
+  /* 記録リスト */
+  .ri{padding:10px;margin-bottom:6px}
+  .rd{font-size:12px}
+  .rt{font-size:11px}
+  .bdg{font-size:9px;padding:2px 5px}
+
+  /* サマリーカード */
+  .smc{padding:10px 8px}
+  .smm{font-size:12px}
+  .smg{gap:6px}
+  .sml{font-size:9px}
+  .smv{font-size:16px}
+
+  /* 管理者カード */
+  .aec{padding:10px 8px}
+  .aen{font-size:13px}
+  .ag{grid-template-columns:repeat(2,1fr)!important;gap:6px}
+  .ag3{grid-template-columns:repeat(2,1fr)!important;gap:6px}
+  .asl{font-size:9px}
+  .asv{font-size:14px}
+
+  /* 月ナビゲーション */
+  .month-nav{padding:8px 10px}
+  .month-nav-btn{padding:5px 10px;font-size:14px}
+  .month-nav-label{font-size:13px}
+
+  /* 編集フォーム */
+  .ei{padding:10px}
+  .ed{font-size:12px}
+  .einp{font-size:13px;padding:8px}
+  .esbtn{font-size:12px;padding:8px 12px}
+  .er{gap:6px!important}
+
+  /* ボタン類 */
+  .mb{font-size:11px;padding:6px 10px}
+
+  /* インセンティブ・手当ボックス */
+  .inc-box{padding:10px}
+  .inc-v{font-size:22px}
+  .inc-s{font-size:10px}
+  .ot-box{padding:8px 10px}
+
+  /* ダイアログ */
+  .modal-content{max-width:calc(100vw - 24px);max-height:85vh;padding:16px 12px}
+
+  /* テーブル・グリッド */
+  .sec-sep{font-size:11px;padding:3px 8px}
+}
+
+/* 非常に小さい画面（iPhone SE等 幅375px以下） */
+@media(max-width:375px){
+  .nb{font-size:9px;padding:7px 2px;min-width:36px}
+  .vi{width:50px;font-size:13px}
+  .ag{grid-template-columns:1fr 1fr!important}
+  .smv{font-size:14px}
+  .sbtn{font-size:12px;padding:10px 6px}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
@@ -303,6 +401,7 @@ select.fi{appearance:none;cursor:pointer}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.05.13a</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -931,6 +1030,15 @@ const SB={
 // STORAGE
 // ═══════════════════════════════════
 // ─── Supabase-backed storage ───
+// ダブルタップ・二重実行防止
+const _actionGuard=new Set();
+function guardAction(key,fn){
+  if(_actionGuard.has(key))return;
+  _actionGuard.add(key);
+  try{const r=fn();if(r instanceof Promise)r.finally(()=>setTimeout(()=>_actionGuard.delete(key),500));else setTimeout(()=>_actionGuard.delete(key),500);}
+  catch(e){_actionGuard.delete(key);throw e;}
+}
+
 const S={
   get:k=>{try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},
   set:(k,v)=>{
@@ -980,6 +1088,9 @@ const DB={
     try{localStorage.setItem('ka_dirty_keys',JSON.stringify([...this._dirtyKeys]));}catch(e){}
   },
 
+  // 最近フラッシュしたキーを追跡（pullで上書きされないよう保護）
+  _recentlyFlushed:new Map(), // key → timestamp
+
   // Push to Supabase with dirty tracking
   async _push(k,v){
     if(!this.configured())return;
@@ -995,6 +1106,7 @@ const DB={
         });
         if(res.ok||res.status===201||res.status===200){
           this._dirtyKeys.delete(k);
+          this._recentlyFlushed.set(k,Date.now());
           this._saveDirtyKeys();
         }else{
           console.warn('Supabase push failed:',k,'status:',res.status);
@@ -1022,6 +1134,7 @@ const DB={
         });
         if(res.ok||res.status===201||res.status===200){
           this._dirtyKeys.delete(k);
+          this._recentlyFlushed.set(k,Date.now());
         }
       }catch(e){console.warn('Flush error:',k,e);}
     }
@@ -1033,17 +1146,27 @@ const DB={
     if(!this.configured())return false;
     // 未同期データを先にSupabaseへ送信して保護
     await this._flushDirty();
+    // フラッシュ直後のSupabase反映待ち（競合状態防止）
+    if(this._recentlyFlushed.size>0){
+      await new Promise(r=>setTimeout(r,1500));
+    }
     try{
       const res=await fetch(this._url+'/rest/v1/kv_store?select=key,value',{headers:this._hdr()});
       if(!res.ok)throw new Error('HTTP '+res.status);
       const rows=await res.json();
       if(!Array.isArray(rows))return false;
+      const now=Date.now();
       rows.forEach(r=>{
+        if(r.key==='ka_session')return;
         // 未同期キーは上書きしない（ローカルが最新）
-        if(r.key!=='ka_session'&&!this._dirtyKeys.has(r.key)){
-          localStorage.setItem(r.key,JSON.stringify(r.value));
-        }
+        if(this._dirtyKeys.has(r.key))return;
+        // 最近フラッシュしたキーは10秒間保護（Supabase反映遅延対策）
+        const flushedAt=this._recentlyFlushed.get(r.key);
+        if(flushedAt&&(now-flushedAt)<10000)return;
+        localStorage.setItem(r.key,JSON.stringify(r.value));
       });
+      // 古い保護記録をクリア
+      for(const[k,t] of this._recentlyFlushed){if(now-t>15000)this._recentlyFlushed.delete(k);}
       return true;
     }catch(e){console.warn('Supabase pull error:',e);return false;}
   },
@@ -1408,12 +1531,10 @@ function checkPendingAutoCheckout(){
     if(td.checkinDate<today){
       const autoTime=td.fullTimeFlag?settings.end:empEnd(e.id);
       td.checkoutTime=autoTime;td.autoCheckout=true;td.checkoutLoc=null;
-      const prevSession=session;
-      // temporarily set session to save for this employee
-      const origId=session?.id;
+      // session一時書換（autoSaveRecordAがsession.idを使うため）
+      const origSession=session;
       session={id:e.id};
-      autoSaveRecordA(td,td.checkinDate);
-      session=origId?{id:origId}:null;
+      try{autoSaveRecordA(td,td.checkinDate);}finally{session=origSession;}
       showToast(`⏰ ${e.name}の${td.checkinDate}退勤を自動打刻しました（${autoTime}）`);
     }
   });
@@ -1544,6 +1665,9 @@ function updateShortToggle(){const sm=getShortMin();document.getElementById('btn
 function setShortMin(m){const acc=curAcc();if(!acc)return;acc.shortMin=m;S.set('ka_accounts',accounts);updateCare30Label();updateShortToggle();renderVSummary();showToast(`✅ 短時間訪問を${m}分に変更しました`);}
 
 function saveVisits(){
+  guardAction('saveVisits',_saveVisitsInner);
+}
+function _saveVisitsInner(){
   const empId=session.id,dk=document.getElementById('vDate').value||todayKey();
   const g=id=>parseFloat(document.getElementById(id).value)||0;
   const rec={date:dk,sales:g('v-sales'),c30:g('v-c30'),c60:g('v-c60'),c90:g('v-c90'),medical:g('v-med'),staff:g('v-stf'),pre:g('v-pre'),contract:g('v-con'),training:g('v-trn'),overtime:g('v-ov'),oncall:g('v-oncall')};
@@ -1578,7 +1702,7 @@ function exportCSV(month,targetStoreId){
   const [y,m]=month.split('-');
   const storeName=targetStoreId?stores.find(s=>s.id===targetStoreId)?.name||'':'全店舗';
   // ヘッダー行（30分と40分を分離）
-  const headers=['店舗','氏名','役職','職種','短時間設定','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','走行距離(km)','体調','アルコール','メモ','自動退勤',
+  const headers=['店舗','氏名','役職','職種','②-1時間','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','走行距離(km)','体調','アルコール','メモ','自動退勤',
     '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール','年末年始手当'];
   const rows=[headers];
   targetAccs.forEach(emp=>{
@@ -1627,10 +1751,11 @@ function exportCSV(month,targetStoreId){
     const mOT=mRecs.reduce((s,r)=>s+(r.overtimeMinutes||0),0);
     const mKm=recs.reduce((s,r)=>s+(r.todayKm||0),0);
     rows.push([stName,emp.name,'【月計】',empProf,empShortMin+'分','',
-      '',`出勤${mRecs.length}日`,mWork,mWork-mBreak,mOT,'',mKm.toFixed(1),'','','',`INC:¥${vc.incAmt.toLocaleString()}`,
+      '',`出勤${mRecs.length}日`,mWork,mWork-mBreak,mOT,`休憩${mBreak}分控除`,mKm.toFixed(1),
+      `INC:${vc.incH.toFixed(1)}h×¥${vc.incRate}=¥${vc.incAmt.toLocaleString()}`,'','','',
       vc.sales,vc.c30*(empShortMin===30?1:0),vc.c30*(empShortMin===40?1:0),vc.c60,vc.c90,
       vc.medical,vc.staff,vc.pre,vc.contract,vc.training,vc.prof!=='rehab'?vc.overtime:'',vc.prof!=='rehab'?vc.oncall:'',
-      nyc.amount>0?`¥${nyc.amount.toLocaleString()}`:'']);
+      nyc.amount>0?`${nyc.count}日 ¥${nyc.amount.toLocaleString()}`:'']);
   });
   // BOM + CSV生成
   const csvContent='\uFEFF'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
@@ -1781,8 +1906,10 @@ function addNewRecord(){
   if(existing){showToast('⚠ この日付の記録は既に存在します。修正機能をご利用ください。');return;}
   const rec={date:dk,checkin:ci,checkout:co,memo,health:'良好',alcohol:'0.00'};
   if(ci&&co){
-    rec.workMinutes=toMins(co)-toMins(ci);
-    rec.overtimeMinutes=Math.max(0,toMins(co)-toMins(empEnd(empId)));
+    let _aCoM=toMins(co),_aCiM=toMins(ci);
+    if(_aCoM<_aCiM)_aCoM+=1440;
+    rec.workMinutes=_aCoM-_aCiM;
+    rec.overtimeMinutes=Math.max(0,_aCoM-toMins(empEnd(empId)));
   }
   records[empId].unshift(rec);
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
@@ -1797,9 +1924,13 @@ function deleteEditRecord(i){
   const r=records[empId][i];
   if(!r)return;
   if(isMonthLocked(r.date.slice(0,7),empId)){showToast('🔒 この月はロックされています');return;}
+  // 削除時は日付+出勤時刻で特定（sync後にインデックスがずれる対策）
+  const delDate=r.date,delCi=r.checkin;
   confirmAction('この記録（'+r.date+'）を削除しますか？',()=>{
-    addALog('delete',r.date,'勤怠記録を削除（出勤:'+(r.checkin||'-')+' 退勤:'+(r.checkout||'-')+' ）');
-    records[empId].splice(i,1);
+    const actualIdx=records[empId].findIndex(x=>x.date===delDate&&x.checkin===delCi);
+    if(actualIdx<0){showToast('⚠ 対象記録が見つかりません（再読み込みしてください）');return;}
+    addALog('delete',delDate,'勤怠記録を削除（出勤:'+(delCi||'-')+' 退勤:'+(records[empId][actualIdx].checkout||'-')+' ）');
+    records[empId].splice(actualIdx,1);
     S.set('ka_records',records);
     renderEditList();
     showToast('🗑 削除しました');
@@ -1819,8 +1950,10 @@ function aAddNewRecord(){
   if(existing){showToast('⚠ この日付の記録は既に存在します。修正機能をご利用ください。');return;}
   const rec={date:dk,checkin:ci,checkout:co,memo,health:'良好',alcohol:'0.00'};
   if(ci&&co){
-    rec.workMinutes=toMins(co)-toMins(ci);
-    rec.overtimeMinutes=Math.max(0,toMins(co)-toMins(empEnd(empId)));
+    let _aCoM=toMins(co),_aCiM=toMins(ci);
+    if(_aCoM<_aCiM)_aCoM+=1440;
+    rec.workMinutes=_aCoM-_aCiM;
+    rec.overtimeMinutes=Math.max(0,_aCoM-toMins(empEnd(empId)));
   }
   records[empId].unshift(rec);
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
@@ -1835,9 +1968,12 @@ function aDeleteEditRecord(i){
   const r=records[empId][i];
   if(!r)return;
   if(isMonthLocked(r.date.slice(0,7),empId)){showToast('🔒 この月はロックされています');return;}
+  const delDate=r.date,delCi=r.checkin;
   confirmAction('この記録（'+r.date+'）を削除しますか？',()=>{
-    addALog('delete',r.date,'勤怠記録を削除（出勤:'+(r.checkin||'-')+' 退勤:'+(r.checkout||'-')+' ）');
-    records[empId].splice(i,1);
+    const actualIdx=records[empId].findIndex(x=>x.date===delDate&&x.checkin===delCi);
+    if(actualIdx<0){showToast('⚠ 対象記録が見つかりません（再読み込みしてください）');return;}
+    addALog('delete',delDate,'勤怠記録を削除（出勤:'+(delCi||'-')+' 退勤:'+(records[empId][actualIdx].checkout||'-')+' ）');
+    records[empId].splice(actualIdx,1);
     S.set('ka_records',records);
     renderEditListA();
     showToast('🗑 削除しました');
@@ -2312,11 +2448,13 @@ function saveEdit(i){
     if(olderIdx>=0){recs[olderIdx].todayKm=newerOdo!=null&&newerOdo>recs[olderIdx].odometer?parseFloat((newerOdo-recs[olderIdx].odometer).toFixed(1)):null;}
   }
   if(r.checkin&&r.checkout){
-    r.workMinutes=toMins(r.checkout)-toMins(r.checkin);
+    let _eCoM=toMins(r.checkout),_eCiM=toMins(r.checkin);
+    if(_eCoM<_eCiM)_eCoM+=1440;
+    r.workMinutes=_eCoM-_eCiM;
     if(r.fullTimeFlag){
-      r.overtimeMinutes=Math.max(0,toMins(empStart(session.id))-toMins(r.checkin))+Math.max(0,toMins(r.checkout)-toMins(empEnd(session.id)));
+      r.overtimeMinutes=Math.max(0,toMins(empStart(session.id))-_eCiM)+Math.max(0,_eCoM-toMins(empEnd(session.id)));
     }else{
-      r.overtimeMinutes=Math.max(0,toMins(r.checkout)-toMins(empEnd(session.id)));
+      r.overtimeMinutes=Math.max(0,_eCoM-toMins(empEnd(session.id)));
     }
   }
   S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditList();
@@ -2958,6 +3096,10 @@ async function getLocA(){
 
 // ── 打刻 (共通stamp関数に統一: DOM切替) ──
 async function stamp(type,fullTimeFlag){
+  if(_actionGuard.has('stamp'))return;_actionGuard.add('stamp');
+  try{await _stampInner(type,fullTimeFlag);}finally{setTimeout(()=>_actionGuard.delete('stamp'),1000);}
+}
+async function _stampInner(type,fullTimeFlag){
   const dk0=todayKey();
   if(isMonthLocked(dk0.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const isAdmin=curAcc()?.role==='admin';
@@ -2980,7 +3122,7 @@ async function stamp(type,fullTimeFlag){
     const aEl0=isAdmin?document.getElementById('aAlcVal'):document.getElementById('alcVal');
     const oEl0=isAdmin?document.getElementById('aOdoNow'):document.getElementById('odoNow');
     const h0=hEl0?.value||'良好', a0=aEl0?.value||'0.00';
-    const dk0=todayKey();
+    const dk0=td.checkinDate||todayKey();
     if(!records[session.id])records[session.id]=[];
     let r0=records[session.id].find(r=>r.date===dk0);
     if(!r0){r0={date:dk0};records[session.id].unshift(r0);}
@@ -3002,7 +3144,8 @@ async function stamp(type,fullTimeFlag){
     isAdmin?setStA('退勤済','var(--ac2)'):setSt('退勤済','var(--ac2)');
     isAdmin?renderWorkHoursA(toMins(td.checkinTime),toMins(time)):renderWorkHours(toMins(td.checkinTime),toMins(time));
     S.set('ka_today',todayMap);
-    autoSaveRecordA(td);
+    // 出勤日(checkinDate)を基準に記録を保存（日付跨ぎ対応）
+    autoSaveRecordA(td,td.checkinDate||todayKey());
         showToast('✅ 退勤・記録を自動保存しました');
   }
 }
@@ -3018,11 +3161,14 @@ function autoSaveRecordA(td,dateOverride){
   const mEl=isAdmin?document.getElementById('aTodayMemo'):document.getElementById('todayMemo');
   const rec={date:dk,checkin:td.checkinTime,checkout:td.checkoutTime,checkinLoc:td.checkinLoc,checkoutLoc:td.checkoutLoc,
     health:hEl?.value||'良好',alcohol:aEl?.value||'0.00',memo:mEl?.value||'',odometer:odoNum,todayKm:null,autoCheckout:td.autoCheckout||false,fullTimeFlag:td.fullTimeFlag||false};
-  rec.workMinutes=toMins(rec.checkout)-toMins(rec.checkin);
+  // 日付跨ぎ対応: 退勤が出勤より前の時刻なら翌日とみなす
+  let _coM=toMins(rec.checkout),_ciM=toMins(rec.checkin);
+  if(_coM<_ciM)_coM+=1440;
+  rec.workMinutes=_coM-_ciM;
   if(rec.fullTimeFlag){
-    rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-toMins(rec.checkin))+Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+    rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-_ciM)+Math.max(0,_coM-toMins(empEnd(empId)));
   }else{
-    rec.overtimeMinutes=Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+    rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId)));
   }
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
@@ -3322,11 +3468,13 @@ function saveEditA(i){
     if(olderIdx>=0){recs[olderIdx].todayKm=newerOdo!=null&&newerOdo>recs[olderIdx].odometer?parseFloat((newerOdo-recs[olderIdx].odometer).toFixed(1)):null;}
   }
   if(r.checkin&&r.checkout){
-    r.workMinutes=toMins(r.checkout)-toMins(r.checkin);
+    let _eCoM2=toMins(r.checkout),_eCiM2=toMins(r.checkin);
+    if(_eCoM2<_eCiM2)_eCoM2+=1440;
+    r.workMinutes=_eCoM2-_eCiM2;
     if(r.fullTimeFlag){
-      r.overtimeMinutes=Math.max(0,toMins(empStart(empId))-toMins(r.checkin))+Math.max(0,toMins(r.checkout)-toMins(empEnd(empId)));
+      r.overtimeMinutes=Math.max(0,toMins(empStart(empId))-_eCiM2)+Math.max(0,_eCoM2-toMins(empEnd(empId)));
     }else{
-      r.overtimeMinutes=Math.max(0,toMins(r.checkout)-toMins(empEnd(empId)));
+      r.overtimeMinutes=Math.max(0,_eCoM2-toMins(empEnd(empId)));
     }
   }
   S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditListA();
@@ -3546,11 +3694,13 @@ function adminAutoSave(td){
     alcohol:document.getElementById('aAlcVal')?.value||'0.00',
     memo:document.getElementById('aTodayMemo')?.value||'',
     odometer:odoNum,todayKm:null,autoCheckout:false,fullTimeFlag:td.fullTimeFlag||false};
-  rec.workMinutes=toMins(rec.checkout)-toMins(rec.checkin);
+  let _coM2=toMins(rec.checkout),_ciM2=toMins(rec.checkin);
+  if(_coM2<_ciM2)_coM2+=1440;
+  rec.workMinutes=_coM2-_ciM2;
   if(rec.fullTimeFlag){
-    rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-toMins(rec.checkin))+Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+    rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-_ciM2)+Math.max(0,_coM2-toMins(empEnd(empId)));
   }else{
-    rec.overtimeMinutes=Math.max(0,toMins(rec.checkout)-toMins(empEnd(empId)));
+    rec.overtimeMinutes=Math.max(0,_coM2-toMins(empEnd(empId)));
   }
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
@@ -4068,7 +4218,7 @@ async function syncAndEnter(){
 }
 
 // ページ離脱時に未同期データをフラッシュ（keepalive fetchで確実に送信）
-window.addEventListener('beforeunload',()=>{
+function _flushWithKeepalive(){
   if(DB._dirtyKeys.size>0&&DB.configured()){
     for(const k of DB._dirtyKeys){
       const raw=localStorage.getItem(k);if(!raw)continue;
@@ -4082,11 +4232,29 @@ window.addEventListener('beforeunload',()=>{
       }catch(e){}
     }
   }
-});
+}
+// beforeunload（デスクトップ向け）
+window.addEventListener('beforeunload',_flushWithKeepalive);
+// pagehide（モバイル向け — iOSやAndroidではbeforeunloadが発火しないことがある）
+window.addEventListener('pagehide',_flushWithKeepalive);
 
-// Auto-sync when tab becomes visible (multi-device sync)
+// visibilitychange: hidden時にデータフラッシュ、visible時に同期
+let _lastSyncTime=0;
 document.addEventListener('visibilitychange',async()=>{
+  if(document.visibilityState==='hidden'){
+    // バックグラウンドに入る瞬間にkeepaliveで送信（モバイル対応の要）
+    _flushWithKeepalive();
+    return;
+  }
+  // visible: 復帰時の同期（ただし短時間の復帰では実行しない）
   if(document.visibilityState==='visible'&&DB.configured()&&session){
+    const now=Date.now();
+    if(now-_lastSyncTime<3000)return; // 3秒以内の再表示はスキップ
+    _lastSyncTime=now;
+    // 未同期データがある場合は先にpushを待つ
+    if(DB._dirtyKeys.size>0){
+      await DB._flushDirty();
+    }
     showLoading('データを同期中...');
     const ok=await DB.pullAll();
     if(ok){
