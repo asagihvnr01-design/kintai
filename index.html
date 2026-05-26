@@ -1519,9 +1519,14 @@ function renderWorkHours(ci,co){
 function setSt(txt,col){const e=document.getElementById('wkSt');e.textContent=txt;e.style.color=col;}
 
 function checkPendingAutoCheckout(){
-  // Check employees for missed checkout (all stores for executives, own store for admins)
+  // Check all accounts for missed checkout (executives: all stores, admins: own store + self)
   const today=todayKey();
-  const emps=curAcc()?.role==='executive'?accounts.filter(a=>a.role==='employee'||a.role==='staff'):accounts.filter(a=>(a.role==='employee'||a.role==='staff')&&a.storeId===curAcc()?.storeId);
+  const curRole=curAcc()?.role;
+  const curStore=curAcc()?.storeId;
+  // 役員は全アカウント（自分以外）、管理者は同じ店舗の全アカウント（自分以外）
+  const emps=curRole==='executive'
+    ?accounts.filter(a=>a.id!==session?.id)
+    :accounts.filter(a=>a.id!==session?.id&&a.storeId===curStore);
   emps.forEach(e=>{
     const td=todayMap[e.id]||{};
     if(!td.checkinDate)return;
@@ -1538,20 +1543,38 @@ function checkPendingAutoCheckout(){
       showToast(`⏰ ${e.name}の${td.checkinDate}退勤を自動打刻しました（${autoTime}）`);
     }
   });
-  // Also check current logged-in employee
-  if(session&&curAcc()?.role==='employee'){
+  // Also check current logged-in user (any role)
+  if(session){
     const td=todayMap[session.id]||{};
     if(td.checkinTime&&!td.checkoutTime&&td.checkinDate&&td.checkinDate<today){
       const autoTime=td.fullTimeFlag?settings.end:empEnd(session.id);
       td.checkoutTime=autoTime;td.autoCheckout=true;td.checkoutLoc=null;
       autoSaveRecordA(td,td.checkinDate);
-      document.getElementById('coTimeEmp').textContent=autoTime;
-      document.getElementById('coBtnEmp').disabled=true;
-      setSt('退勤済','var(--ac2)');
-      renderWorkHours(toMins(td.checkinTime),toMins(autoTime));
+      // UI更新 - ロールに応じたUI要素を更新
+      const isEmp=curRole==='employee'||curRole==='staff';
+      const coTimeEl=document.getElementById(isEmp?'coTimeEmp':'aCoTime');
+      const coBtnEl=document.getElementById(isEmp?'coBtnEmp':'aCoBtn');
+      if(coTimeEl)coTimeEl.textContent=autoTime;
+      if(coBtnEl)coBtnEl.disabled=true;
+      if(isEmp){
+        setSt('退勤済','var(--ac2)');
+        renderWorkHours(toMins(td.checkinTime),toMins(autoTime));
+      }else{
+        const st=document.getElementById('aWkSt');if(st){st.textContent='退勤済';st.style.color='var(--ac2)';}
+        const wh=document.getElementById('aWkH'),oh=document.getElementById('aOtH');
+        const w=toMins(autoTime)-toMins(td.checkinTime);
+        let ot;
+        if(td.fullTimeFlag){
+          ot=Math.max(0,toMins(empStart(session.id))-toMins(td.checkinTime))+Math.max(0,toMins(autoTime)-toMins(empEnd(session.id)));
+        }else{
+          ot=Math.max(0,toMins(autoTime)-toMins(empEnd(session.id)));
+        }
+        if(wh)wh.textContent=toHHMM(w);if(oh)oh.textContent=toHHMM(ot);
+      }
       showToast(`⏰ 昨日の退勤を自動打刻しました（${autoTime}）`);
     }
   }
+  S.set('ka_today',todayMap);
 }
 
 // ═══════════════════════════════════
@@ -1724,13 +1747,16 @@ function exportCSV(month,targetStoreId){
       const col30=empShortMin===30?c30val:'';
       const col40=empShortMin===40?c30val:'';
       const recOdoOnly=rec&&!rec.checkin&&!rec.checkout&&rec.odometer!=null;
+      const empFeat=getAccFeatures(emp.id);
+      const empKintaiOn=empFeat.kintai!==false;
+      const isHolidayVehicleCSV=recOdoOnly&&empKintaiOn;
       const wm=rec?.workMinutes!=null?rec.workMinutes:'';
       const netWm=wm!==''&&wm>360?wm-60:wm;
       const mm=parseInt(dk.slice(5,7)),dd=parseInt(dk.slice(8,10));
       const isNY=rec?.workMinutes&&((mm===12&&dd>=29)||(mm===1&&dd<=3));
       rows.push([
         stName, emp.name, roleMap[emp.role]||emp.role, empProf, empShortMin+'分', dk,
-        recOdoOnly?'車両のみ':(rec?.checkin||''), recOdoOnly?'':(rec?.checkout||''),
+        isHolidayVehicleCSV?'車両のみ':(rec?.checkin||''), isHolidayVehicleCSV?'':(rec?.checkout||''),
         recOdoOnly?'':wm, recOdoOnly?'':netWm, recOdoOnly?'':(rec?.overtimeMinutes!=null?rec.overtimeMinutes:''),
         rec?.fullTimeFlag?'○':'',
         rec?.todayKm!=null?rec.todayKm:'',
@@ -2350,14 +2376,22 @@ function renderRecords(){
   if(!recs.length){list.innerHTML='<div class="empty">この月の記録がありません</div>';return;}
   // 全recordsでのインデックスを保持（削除時に使用）
   const allRecs=records[empId]||[];
+  const sFeat=getAdminFeatures();
+  const sKintai=sFeat.kintai!==false,sOdo=sFeat.odo!==false;
   list.innerHTML=recs.map(r=>{
     const globalIdx=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
     const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
-    return`<div class="ri"${isOdoOnly?' style="border-left:3px solid var(--ac);opacity:.85"':''}>
+    const isHolidayVehicle=isOdoOnly&&sKintai;
+    const missCO=sKintai&&r.checkin&&!r.checkout&&!isOdoOnly&&r.date!==todayKey();
+    const missCI=sKintai&&!r.checkin&&r.checkout&&!isOdoOnly;
+    const missOdo=sOdo&&r.checkin&&r.odometer==null&&!isOdoOnly;
+    return`<div class="ri"${isHolidayVehicle?' style="border-left:3px solid var(--ac);opacity:.85"':''}${(missCO||missCI)?' style="border-left:3px solid var(--rd);background:rgba(247,95,95,.06)"':''}>
       <div style="flex:1">
-        <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isOdoOnly?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
-        ${isOdoOnly
+        <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
+        ${isHolidayVehicle
           ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
+          :isOdoOnly&&!sKintai
+            ?`<div class="rt" style="color:var(--ac)">ODO: ${r.odometer?.toFixed(1)} km${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
           :`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`}
         <div class="rd">${!isOdoOnly&&r.overtimeMinutes>0?'残業 '+toHHMM(r.overtimeMinutes)+' ／ ':''}体調:${r.health||'-'} ／ アルコール:${r.alcohol||'0.00'}mg/L${!isOdoOnly&&r.todayKm!=null?' ／ 🚗 '+r.todayKm+'km':''}${r.memo?' ／ 📝'+r.memo:''}</div>
         ${r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
@@ -2392,12 +2426,18 @@ function renderEditList(){
   const monthRecs=allRecs.filter(r=>r.date.startsWith(month));
   if(!monthRecs.length){list.innerHTML='<div class="empty">この月の記録がありません</div>';renderAuditLog();return;}
   const dis=isLocked?' disabled':'';
+  const eFeat=getAdminFeatures();
+  const eShowK=eFeat.kintai!==false,eShowO=eFeat.odo!==false;
   list.innerHTML=monthRecs.map(r=>{
     const i=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
     const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
+    const isHolidayVehicle=isOdoOnly&&eShowK;
+    const missCO=eShowK&&r.checkin&&!r.checkout&&!isOdoOnly&&r.date!==todayKey();
+    const missCI=eShowK&&!r.checkin&&r.checkout&&!isOdoOnly;
+    const missOdo=eShowO&&r.checkin&&r.odometer==null&&!isOdoOnly;
     return`
-    <div class="ei"${isOdoOnly?' style="border-left:3px solid var(--ac)"':''}>
-      <div class="ed">📅 ${r.date}${isOdoOnly?' <span style="font-size:11px;background:rgba(79,142,247,.12);color:var(--ac);padding:2px 6px;border-radius:4px;font-weight:700">🚗 車両のみ</span>':''}</div>
+    <div class="ei"${isHolidayVehicle?' style="border-left:3px solid var(--ac)"':''}${(missCO||missCI)?' style="border-left:3px solid var(--rd)"':''}>
+      <div class="ed">📅 ${r.date}${isHolidayVehicle?' <span style="font-size:11px;background:rgba(79,142,247,.12);color:var(--ac);padding:2px 6px;border-radius:4px;font-weight:700">🚗 車両のみ</span>':''}${missCO?' <span style="font-size:11px;background:rgba(247,95,95,.15);color:var(--rd);padding:2px 6px;border-radius:4px;font-weight:700">⚠ 退勤未打刻</span>':''}${missCI?' <span style="font-size:11px;background:rgba(247,95,95,.15);color:var(--rd);padding:2px 6px;border-radius:4px;font-weight:700">⚠ 出勤未打刻</span>':''}${missOdo?' <span style="font-size:11px;background:rgba(247,211,79,.15);color:var(--yw);padding:2px 6px;border-radius:4px;font-weight:700">⚠ ODO未入力</span>':''}</div>
       <div class="er">
         <div class="ef"><label>出勤時刻</label><input type="time" class="einp" id="e_ci_${i}" value="${r.checkin||''}"${dis}></div>
         <div class="ef"><label>退勤時刻</label><input type="time" class="einp" id="e_co_${i}" value="${r.checkout||''}"${dis}></div>
@@ -3175,6 +3215,13 @@ function autoSaveRecordA(td,dateOverride){
   if(idx>=0){
     const existing=records[empId][idx];
     if(odoNum==null&&existing.odometer!=null){rec.odometer=existing.odometer;rec.todayKm=existing.todayKm;}
+    // 自動退勤時（dateOverride）は出勤時に保存済みの体調・アルコール・メモ・位置情報を保持
+    if(dateOverride&&existing){
+      if(!hEl)rec.health=existing.health||rec.health;
+      if(!aEl)rec.alcohol=existing.alcohol||rec.alcohol;
+      if(!mEl)rec.memo=existing.memo||rec.memo;
+      if(existing.checkinLoc)rec.checkinLoc=existing.checkinLoc;
+    }
     records[empId][idx]=rec;
   }else records[empId].unshift(rec);
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
@@ -3388,15 +3435,21 @@ function renderRecordsA(){
   list.innerHTML=recs.map(r=>{
     const gi=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
     const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
+    const isHolidayVehicle=isOdoOnly&&rShowK;
+    const missCO=rShowK&&r.checkin&&!r.checkout&&!isOdoOnly&&r.date!==todayKey();
+    const missCI=rShowK&&!r.checkin&&r.checkout&&!isOdoOnly;
+    const missOdo=rShowO&&r.checkin&&r.odometer==null&&!isOdoOnly;
     const detailParts=[];
     if(rShowK&&!isOdoOnly&&r.overtimeMinutes>0)detailParts.push('残業 '+toHHMM(r.overtimeMinutes));
     if(rShowH){detailParts.push('体調:'+(r.health||'-'));detailParts.push('アルコール:'+(r.alcohol||'0.00')+'mg/L');}
     if(rShowO&&!isOdoOnly&&r.todayKm!=null)detailParts.push('🚗 '+r.todayKm+'km');
     if(r.memo)detailParts.push('📝'+r.memo);
-    return`<div class="ri"${isOdoOnly?' style="border-left:3px solid var(--ac);opacity:.85"':''}><div style="flex:1">
-      <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isOdoOnly?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
-      ${isOdoOnly
+    return`<div class="ri"${isHolidayVehicle?' style="border-left:3px solid var(--ac);opacity:.85"':''}${(missCO||missCI)?' style="border-left:3px solid var(--rd);background:rgba(247,95,95,.06)"':''}><div style="flex:1">
+      <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${r.autoCheckout?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">自動</span>':''}</div>
+      ${isHolidayVehicle
         ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
+        :isOdoOnly&&!rShowK
+          ?`<div class="rt" style="color:var(--ac)">ODO: ${r.odometer?.toFixed(1)} km${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
         :(rShowK?`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`:'')}
       ${detailParts.length?`<div class="rd">${detailParts.join(' ／ ')}</div>`:''}
       ${rShowK&&!isOdoOnly&&r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
@@ -3427,7 +3480,11 @@ function renderEditListA(){
   list.innerHTML=monthRecs.map(r=>{
     const i=allRecs.findIndex(x=>x.date===r.date&&x.checkin===r.checkin);
     const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
-    return`<div class="ei"${isOdoOnly?' style="border-left:3px solid var(--ac)"':''}><div class="ed">📅 ${r.date}${isOdoOnly?' <span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac);font-size:10px;margin-left:6px">🚗 車両のみ</span>':''}</div>
+    const isHolidayVehicle=isOdoOnly&&showKintai;
+    const missCO=showKintai&&r.checkin&&!r.checkout&&!isOdoOnly&&r.date!==todayKey();
+    const missCI=showKintai&&!r.checkin&&r.checkout&&!isOdoOnly;
+    const missOdo=showOdo&&r.checkin&&r.odometer==null&&!isOdoOnly;
+    return`<div class="ei"${isHolidayVehicle?' style="border-left:3px solid var(--ac)"':''}${(missCO||missCI)?' style="border-left:3px solid var(--rd)"':''}><div class="ed">📅 ${r.date}${isHolidayVehicle?' <span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac);font-size:10px;margin-left:6px">🚗 車両のみ</span>':''}${missCO?' <span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd);font-size:10px;margin-left:6px">⚠ 退勤未打刻</span>':''}${missCI?' <span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd);font-size:10px;margin-left:6px">⚠ 出勤未打刻</span>':''}${missOdo?' <span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw);font-size:10px;margin-left:6px">⚠ ODO未入力</span>':''}</div>
       ${showKintai?`<div class="er"><div class="ef"><label>出勤時刻</label><input type="time" class="einp" id="ea_ci_${i}" value="${r.checkin||''}"${dis}></div><div class="ef"><label>退勤時刻</label><input type="time" class="einp" id="ea_co_${i}" value="${r.checkout||''}"${dis}></div></div>`:`<input type="hidden" id="ea_ci_${i}" value="${r.checkin||''}"><input type="hidden" id="ea_co_${i}" value="${r.checkout||''}">`}
       <div class="er">${showOdo?`<div class="ef"><label>ODO(km)</label><input type="number" class="einp" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}" step="0.1"${dis}></div>`:`<input type="hidden" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}">`}${showHealth?`<div class="ef"><label>体調</label><select class="einp" id="ea_hl_${i}"${dis}>${['良好','普通','不調'].map(v=>`<option${r.health===v?' selected':''}>${v}</option>`).join('')}</select></div>`:`<input type="hidden" id="ea_hl_${i}" value="${r.health||'良好'}">`}</div>
       <div class="er">${showHealth?`<div class="ef"><label>アルコール</label><input type="number" class="einp" id="ea_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div>`:`<input type="hidden" id="ea_al_${i}" value="${r.alcohol||'0.00'}">`}<div class="ef"><label>メモ</label><input type="text" class="einp" id="ea_me_${i}" value="${r.memo||''}"${dis}></div></div>
@@ -3513,6 +3570,7 @@ const ADMIN_FEATURE_DEFS=[
   {key:'leave',  label:'有給台帳', note:''},
 ];
 function getAdminFeatures(){return curAcc()?.adminFeatures||{kintai:true,health:true,odo:true,visits:true,leave:true};}
+function getAccFeatures(empId){const acc=accounts.find(a=>a.id===empId);return acc?.adminFeatures||{kintai:true,health:true,odo:true,visits:true,leave:true};}
 function renderAdminFeatureToggles(){
   const feat=getAdminFeatures();
   const el=document.getElementById('adminFeatureToggles');if(!el)return;
@@ -3893,6 +3951,8 @@ function buildVisitDetail(empId, month){
 function buildHealthDetail(empId, month){
   const recs=(records[empId]||[]).filter(r=>r.date.startsWith(month)&&(r.health||r.alcohol||r.todayKm||r.checkin));
   if(!recs.length) return '<div class="empty" style="padding:12px">この月の記録がありません</div>';
+  const hFeat=getAccFeatures(empId);
+  const hShowK=hFeat.kintai!==false,hShowO=hFeat.odo!==false;
   const healthClass=h=>h==='良好'?'hb-good':h==='普通'?'hb-norm':'hb-bad';
   const alcClass=a=>{const v=parseFloat(a||0);return v===0?'alc-ok':v<0.15?'alc-warn':'alc-ng';};
   const dayNames='日月火水木金土';
@@ -3901,17 +3961,26 @@ function buildHealthDetail(empId, month){
   return recs.map(r=>{
     const dow=getDow(r.date);
     const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
-    return`<div style="padding:8px 0;border-top:1px solid var(--bd)${isOdoOnly?';opacity:.8':''}">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+    const isHolidayVehicle=isOdoOnly&&hShowK;
+    const missCO=hShowK&&r.checkin&&!r.checkout&&!isOdoOnly&&r.date!==todayKey();
+    const missCI=hShowK&&!r.checkin&&r.checkout&&!isOdoOnly;
+    const missOdo=hShowO&&r.checkin&&r.odometer==null&&!isOdoOnly;
+    return`<div style="padding:8px 0;border-top:1px solid var(--bd)${isHolidayVehicle?';opacity:.8':''}${(missCO||missCI)?';background:rgba(247,95,95,.06)':''}">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
         <span class="health-row-date" style="font-weight:700">${r.date.slice(5)}${dow}</span>
-        ${isOdoOnly?'<span style="font-size:10px;background:rgba(79,142,247,.12);color:var(--ac);padding:2px 6px;border-radius:4px;font-weight:700">🚗 車両のみ</span>':''}
+        ${isHolidayVehicle?'<span style="font-size:10px;background:rgba(79,142,247,.12);color:var(--ac);padding:2px 6px;border-radius:4px;font-weight:700">🚗 車両のみ</span>':''}
+        ${missCO?'<span style="font-size:10px;background:rgba(247,95,95,.15);color:var(--rd);padding:2px 6px;border-radius:4px;font-weight:700">⚠ 退勤未打刻</span>':''}
+        ${missCI?'<span style="font-size:10px;background:rgba(247,95,95,.15);color:var(--rd);padding:2px 6px;border-radius:4px;font-weight:700">⚠ 出勤未打刻</span>':''}
+        ${missOdo?'<span style="font-size:10px;background:rgba(247,211,79,.15);color:var(--yw);padding:2px 6px;border-radius:4px;font-weight:700">⚠ ODO未入力</span>':''}
         <span class="health-badge ${healthClass(r.health||'良好')}">${r.health||'良好'}</span>
         <span class="${alcClass(r.alcohol)}" style="font-family:var(--mo);font-size:12px">${parseFloat(r.alcohol||0).toFixed(2)} <span style="font-size:10px">mg/L</span></span>
         <span style="font-family:var(--mo);font-size:12px;color:var(--yw)">${r.todayKm!=null?r.todayKm+' km':'—'}</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--dim);padding-left:4px">
-        ${isOdoOnly
+        ${isHolidayVehicle
           ?`<div style="grid-column:span 2;color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）</div>`
+          :isOdoOnly&&!hShowK
+            ?`<div style="grid-column:span 2;color:var(--ac)">ODO: ${r.odometer?.toFixed(1)} km${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
           :`<div>出勤: <span style="color:var(--gn);font-family:var(--mo)">${r.checkin||'—'}</span></div>
         <div>退勤: <span style="color:var(--ac2);font-family:var(--mo)">${r.checkout||'—'}</span></div>`}
         ${isOdoOnly?'':`<div style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${fmtLoc(r.checkinLoc)}">📍出: ${fmtLoc(r.checkinLoc)}</div>
