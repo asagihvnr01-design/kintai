@@ -1762,7 +1762,7 @@ function exportCSV(month,targetStoreId){
   const blob=new Blob([csvContent],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;a.download=`勤怠データ_${storeName}_${y}年${parseInt(m)}月.csv`;
+  a.href=url;a.download=`勤怠・運行管理表_${storeName}_${y}年${parseInt(m)}月.csv`;
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('📥 CSVをダウンロードしました');
@@ -2556,7 +2556,7 @@ function renderAdmin(){
       </div>
       ${bal?`<div class="sec-sep">有給残数</div><div class="ag3"><div class="as"><div class="asl">日数残</div><div class="asv" style="color:var(--pu)">${bal.remDays}日</div></div><div class="as"><div class="asl">使用済み</div><div class="asv">${bal.dayUsed}日</div></div>${bal.hasHourlyPool?`<div class="as"><div class="asl">時間給残</div><div class="asv" style="color:var(--gn)">${bal.remHourlyH}h</div></div>`:`<div class="as"><div class="asl">付与合計</div><div class="asv">${bal.totalDays}日</div></div>`}</div>`:''}
       <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
-        <button class="mb mb-b" style="width:100%;text-align:center;padding:7px" onclick="toggleDetail('hd_${e.id}','hd_${e.id}_btn')">🩺 体調・アルコール詳細</button>
+        <button class="mb mb-b" style="width:100%;text-align:center;padding:7px" onclick="toggleDetail('hd_${e.id}','hd_${e.id}_btn')">📋 勤怠・運行管理表</button>
         <div class="health-detail" id="hd_${e.id}"></div>
         <button class="mb mb-b" style="width:100%;text-align:center;padding:7px;background:rgba(61,214,140,.1);border-color:var(--gn);color:var(--gn)" onclick="toggleDetail('vd_${e.id}','vd_${e.id}_btn')">📋 訪問実績 日別一覧</button>
         <div class="health-detail" id="vd_${e.id}"></div>
@@ -3542,7 +3542,7 @@ function applyAdminFeatureVisibility(){
   // 打刻エリア（打刻ボタン・勤務時間・位置情報）
   const sa=document.getElementById('aStampArea');
   if(sa)sa.style.display=feat.kintai!==false?'':'none';
-  // 体調・アルコールカード
+  // 勤怠・運行管理表カード
   const hc=document.getElementById('aHealthCard');
   if(hc)hc.style.display=feat.health!==false?'':'none';
   // 走行距離カード
@@ -3933,7 +3933,7 @@ function toggleDetail(id, btnId){
       const empId=id.replace('hd_','');
       const month=adminSelectedMonth||thisMonth();
       el.innerHTML=buildHealthDetail(empId,month);
-      btn.textContent='🩺 体調・アルコール詳細を閉じる';
+      btn.textContent='📋 勤怠・運行管理表を閉じる';
     } else if(id.startsWith('vd_')){
       const empId=id.replace('vd_','');
       const month=adminSelectedMonth||thisMonth();
@@ -3941,7 +3941,7 @@ function toggleDetail(id, btnId){
       btn.textContent='📋 訪問実績 日別一覧を閉じる';
     }
   } else {
-    if(id.startsWith('hd_')) btn.textContent='🩺 体調・アルコール詳細';
+    if(id.startsWith('hd_')) btn.textContent='📋 勤怠・運行管理表';
     else if(id.startsWith('vd_')) btn.textContent='📋 訪問実績 日別一覧';
   }
 }
