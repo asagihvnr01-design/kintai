@@ -1788,7 +1788,8 @@ function exportCSV(month,targetStoreId){
   const storeName=targetStoreId?stores.find(s=>s.id===targetStoreId)?.name||'':'全店舗';
   // ヘッダー行（30分と40分を分離）
   const headers=['店舗','氏名','役職','職種','②-1時間','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','走行距離(km)','体調','アルコール','メモ','自動退勤',
-    '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール','年末年始手当'];
+    '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール','年末年始手当',
+    '有給種別','有給時間(h)'];
   const rows=[headers];
   targetAccs.forEach(emp=>{
     const stName=stores.find(s=>s.id===emp.storeId)?.name||'';
@@ -1797,13 +1798,16 @@ function exportCSV(month,targetStoreId){
     const empShortMin=empProf==='リハビリ'?40:30;
     const recs=(records[emp.id]||[]).filter(r=>r.date.startsWith(month)).sort((a,b)=>a.date.localeCompare(b.date));
     const viss=(visits[emp.id]||[]).filter(v=>v.date.startsWith(month));
+    const empLeaves=leaveRequests.filter(r=>r.empId===emp.id&&r.status==='approved'&&r.targetDate.startsWith(month));
+    const leaveTypeMap={full:'全日休',half:'半日休',hourly:'時間休'};
     // 月内の全日を列挙
     const daysInMonth=new Date(parseInt(y),parseInt(m),0).getDate();
     for(let d=1;d<=daysInMonth;d++){
       const dk=`${y}-${m}-${String(d).padStart(2,'0')}`;
       const rec=recs.find(r=>r.date===dk);
       const vis=viss.find(v=>v.date===dk);
-      if(!rec&&!vis)continue; // データがない日はスキップ
+      const dayLeave=empLeaves.find(lr=>lr.targetDate===dk);
+      if(!rec&&!vis&&!dayLeave)continue; // データがない日はスキップ
       // 30分/40分の振り分け: スタッフの設定に応じてc30の値を正しい列に配置
       const c30val=vis?.c30||'';
       const col30=empShortMin===30?c30val:'';
@@ -1827,7 +1831,8 @@ function exportCSV(month,targetStoreId){
         vis?.sales||'', col30, col40, vis?.c60||'', vis?.c90||'',
         vis?.medical||'', vis?.staff||'', vis?.pre||'', vis?.contract||'',
         vis?.training||'', empProf!=='リハビリ'?(vis?.overtime||''):'', empProf!=='リハビリ'?(vis?.oncall||''):'',
-        isNY?'¥10,000':''
+        isNY?'¥10,000':'',
+        dayLeave?leaveTypeMap[dayLeave.type]||'':'', dayLeave?dayLeave.hours:''
       ]);
     }
     // 月次集計行
@@ -1838,12 +1843,26 @@ function exportCSV(month,targetStoreId){
     const mBreak=mRecs.filter(r=>r.workMinutes>360).length*60;
     const mOT=mRecs.reduce((s,r)=>s+(r.overtimeMinutes||0),0);
     const mKm=recs.reduce((s,r)=>s+(r.todayKm||0),0);
+    // 有給集計
+    const lvFull=empLeaves.filter(r=>r.type==='full').length;
+    const lvHalf=empLeaves.filter(r=>r.type==='half').length;
+    const lvHourly=empLeaves.filter(r=>r.type==='hourly');
+    const lvHourlyH=lvHourly.reduce((s,r)=>s+r.hours,0);
+    const bal=emp.leaveConfig?.grantDate?getLeaveBal(emp.id):null;
+    const lvParts=[];
+    if(lvFull)lvParts.push(`全日${lvFull}日`);
+    if(lvHalf)lvParts.push(`半日${lvHalf}回`);
+    if(lvHourlyH>0)lvParts.push(`時間休${lvHourlyH}h`);
+    const lvSummary=lvParts.length?lvParts.join('／'):'';
+    const lvTotalH=empLeaves.reduce((s,r)=>s+r.hours,0);
+    const lvBalStr=bal?`残${bal.remDays}日${bal.hasHourlyPool?'＋'+bal.remHourlyH+'h':''}`:'';
     rows.push([stName,emp.name,'【月計】',empProf,empShortMin+'分','',
       '',`出勤${mRecs.length}日`,mWork,mWork-mBreak,mOT,`休憩${mBreak}分控除`,mKm.toFixed(1),
       `INC:${vc.incH.toFixed(1)}h×¥${vc.incRate}=¥${vc.incAmt.toLocaleString()}`,'','','',
       vc.sales,vc.c30*(empShortMin===30?1:0),vc.c30*(empShortMin===40?1:0),vc.c60,vc.c90,
       vc.medical,vc.staff,vc.pre,vc.contract,vc.training,vc.prof!=='rehab'?vc.overtime:'',vc.prof!=='rehab'?vc.oncall:'',
-      nyc.amount>0?`${nyc.count}日 ¥${nyc.amount.toLocaleString()}`:'']);
+      nyc.amount>0?`${nyc.count}日 ¥${nyc.amount.toLocaleString()}`:'',
+      lvSummary?`${lvSummary}（${lvBalStr}）`:'',lvTotalH||'']);
   });
   // BOM + CSV生成
   const csvContent='\uFEFF'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
