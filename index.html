@@ -1310,11 +1310,11 @@ function restoreRemembered(){
     }
   }catch(e){}
 }
-async function doLogout(){session=null;S.del('ka_session');localStorage.removeItem('ka_remember');await SB.signOut();showScreen('login');document.getElementById('li-user').value='';document.getElementById('li-pass').value='';const rc=document.getElementById('li-remember');if(rc)rc.checked=false;}
+async function doLogout(){stopGpsWatch();session=null;S.del('ka_session');localStorage.removeItem('ka_remember');await SB.signOut();showScreen('login');document.getElementById('li-user').value='';document.getElementById('li-pass').value='';const rc=document.getElementById('li-remember');if(rc)rc.checked=false;}
 function enterApp(acc){
   if(!acc)acc=accounts.find(a=>a.id===session?.id);
   if(!acc){doLogout();return;}
-  preWarmGps(); // ログイン時にGPS許可を先行リクエスト（ブラウザのセッション許可をウォームアップ）
+  initGpsForAccount(); // ログイン時にwatchPosition開始（GPS許可はこの1回のみ）
   checkPendingAutoCheckout();
   if(acc.role==='executive'){
     showScreen('exec');renderExecScreen();
@@ -1601,58 +1601,68 @@ function checkPendingAutoCheckout(){
 }
 
 // ═══════════════════════════════════
-// LOCATION (GPS同意管理)
+// LOCATION (watchPosition方式: セッション中1回のみブラウザ許可)
 // ═══════════════════════════════════
-function getGpsConsent(){return S.get('ka_gps_consent');}  // 'granted'|'denied'|null
-function setGpsConsent(v){S.set('ka_gps_consent',v);}
-// 初回のみ表示するカスタム同意ダイアログ
-function askGpsConsent(){
-  return new Promise(resolve=>{
-    confirmAction(
-      '出退勤時に位置情報（GPS）を記録しますか？\n一度許可すると次回以降このダイアログは表示されません。\n\n※ 設定画面からいつでも変更できます。',
-      ()=>{setGpsConsent('granted');resolve(true);},
-      '📍 許可する',
-      ()=>{setGpsConsent('denied');resolve(false);},
-      '使わない'
-    );
-  });
+let _gpsWatchId=null;
+let _gpsCache=null;   // {lat,lon,acc,address,ts}
+let _gpsReady=false;  // 初回位置取得完了フラグ
+let _gpsWaiters=[];   // 初回取得待ちのresolve関数リスト
+
+// ログイン時にwatchPosition開始（ブラウザのGPS許可はこの1回のみ）
+function startGpsWatch(){
+  if(_gpsWatchId!=null||!navigator.geolocation)return;
+  _gpsWatchId=navigator.geolocation.watchPosition(
+    pos=>{
+      _gpsCache={lat:pos.coords.latitude,lon:pos.coords.longitude,acc:Math.round(pos.coords.accuracy),address:null,ts:Date.now()};
+      if(!_gpsReady){_gpsReady=true;_gpsWaiters.forEach(fn=>fn());_gpsWaiters=[];}
+      // UI更新
+      const dots=['locDot','aLocDot'],txts=['locTxt','aLocTxt'];
+      dots.forEach(id=>{const el=document.getElementById(id);if(el)el.className='loc-dot on';});
+      txts.forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=`📍 GPS取得済（±${_gpsCache.acc}m）`;});
+    },
+    ()=>{
+      _gpsReady=true;_gpsWaiters.forEach(fn=>fn());_gpsWaiters=[];
+      const txts=['locTxt','aLocTxt'];
+      txts.forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='位置情報を取得できませんでした';});
+    },
+    {enableHighAccuracy:true,timeout:15000,maximumAge:30000}
+  );
 }
-// GPS同意チェック付きで位置情報を取得（同意未確認なら確認ダイアログ、拒否済みならスキップ）
-async function checkGpsAndGetLoc(getLoc){
-  const consent=getGpsConsent();
-  if(consent==='denied')return null;
-  if(consent==='granted')return getLoc();
-  // 未確認 → 確認ダイアログ
-  const ok=await askGpsConsent();
-  if(!ok)return null;
-  return getLoc();
+function stopGpsWatch(){
+  if(_gpsWatchId!=null&&navigator.geolocation){navigator.geolocation.clearWatch(_gpsWatchId);}
+  _gpsWatchId=null;_gpsCache=null;_gpsReady=false;_gpsWaiters=[];
 }
-// ページ読込時にGPS許可を先行リクエスト（ブラウザの許可をセッション中有効にする）
-function preWarmGps(){
-  if(getGpsConsent()!=='granted'||!navigator.geolocation)return;
-  navigator.geolocation.getCurrentPosition(()=>{},()=>{},{enableHighAccuracy:false,timeout:3000,maximumAge:60000});
+// 打刻時に呼ぶ: キャッシュ済み位置を使う（getCurrentPositionを呼ばないのでポップアップなし）
+async function getLocCached(){
+  if(!navigator.geolocation||_gpsWatchId==null)return null;
+  // まだ初回取得が完了していなければ少し待つ
+  if(!_gpsReady){
+    await new Promise(resolve=>{_gpsWaiters.push(resolve);setTimeout(resolve,5000);});
+  }
+  if(!_gpsCache)return null;
+  // 住所の逆ジオコーディング（キャッシュにまだ住所がない場合）
+  if(!_gpsCache.address){
+    try{
+      const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${_gpsCache.lat}&lon=${_gpsCache.lon}&format=json&accept-language=ja&zoom=18`);
+      const data=await res.json();const a=data.address||{};
+      const parts=[a.city||a.town||a.village||a.municipality,a.city_district||a.suburb||a.neighbourhood,a.quarter,a.road,a.house_number].filter(Boolean);
+      if(parts.length)_gpsCache.address=parts.join('');
+      else _gpsCache.address=`${_gpsCache.lat.toFixed(4)},${_gpsCache.lon.toFixed(4)}`;
+    }catch(e){_gpsCache.address=`${_gpsCache.lat.toFixed(4)},${_gpsCache.lon.toFixed(4)}`;}
+  }
+  const loc={lat:_gpsCache.lat.toFixed(5),lon:_gpsCache.lon.toFixed(5),acc:_gpsCache.acc,address:_gpsCache.address};
+  // UI更新
+  const dots=['locDot','aLocDot'],txts=['locTxt','aLocTxt'];
+  dots.forEach(id=>{const el=document.getElementById(id);if(el)el.className='loc-dot on';});
+  txts.forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=`📍 ${loc.address}（精度±${loc.acc}m）`;});
+  return loc;
 }
-async function getLocWithAddress(){
-  return new Promise(resolve=>{
-    if(!navigator.geolocation){resolve(null);return;}
-    document.getElementById('locDot').className='loc-dot';
-    document.getElementById('locTxt').textContent='📡 位置情報取得中...';
-    navigator.geolocation.getCurrentPosition(async pos=>{
-      const lat=pos.coords.latitude,lon=pos.coords.longitude,acc=Math.round(pos.coords.accuracy);
-      let address=`${lat.toFixed(4)},${lon.toFixed(4)}`;
-      try{
-        const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ja&zoom=18`);
-        const data=await res.json();
-        const a=data.address||{};
-        const parts=[a.city||a.town||a.village||a.municipality,a.city_district||a.suburb||a.neighbourhood,a.quarter,a.road,a.house_number].filter(Boolean);
-        if(parts.length)address=parts.join('');
-      }catch(e){}
-      const loc={lat:lat.toFixed(5),lon:lon.toFixed(5),acc,address};
-      document.getElementById('locDot').className='loc-dot on';
-      document.getElementById('locTxt').textContent=`📍 ${address}（精度±${acc}m）`;
-      resolve(loc);
-    },()=>{document.getElementById('locTxt').textContent='位置情報を取得できませんでした';resolve(null);},{enableHighAccuracy:true,timeout:10000});
-  });
+// kintai有効かチェックしてGPS開始（kintai非表示 or ユーザーがOFFにした場合はスキップ）
+function initGpsForAccount(){
+  const feat=getAdminFeatures();
+  if(feat.kintai===false){stopGpsWatch();return;}
+  if(S.get('ka_gps_off')===true){return;} // ユーザーが設定でOFFにした場合
+  startGpsWatch();
 }
 
 // ═══════════════════════════════════
@@ -3169,22 +3179,7 @@ function renderWorkHoursA(ci,co){
   if(wh)wh.textContent=toHHMM(w);if(oh)oh.textContent=toHHMM(ot);
 }
 
-// ── GPS (管理者版: 別のDOM要素を使う) ──
-async function getLocA(){
-  return new Promise(resolve=>{
-    if(!navigator.geolocation){resolve(null);return;}
-    const dot=document.getElementById('aLocDot'),txt=document.getElementById('aLocTxt');
-    if(dot)dot.className='loc-dot';if(txt)txt.textContent='📡 位置情報取得中...';
-    navigator.geolocation.getCurrentPosition(async pos=>{
-      const lat=pos.coords.latitude,lon=pos.coords.longitude,acc=Math.round(pos.coords.accuracy);
-      let address=`${lat.toFixed(4)},${lon.toFixed(4)}`;
-      try{const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ja&zoom=18`);const data=await res.json();const a=data.address||{};const parts=[a.city||a.town||a.village||a.municipality,a.city_district||a.suburb||a.neighbourhood,a.quarter,a.road,a.house_number].filter(Boolean);if(parts.length)address=parts.join('');}catch(e){}
-      const loc={lat:lat.toFixed(5),lon:lon.toFixed(5),acc,address};
-      if(dot)dot.className='loc-dot on';if(txt)txt.textContent=`📍 ${address}（精度±${acc}m）`;
-      resolve(loc);
-    },()=>{if(txt)txt.textContent='位置情報を取得できませんでした';resolve(null);},{enableHighAccuracy:true,timeout:10000});
-  });
-}
+// ── GPS (getLocAは廃止 → getLocCachedに統合) ──
 
 // ── 打刻 (共通stamp関数に統一: DOM切替) ──
 async function stamp(type,fullTimeFlag){
@@ -3199,7 +3194,7 @@ async function _stampInner(type,fullTimeFlag){
   const time=[n.getHours(),n.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');
   if(!todayMap[session.id])todayMap[session.id]={};
   const td=todayMap[session.id];
-  const loc=isAdmin?await checkGpsAndGetLoc(getLocA):await checkGpsAndGetLoc(getLocWithAddress);
+  const loc=await getLocCached();
   const ciBtn=isAdmin?'aCiBtn':'ciBtnEmp', coBtn=isAdmin?'aCoBtn':'coBtnEmp';
   const ciTime=isAdmin?'aCiTime':'ciTimeEmp', coTime=isAdmin?'aCoTime':'coTimeEmp';
   if(type==='checkin'){
@@ -3730,8 +3725,8 @@ async function adminStamp(type,fullTimeFlag){
   const time=[n.getHours(),n.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');
   if(!todayMap[session.id])todayMap[session.id]={};
   const td=todayMap[session.id];
-  // GPS - 同意チェック付きで取得
-  const loc=await checkGpsAndGetLoc(getLocA);
+  // GPS - キャッシュ済み位置を使用（ポップアップなし）
+  const loc=await getLocCached();
   if(type==='checkin'){
     td.checkinTime=time;td.checkinLoc=loc;td.checkinDate=todayKey();
     if(fullTimeFlag)td.fullTimeFlag=true;else delete td.fullTimeFlag;
@@ -4230,18 +4225,17 @@ function confirmAction(msg, onYes, btnLabel, onNo, noLabel){
   no.onclick=()=>{close();if(onNo)onNo();};
 }
 
-// GPS consent toggle
+// GPS toggle (watchPosition方式)
 function toggleGpsConsent(checked){
-  setGpsConsent(checked?'granted':'denied');
+  if(checked){startGpsWatch();showToast('📍 位置情報を有効にしました');}
+  else{stopGpsWatch();showToast('📍 位置情報を無効にしました');}
+  S.set('ka_gps_off',!checked); // falseの場合のみ保存（デフォルトON）
   updateGpsToggleUI();
-  if(checked)preWarmGps();
-  showToast(checked?'📍 位置情報を有効にしました':'📍 位置情報を無効にしました');
 }
 function updateGpsToggleUI(){
-  const consent=getGpsConsent();
-  const isOn=consent==='granted';
+  const isOn=_gpsWatchId!=null;
   ['gps-toggle','agps-toggle'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=isOn;});
-  const statusTxt=consent==='granted'?'✅ 有効':consent==='denied'?'❌ 無効':'未設定';
+  const statusTxt=isOn?'✅ GPS監視中':'❌ 無効';
   ['gps-status','agps-status'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=statusTxt;});
 }
 
