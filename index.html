@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.21-alc10 (確認履歴を月ごと折りたたみ・役員の酒気確認を店舗別=管理者と同一仕様に対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.21-alc11 (残業申請＝直行直帰OFF時に残業理由を必須入力・CSV出力対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1089,6 +1089,10 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
         <span>🚗 直行直帰（打刻を所定時刻に揃える）</span>
       </label>
       <div id="alc-m-dchk-hint" style="font-size:11px;color:var(--dim);margin-top:4px;padding-left:26px"></div>
+    </div>
+    <div class="fr" id="alc-m-ot-row" style="display:none">
+      <label class="fl" style="color:var(--yw)">📝 残業理由（必須）　<span style="font-size:11px;font-weight:400;color:var(--dim)">直行直帰のチェックを外した＝残業申請です。理由をご記入ください</span></label>
+      <textarea class="fi" id="alc-m-ot" rows="2" placeholder="例：緊急のオンコール対応のため／担当者会議が長引いたため／記録・報告書作成の残務対応 など" style="width:100%;resize:vertical"></textarea>
     </div>
     <input type="file" id="alc-m-file" accept="image/*" capture="user" style="display:none" onchange="alcFileChosen(this)">
     <div style="text-align:center;margin:4px 0 10px">
@@ -2137,7 +2141,7 @@ function buildAttendanceCsv(month,targetStoreId){
   const [y,m]=month.split('-');
   const storeName=targetStoreId?stores.find(s=>s.id===targetStoreId)?.name||'':'全店舗';
   // ヘッダー行（30分と40分を分離）
-  const headers=['店舗','氏名','役職','職種','②-1時間','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','走行距離(km)','体調','アルコール','アルコール(退勤)','酒気確認(出勤)','酒気確認(退勤)','酒気確認指示事項','メモ・利用目的','自動退勤',
+  const headers=['店舗','氏名','役職','職種','②-1時間','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','残業理由','走行距離(km)','体調','アルコール','アルコール(退勤)','酒気確認(出勤)','酒気確認(退勤)','酒気確認指示事項','メモ・利用目的','自動退勤',
     '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール','エンゼルケア','年末年始手当',
     '有給種別','有給時間(h)'];
   const rows=[headers];
@@ -2175,6 +2179,7 @@ function buildAttendanceCsv(month,targetStoreId){
         isHolidayVehicleCSV?'車両のみ':(rec?.checkin||''), isHolidayVehicleCSV?'':(rec?.checkout||''),
         recOdoOnly?'':wm, recOdoOnly?'':netWm, recOdoOnly?'':(rec?.overtimeMinutes!=null?rec.overtimeMinutes:''),
         rec?.fullTimeFlag?'○':'',
+        [rec?.otReasonIn?('出勤: '+rec.otReasonIn):'',rec?.otReasonOut?('退勤: '+rec.otReasonOut):''].filter(Boolean).join(' ／ '),
         rec?.todayKm!=null?rec.todayKm:'',
         rec?.health||'', rec?.alcohol||'', rec?.alcoholOut||'',
         alcCsv(emp.id,dk,'ci'), alcCsv(emp.id,dk,'co'), alcCsvNote(emp.id,dk),
@@ -2209,7 +2214,7 @@ function buildAttendanceCsv(month,targetStoreId){
     const lvTotalH=empLeaves.reduce((s,r)=>s+r.hours,0);
     const lvBalStr=bal?`残${bal.remDays}日${bal.hasHourlyPool?'＋'+bal.remHourlyH+'h':''}`:'';
     rows.push([stName,emp.name,'【月計】',empProf,empShortMin+'分','',
-      '',`出勤${mRecs.length}日`,mWork,mWork-mBreak,mOT,`休憩${mBreak}分控除`,mKm.toFixed(1),
+      '',`出勤${mRecs.length}日`,mWork,mWork-mBreak,mOT,`休憩${mBreak}分控除`,'',mKm.toFixed(1),
       `INC:${vc.incH.toFixed(1)}h×¥${vc.incRate}=¥${vc.incAmt.toLocaleString()}`,'','','','','','','',
       vc.sales,vc.c30*(empShortMin===30?1:0),vc.c30*(empShortMin===40?1:0),vc.c60,vc.c90,
       vc.medical,vc.staff,vc.pre,vc.contract,vc.training,vc.overtime,vc.oncall,vc.angel,
@@ -3797,9 +3802,12 @@ function dchkHint(){
     hint.textContent=`チェック中: ${lbl}打刻は所定時刻 ${dchkTargetTime(_alcCtx.type,_alcCtx.ftFlag)} で記録されます`;
     hint.style.color='var(--ac)';
   }else{
-    hint.textContent=`チェックなし: ${lbl}打刻は実際の現在時刻で記録されます`;
-    hint.style.color='var(--dim)';
+    hint.textContent=`チェックなし: ${lbl}打刻は実際の現在時刻で記録されます（＝残業申請）`;
+    hint.style.color='var(--yw)';
   }
+  // 直行直帰OFF（=残業申請）のときだけ残業理由欄を表示
+  const otRow=document.getElementById('alc-m-ot-row');
+  if(otRow)otRow.style.display=cb.checked?'none':'';
 }
 // ── 打刻前モーダル ──
 let _alcCtx=null; // {dom:'emp'|'adm', type:'ci'|'co', cb, blob, ftFlag}
@@ -3834,6 +3842,7 @@ function openAlcModal(dom,type,cb,ftFlag,noAutoCam){
   const go=document.getElementById('alc-m-go');if(go){go.disabled=false;go.textContent=coVisit?'次へ（訪問実績の確認）':'✅ 送信して打刻';}
   const sk=document.getElementById('alc-m-skip');if(sk)sk.textContent=coVisit?'📵 写真なしで次へ（電話確認が必要）':'📵 写真を撮れない場合はこちら（電話確認が必要になります）';
   const dc=document.getElementById('alc-m-dchk');if(dc)dc.checked=_dchkDefault;
+  const otI=document.getElementById('alc-m-ot');if(otI)otI.value='';
   document.getElementById('alcModal').classList.add('open');
   dchkHint();
   // 簡略化: モーダルを開いたら即カメラを起動（撮影ボタンのタップを省略）。戻る再表示時(noAutoCam)は写真を保持するため起動しない。
@@ -3874,7 +3883,17 @@ async function _alcCommit(pc){
   saveAlcChecks();
   _dchkDefault=!!pc.dchkChecked;
   _dchkOverride=pc.dchkChecked?{type:pc.type,time:dchkTargetTime(pc.type,pc.ftFlag)}:null;
+  // 残業理由を保存する当日レコードの日付（退勤はcheckinDate基準。cb実行でtodayMapがクリアされる前に取得）
+  const _otDate=pc.type==='ci'?todayKey():(todayMap[session.id]?.checkinDate||todayKey());
   await pc.cb();
+  // 直行直帰OFF（=残業申請）のとき、残業理由を当日レコードへ保存（emp/admin/exec共通）
+  if(!pc.dchkChecked){
+    const _r=(records[session.id]||[]).find(r=>r.date===_otDate);
+    if(_r){
+      if(pc.type==='ci')_r.otReasonIn=pc.otReason||'';else _r.otReasonOut=pc.otReason||'';
+      S.set('ka_records',records);
+    }
+  }
   renderAlcStatusSelf();updateAlcBadge();
 }
 // 現在のモーダル状態から保留コンテキストを生成
@@ -3882,8 +3901,22 @@ function _alcCtxToPC(skip){
   const v=document.getElementById('alc-m-val').value||'0.00';
   const dc=document.getElementById('alc-m-dchk');
   const h=document.getElementById('alc-m-health');
+  const ot=document.getElementById('alc-m-ot');
+  const dchkChecked=dc?dc.checked:true;
   return {dom:_alcCtx.dom,type:_alcCtx.type,cb:_alcCtx.cb,blob:skip?null:_alcCtx.blob,val:v,skip:!!skip,
-    dchkChecked:dc?dc.checked:true,ftFlag:_alcCtx.ftFlag,health:h?h.value:'良好'};
+    dchkChecked,ftFlag:_alcCtx.ftFlag,health:h?h.value:'良好',
+    otReason:(!dchkChecked&&ot)?ot.value.trim():''};
+}
+// 直行直帰OFF（残業申請）のとき残業理由が未入力なら送信をブロック
+function _otReasonGuard(){
+  const dc=document.getElementById('alc-m-dchk');
+  const ot=document.getElementById('alc-m-ot');
+  if(dc&&!dc.checked&&(!ot||!ot.value.trim())){
+    showToast('⚠ 残業理由を入力してください（直行直帰でない＝残業申請です）');
+    if(ot)ot.focus();
+    return false;
+  }
+  return true;
 }
 // 主ボタン：出勤=送信して打刻 / 退勤(訪問あり)=次へ / 退勤(訪問なし)=送信して打刻
 function alcPrimary(){ if(_alcCtx&&_alcCtx.type==='co'&&getAdminFeatures().visits!==false)alcNext(false); else alcSubmit(false); }
@@ -3893,6 +3926,7 @@ async function alcSubmit(skip){
   if(!_alcCtx)return;
   if(_actionGuard.has('alcSubmit'))return;
   if(!skip&&!_alcCtx.blob){showToast('⚠ 「📷 検知器と顔を撮影する」から撮影してください');return;}
+  if(!_otReasonGuard())return;
   if(skip&&!confirm('写真なしで'+(_alcCtx.type==='ci'?'打刻':'送信')+'しますか？\n管理者による電話等での確認が必要になります。'))return;
   _actionGuard.add('alcSubmit');
   const pc=_alcCtxToPC(skip);
@@ -3904,6 +3938,7 @@ async function alcSubmit(skip){
 async function alcNext(skip){
   if(!_alcCtx)return;
   if(!skip&&!_alcCtx.blob){showToast('⚠ 「📷 検知器と顔を撮影する」から撮影してください');return;}
+  if(!_otReasonGuard())return;
   if(skip&&!confirm('写真なしで進みますか？\n管理者による電話等での確認が必要になります。'))return;
   _pendingCheckout=_alcCtxToPC(skip);
   closeAlcModal();
