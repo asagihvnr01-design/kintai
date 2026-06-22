@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.21-alc12 (エンゼルケア手当を1回¥5,000に変更・残業申請対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.22-alc13 (重要修正:位置情報の住所取得に時間切れを追加し打刻が固まる不具合を解消・エンゼル¥5,000/残業申請対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1883,11 +1883,19 @@ async function getLocForStamp(){
   dots.forEach(id=>{const el=document.getElementById(id);if(el)el.className='loc-dot';});
   txts.forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='📡 位置情報取得中...';});
   return new Promise(resolve=>{
+    // ★位置情報は任意。打刻が絶対に固まらないよう全体に安全タイムアウト（取得できなくても打刻は必ず進む）
+    let done=false;
+    const finish=v=>{if(!done){done=true;resolve(v);}};
+    setTimeout(()=>finish(null),10000);
     navigator.geolocation.getCurrentPosition(async pos=>{
       const lat=pos.coords.latitude,lon=pos.coords.longitude,acc=Math.round(pos.coords.accuracy);
       let address=`${lat.toFixed(4)},${lon.toFixed(4)}`;
       try{
-        const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ja&zoom=18`);
+        // ★住所取得(逆ジオコーディング)は5秒で打ち切り。応答が無くても緯度経度のまま打刻を続行する
+        const res=await Promise.race([
+          fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ja&zoom=18`),
+          new Promise((_,rj)=>setTimeout(()=>rj(new Error('geocode timeout')),5000))
+        ]);
         const data=await res.json();const a=data.address||{};
         const parts=[a.city||a.town||a.village||a.municipality,a.city_district||a.suburb||a.neighbourhood,a.quarter,a.road,a.house_number].filter(Boolean);
         if(parts.length)address=parts.join('');
@@ -1895,11 +1903,11 @@ async function getLocForStamp(){
       const loc={lat:lat.toFixed(5),lon:lon.toFixed(5),acc,address};
       dots.forEach(id=>{const el=document.getElementById(id);if(el)el.className='loc-dot on';});
       txts.forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=`📍 ${address}（精度±${acc}m）`;});
-      resolve(loc);
+      finish(loc);
     },()=>{
       txts.forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='位置情報を取得できませんでした';});
-      resolve(null);
-    },{enableHighAccuracy:true,timeout:10000});
+      finish(null);
+    },{enableHighAccuracy:true,timeout:8000});
   });
 }
 // 後方互換用
