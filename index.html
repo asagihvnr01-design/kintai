@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.22-alc13 (重要修正:位置情報の住所取得に時間切れを追加し打刻が固まる不具合を解消・エンゼル¥5,000/残業申請対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.22-alc14 (役員(主/副)の酒気確認スコープ統一・打刻固まる不具合修正・エンゼル¥5,000/残業申請対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -4628,7 +4628,11 @@ function applyAlcTabVisibility(){
   ['adminAlcTab','empAlcTab'].forEach(id=>{const b=document.getElementById(id);if(b)b.style.display=show?'':'none';});
 }
 // 酒気確認キューの対象範囲（自店舗のアカウント＋必ず自分自身を含める＝自己確認可）
-function alcScopeIds(){const store=currentStoreId||curAcc()?.storeId;const s=new Set(accounts.filter(a=>store?a.storeId===store:true).map(a=>a.id));if(session?.id)s.add(session.id);return s;}
+function alcScopeIds(){const store=currentStoreId||curAcc()?.storeId;
+  // 対象: 当該店舗のスタッフ ＋ 店舗未所属(役員＝主/副運転管理者など) を常に含める。
+  // これにより主・副どちらの確認者でも同一の対象（互いの分も含む）が表示・確認できる。
+  const s=new Set(accounts.filter(a=>(store?a.storeId===store:true)||!a.storeId).map(a=>a.id));
+  if(session?.id)s.add(session.id);return s;}
 // 日付差（'YYYY-MM-DD' d2 - d1 を日数で）
 function daysBetween(d1,d2){const a=new Date(d1+'T00:00:00'),b=new Date(d2+'T00:00:00');return Math.round((b-a)/86400000);}
 // 指定スタッフの店舗の確認権限者名（運転管理者→副→補助者の順、いなければシステム）
