@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.21-alc11 (残業申請＝直行直帰OFF時に残業理由を必須入力・CSV出力対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.21-alc12 (エンゼルケア手当を1回¥5,000に変更・残業申請対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -511,7 +511,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       <div class="vsec" id="otSection">⏰ 時間外訪問</div>
       <div class="vrow" id="otRow"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位で入力可）</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="angelSection">😇 エンゼルケア</div>
-      <div class="vrow" id="angelRow"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥8,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
+      <div class="vrow" id="angelRow"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
       <div class="vsec" id="oncallSection">📞 オンコール</div>
       <div class="vrow" id="oncallRow"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
     </div>
@@ -727,7 +727,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       <div class="vsec" id="aOtSection">⏰ 時間外訪問</div>
       <div class="vrow" id="aOtRow"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位）</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="aAngelSection">😇 エンゼルケア</div>
-      <div class="vrow" id="aAngelRow"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥8,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
+      <div class="vrow" id="aAngelRow"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
       <div class="vsec" id="aOncallSection">📞 オンコール</div>
       <div class="vrow" id="aOncallRow"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
     </div>
@@ -1060,7 +1060,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       <div class="vsec" id="vc-ot-section">⏰ 時間外訪問</div>
       <div class="vrow" id="vc-ot-row"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位で入力可）</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="vc-angel-section">😇 エンゼルケア</div>
-      <div class="vrow" id="vc-angel-row"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥8,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
+      <div class="vrow" id="vc-angel-row"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
       <div class="vsec" id="vc-oncall-row">📞 オンコール</div>
       <div class="vrow" id="vc-oncall-input-row"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
     </div>
@@ -2321,7 +2321,7 @@ function calcVisits(empId,month){
   const incH=Math.max(0,totalH-50);
   const incAmt=Math.round(incH*incRate);
   const otAmt=t.overtime*4000;        // 時間外訪問手当（表示者は職種問わず）
-  const angelAmt=t.angel*8000;        // エンゼルケア手当（全職種一律）
+  const angelAmt=t.angel*5000;        // エンゼルケア手当（全職種一律）
   return{...t,sm,prof,incRate,careH,medH,staffH,preH,conH,trnH,totalH,incH,incAmt,otAmt,angelAmt};
 }
 function renderVSummary(overrideMonth){
@@ -2350,7 +2350,7 @@ function renderVSummary(overrideMonth){
       <div class="inc-s" style="margin-top:4px;font-weight:700;color:var(--pu)">${fmtH(c.incH)} × ¥${c.incRate.toLocaleString()}（${c.prof==='rehab'?'リハビリ':'看護'}） = ¥${c.incAmt.toLocaleString()}</div>
     </div>
     ${(curAcc()?.overtimeVisible===true)?`<div class="ot-box"><div><div class="ot-l">⏰ 時間外訪問手当</div><div class="ot-s">${c.overtime}回 × ¥4,000</div></div><div class="ot-v">¥${c.otAmt.toLocaleString()}</div></div>`:''}
-    ${(curAcc()?.angelVisible===true)?`<div class="ot-box"><div><div class="ot-l">😇 エンゼルケア手当</div><div class="ot-s">${c.angel}回 × ¥8,000</div></div><div class="ot-v">¥${c.angelAmt.toLocaleString()}</div></div>`:''}
+    ${(curAcc()?.angelVisible===true)?`<div class="ot-box"><div><div class="ot-l">😇 エンゼルケア手当</div><div class="ot-s">${c.angel}回 × ¥5,000</div></div><div class="ot-v">¥${c.angelAmt.toLocaleString()}</div></div>`:''}
     ${(curAcc()?.oncallVisible!==false)?`<div class="vsr" style="margin-top:3px"><span class="vsl">📞 オンコール（${c.oncall}回）</span><span class="vsv">${c.oncall}回</span></div>`:''}
   </div>`;
   const e1=document.getElementById('vSummary');if(e1)e1.innerHTML=html;
@@ -3420,7 +3420,7 @@ function updateOncallVisibilityA(){
 function angelConsent(el){
   if(!el)return;
   if((parseFloat(el.value)||0)>0){
-    if(!confirm('エンゼルケアの料金（1回 ¥8,000）について、利用者ご家族の同意を得ましたか？\n\n同意が得られている場合のみ「OK」を押してください。\n（キャンセルすると入力は0に戻ります）')){el.value='';}
+    if(!confirm('エンゼルケアの料金（1回 ¥5,000）について、利用者ご家族の同意を得ましたか？\n\n同意が得られている場合のみ「OK」を押してください。\n（キャンセルすると入力は0に戻ります）')){el.value='';}
   }
 }
 
@@ -4324,7 +4324,7 @@ function renderVSummaryA(){
     <div class="inc-box"><div class="inc-l">🏆 インセンティブ対象時間</div><div class="inc-v">${fmtH(c.incH)}</div><div class="inc-s">${fmtH(c.totalH)} − 50時間 = ${fmtH(c.incH)}</div>
     <div class="inc-s" style="margin-top:4px;font-weight:700;color:var(--pu)">${fmtH(c.incH)} × ¥${c.incRate.toLocaleString()}（${c.prof==='rehab'?'リハビリ':'看護'}） = ¥${c.incAmt.toLocaleString()}</div></div>
     ${(curAcc()?.overtimeVisible===true)?`<div class="ot-box"><div><div class="ot-l">⏰ 時間外訪問手当</div><div class="ot-s">${c.overtime}回 × ¥4,000</div></div><div class="ot-v">¥${c.otAmt.toLocaleString()}</div></div>`:''}
-    ${(curAcc()?.angelVisible===true)?`<div class="ot-box"><div><div class="ot-l">😇 エンゼルケア手当</div><div class="ot-s">${c.angel}回 × ¥8,000</div></div><div class="ot-v">¥${c.angelAmt.toLocaleString()}</div></div>`:''}
+    ${(curAcc()?.angelVisible===true)?`<div class="ot-box"><div><div class="ot-l">😇 エンゼルケア手当</div><div class="ot-s">${c.angel}回 × ¥5,000</div></div><div class="ot-v">¥${c.angelAmt.toLocaleString()}</div></div>`:''}
     ${(curAcc()?.oncallVisible!==false)?`<div class="vsr" style="margin-top:3px"><span class="vsl">📞 オンコール（${c.oncall}回）</span><span class="vsv">${c.oncall}回</span></div>`:''}
   </div>`;
   const e1=document.getElementById('aVSummary');if(e1)e1.innerHTML=html;
