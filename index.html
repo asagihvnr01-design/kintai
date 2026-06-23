@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.22-alc14 (役員(主/副)の酒気確認スコープ統一・打刻固まる不具合修正・エンゼル¥5,000/残業申請対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.23-alc15 (打刻を最優先で確定し記録取りこぼしを防止・自動更新機能追加・役員スコープ統一/エンゼル¥5,000対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1217,6 +1217,18 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // ═══════════════════════════════════
 // SUPABASE AUTH
 // ═══════════════════════════════════
+// ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
+const APP_BUILD=15;
+(function autoUpdate(){
+  try{
+    if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
+    fetch(location.pathname+'?au='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{
+      const m=t.match(/const APP_BUILD=(\d+)/);
+      const live=m?parseInt(m[1]):0;
+      if(live>APP_BUILD){ sessionStorage.setItem('au_done','1'); location.replace(location.pathname+'?v='+live); }
+    }).catch(()=>{});
+  }catch(e){}
+})();
 let sbClient=null,sbRegClient=null,_currentToken=null;
 const SB={
   init(url,key){
@@ -3876,24 +3888,12 @@ async function _alcCommit(pc){
   const els=alcEls(pc.dom);
   const tgt=document.getElementById(pc.type==='ci'?els.a:els.ao);if(tgt)tgt.value=pc.val;
   if(pc.type==='ci'){const hC=document.getElementById(els.h);if(hC)hC.value=pc.health||'良好';}
-  let photoPath=null,status='nophoto';
-  if(!pc.skip&&pc.blob){
-    photoPath=session.id+'/'+todayKey()+'_'+pc.type+'_'+Date.now()+'.jpg';
-    try{
-      await Promise.race([alcUpload(pc.blob,photoPath),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),20000))]);
-      status='pending';
-    }catch(e){console.warn('alc upload failed:',e);photoPath=null;status='nophoto';showToast('⚠ 写真の送信に失敗しました。打刻は続行します（電話確認が必要です）');}
-  }
-  const acc=curAcc();
-  alcChecks.push({id:uid('alc'),empId:session.id,empName:acc?.name||'',storeId:acc?.storeId||null,
-    date:todayKey(),type:pc.type,time:alcNowTime(),val:pc.val,photo:photoPath,status,
-    confirmedBy:null,confirmerRole:null,confirmedAt:null,method:null,note:null,rolledBack:false,updatedAt:Date.now()});
-  saveAlcChecks();
+  // ★最重要: 打刻(出勤/退勤の記録)を最優先で先に確定する。
+  //   写真アップロードや住所取得の遅延・失敗・途中離脱に依存させない（記録の取りこぼし防止）。
   _dchkDefault=!!pc.dchkChecked;
   _dchkOverride=pc.dchkChecked?{type:pc.type,time:dchkTargetTime(pc.type,pc.ftFlag)}:null;
-  // 残業理由を保存する当日レコードの日付（退勤はcheckinDate基準。cb実行でtodayMapがクリアされる前に取得）
   const _otDate=pc.type==='ci'?todayKey():(todayMap[session.id]?.checkinDate||todayKey());
-  await pc.cb();
+  try{ await pc.cb(); }catch(e){ console.warn('stamp failed:',e); }
   // 直行直帰OFF（=残業申請）のとき、残業理由を当日レコードへ保存（emp/admin/exec共通）
   if(!pc.dchkChecked){
     const _r=(records[session.id]||[]).find(r=>r.date===_otDate);
@@ -3902,6 +3902,20 @@ async function _alcCommit(pc){
       S.set('ka_records',records);
     }
   }
+  // ── 打刻確定後に、写真アップロード＋酒気確認記録を作成（ここで時間がかかっても記録は失われない）──
+  let photoPath=null,status='nophoto';
+  if(!pc.skip&&pc.blob){
+    photoPath=session.id+'/'+todayKey()+'_'+pc.type+'_'+Date.now()+'.jpg';
+    try{
+      await Promise.race([alcUpload(pc.blob,photoPath),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),20000))]);
+      status='pending';
+    }catch(e){console.warn('alc upload failed:',e);photoPath=null;status='nophoto';showToast('⚠ 写真の送信に失敗しました（打刻は完了済み・電話確認が必要です）');}
+  }
+  const acc=curAcc();
+  alcChecks.push({id:uid('alc'),empId:session.id,empName:acc?.name||'',storeId:acc?.storeId||null,
+    date:todayKey(),type:pc.type,time:alcNowTime(),val:pc.val,photo:photoPath,status,
+    confirmedBy:null,confirmerRole:null,confirmedAt:null,method:null,note:null,rolledBack:false,updatedAt:Date.now()});
+  saveAlcChecks();
   renderAlcStatusSelf();updateAlcBadge();
 }
 // 現在のモーダル状態から保留コンテキストを生成
