@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.25-alc16 (退勤可否を記録から判定し当日状態の同期消失でも退勤可能に・打刻先行/自動更新対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.25-alc17 (同期マージで打刻データを失わない補完方式・退勤可否を記録基準に・打刻先行/自動更新対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1218,7 +1218,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=16;
+const APP_BUILD=17;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -3684,20 +3684,36 @@ function alcMergeArrays(a,b){
 // ── クラウド同期: コレクションのunion-merge ──
 // pullで「ローカルにあってリモートに無いエントリ」を消さない（別端末の古いpushでの記録消失を防ぐ）。
 // 同一キーの衝突はリモート優先（管理者修正の伝播を維持＝従来挙動）、ローカル固有エントリは保持。
-function _kvMergeArr(localArr,remoteArr,keyFn){
-  const out=[];const rk=new Set();
-  (remoteArr||[]).forEach(e=>{out.push(e);try{rk.add(keyFn(e));}catch(_){}});
-  (localArr||[]).forEach(e=>{let k;try{k=keyFn(e);}catch(_){k=undefined;}if(k===undefined||!rk.has(k))out.push(e);});
+function _kvMergeArr(localArr,remoteArr,keyFn,mergeFn){
+  const out=[];const idx={};
+  (remoteArr||[]).forEach(e=>{out.push(e);let k;try{k=keyFn(e);}catch(_){k=undefined;}if(k!==undefined)idx[k]=out.length-1;});
+  (localArr||[]).forEach(e=>{let k;try{k=keyFn(e);}catch(_){k=undefined;}
+    if(k===undefined||idx[k]===undefined){out.push(e);}
+    else if(mergeFn){out[idx[k]]=mergeFn(out[idx[k]],e);} // 同一キー衝突 → mergeFnで統合（既定はremote優先のまま）
+  });
   return out;
 }
-function _kvMergeByEmp(local,remote,keyFn){
+// 同一日の記録の統合: remote優先（管理者修正の伝播を維持）。ただしremoteで欠落(null/空)している項目は
+// localの値で補完し、「打刻(出勤/退勤)や入力値を同期で失わない」ようにする（データ消失の根本対策）。
+function _mergeRecLike(remote,local){
+  const m=Object.assign({},local,remote);
+  Object.keys(local||{}).forEach(f=>{
+    const rv=remote?remote[f]:undefined;
+    if(rv===undefined||rv===null||rv===''){
+      const lv=local[f];
+      if(lv!==undefined&&lv!==null&&lv!=='')m[f]=lv;
+    }
+  });
+  return m;
+}
+function _kvMergeByEmp(local,remote,keyFn,mergeFn){
   const out={};const ids=new Set([...Object.keys(local||{}),...Object.keys(remote||{})]);
-  ids.forEach(id=>out[id]=_kvMergeArr((local||{})[id]||[],(remote||{})[id]||[],keyFn));
+  ids.forEach(id=>out[id]=_kvMergeArr((local||{})[id]||[],(remote||{})[id]||[],keyFn,mergeFn));
   return out;
 }
 function kvMergeForPull(key,localVal,remoteVal){
   try{
-    if(key==='ka_records'||key==='ka_visits')return _kvMergeByEmp(localVal,remoteVal,e=>e.date);
+    if(key==='ka_records'||key==='ka_visits')return _kvMergeByEmp(localVal,remoteVal,e=>e.date,_mergeRecLike);
     if(key==='ka_leave_grants')return _kvMergeByEmp(localVal,remoteVal,e=>e.grantDate||e.id||e.date);
     if(key==='ka_today')return Object.assign({},localVal||{},remoteVal||{}); // remote優先・local固有empIdは保持
     if(key==='ka_accounts'||key==='ka_stores'||key==='ka_leave_requests')return _kvMergeArr(localVal,remoteVal,e=>e.id);
