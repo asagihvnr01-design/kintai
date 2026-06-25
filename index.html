@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.23-alc15 (打刻を最優先で確定し記録取りこぼしを防止・自動更新機能追加・役員スコープ統一/エンゼル¥5,000対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.25-alc16 (退勤可否を記録から判定し当日状態の同期消失でも退勤可能に・打刻先行/自動更新対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1218,7 +1218,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=15;
+const APP_BUILD=16;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1577,6 +1577,7 @@ function enterApp(acc){
   if(!acc){doLogout();return;}
   initGpsForAccount(); // 後方互換用（現在は空関数）
   checkPendingAutoCheckout();
+  reconcileTodayMap(); // 同期等でtodayMapが消えていても、記録から当日状態を復元（未出勤誤表示・退勤不可の防止）
   if(acc.role==='executive'){
     showScreen('exec');renderExecScreen();execRefreshStampUI();renderAlcStatusSelf();renderExecDriveRole();
     const eb=document.getElementById('execBadge');if(eb)eb.textContent='👔 '+acc.name;
@@ -1622,6 +1623,7 @@ function enterApp(acc){
 }
 function enterAdminView(acc){
   if(!acc)acc=curAcc();
+  reconcileTodayMap(); // 記録から当日状態を復元（退勤不可の防止）
   showScreen('admin');renderAdmin();updateLeaveBadge();updateAlcBadge();renderAlcStatusSelf();applyAdminNavVisibility();applyAlcTabVisibility();
   const ab=document.getElementById('adminBadge');if(ab)ab.textContent='🔑 '+acc.name;
   const sl=document.getElementById('adminStoreLabel');
@@ -3968,12 +3970,35 @@ async function alcNext(skip){
 }
 function cancelAlcModal(){_pendingCheckout=null;closeAlcModal();}
 // ── 退勤フロー入口（モーダル経由で打刻） ──
+// ★当日の出勤状態は「records（確実に残る記録）」を真実とし、揮発的・同期で消えうる todayMap を記録から復元する。
+//   これにより、同期で当日状態が上書き消去されても「出勤済みなら退勤できる」状態を保証する（退勤ボタンが押せない不具合の根本対策）。
+function reconcileTodayMap(){
+  const id=session&&session.id; if(!id)return;
+  const rec=(records[id]||[]).find(r=>r.date===todayKey());
+  if(!rec||!rec.checkin) return; // 当日の出勤記録が無ければ何もしない（未出勤のまま）
+  const td=todayMap[id]||{};
+  if(!rec.checkout){
+    // 出勤済み・未退勤：todayMapにcheckinが無ければ記録から復元（退勤可能にする）
+    if(!td.checkinTime){
+      todayMap[id]={checkinTime:rec.checkin, checkinDate:rec.date, fullTimeFlag:!!rec.fullTimeFlag};
+      S.set('ka_today',todayMap);
+    }
+  }else{
+    // 退勤済み：todayMapが未反映なら記録に合わせる（誤って再出勤して上書きするのを防止）
+    if(td.checkinTime!==rec.checkin||td.checkoutTime!==rec.checkout||td.checkinDate!==rec.date){
+      todayMap[id]={checkinTime:rec.checkin, checkinDate:rec.date, checkoutTime:rec.checkout, fullTimeFlag:!!rec.fullTimeFlag};
+      S.set('ka_today',todayMap);
+    }
+  }
+}
 function empCheckoutFlow(){
+  reconcileTodayMap();
   const td=todayMap[session?.id];
   if(!td||!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
   openAlcModal('emp','co',()=>stamp('checkout'),td.fullTimeFlag||false);
 }
 function adminCheckoutFlow(){
+  reconcileTodayMap();
   const td=todayMap[session?.id];
   if(!td||!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
   openAlcModal('adm','co',()=>adminStamp('checkout'),td.fullTimeFlag||false);
@@ -4895,6 +4920,7 @@ function renderWorkHoursE(ci,co){
 }
 function execRefreshStampUI(){
   if(!session)return;
+  reconcileTodayMap(); // 記録から当日状態を復元（退勤不可の防止）
   let td=todayMap[session.id]||{};
   if(td.checkinDate&&td.checkinDate!==todayKey()){todayMap[session.id]={};S.set('ka_today',todayMap);td={};}
   const ciB=document.getElementById('eCiBtn'),coB=document.getElementById('eCoBtn');
@@ -4933,6 +4959,7 @@ async function confirmExecCheckin(){
   openAlcModal('exec','ci',()=>execStamp('checkin',ftFlag),ftFlag);
 }
 function execCheckoutFlow(){
+  reconcileTodayMap();
   const td=todayMap[session?.id];
   if(!td||!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
   openAlcModal('exec','co',()=>execStamp('checkout'),td.fullTimeFlag||false);
