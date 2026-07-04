@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.04-alc19 (役員は管理対象店舗の酒気確認を統括・自己選任カード廃止/選任は店舗内・店舗タブ既定折りたたみ・退勤忘れ確認済み対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.04-alc20 (酒気確認の判定は運転管理者・副・補助者のみ/役員は選任者・従業員管理で役員も選任可・店舗タブ折りたたみ・退勤忘れ確認済み対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1211,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=19;
+const APP_BUILD=20;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1732,6 +1732,7 @@ function enterStore(storeId){
 function exitStore(){
   currentStoreId=null;
   showScreen('exec');renderExecScreen();
+  if(typeof renderExecDriveRole==='function')renderExecDriveRole(); // 選任状況に応じて酒気確認カードを再表示
 }
 
 // ═══════════════════════════════════
@@ -3090,7 +3091,6 @@ function renderEmpMgmt(){
   const isExec=curAcc()?.role==='executive';
   const emps=storeAccounts().filter(a=>a.id!==session?.id),el=document.getElementById('empMgmtList');
   if(!el)return; // 役員ダッシュボード等、リストが無い画面では何もしない
-  if(!emps.length){el.innerHTML='<div class="empty">他のアカウントがありません</div>';return;}
   el.innerHTML=emps.map(e=>{
     const roleBdg=e.role==='executive'
       ?'<span style="font-size:10px;background:rgba(180,127,247,.15);color:var(--pu);padding:2px 7px;border-radius:4px;font-weight:700;margin-left:6px">👔 役員</span>'
@@ -3162,6 +3162,26 @@ function renderEmpMgmt(){
       </div>`:(driveBdg?`<div style="font-size:10px;color:var(--dim);background:var(--sf2);border-radius:8px;padding:6px 10px">🚗 ${driveRoleLabel(e)}（酒気確認の権限あり）</div>`:'')}
     </div>`;
   }).join('');
+  // ── 役員（店舗未所属）も、この店舗の運転管理者に選任できる候補として表示 ──
+  const execs=accounts.filter(a=>a.role==='executive');
+  if(execs.length){
+    el.innerHTML += `<div class="mgmt-item" style="flex-direction:column;align-items:stretch;gap:6px;border:1px dashed var(--pu);background:rgba(180,127,247,.05)">
+      <div style="font-size:12px;font-weight:700;color:var(--pu)">👔 役員（運転管理者に選任可能）</div>
+      <div style="font-size:10px;color:var(--dim);margin-bottom:2px">役員も運転管理者・副・補助者に選任できます。選任された役員はトップで酒気確認を判定できます（設定は役員のみ）。</div>`+
+      execs.map(e=>{
+        const dbg=e.driveMgr?'🚗 運転管理者':e.subDriveMgr?'🚗 副運転管理者':e.assistant?'🚗 補助者':'（未選任）';
+        return `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--sf2);border-radius:8px;padding:8px 10px">
+          <span style="font-size:12px;font-weight:700;flex-shrink:0">${e.name}${e.id===session?.id?'（自分）':''}</span>
+          <span style="font-size:10px;color:${(e.driveMgr||e.subDriveMgr||e.assistant)?'var(--gn)':'var(--dim)'}">${dbg}</span>`+
+          (isExec?`<span style="width:100%;height:1px"></span>
+            <button class="mb" style="padding:5px 12px;${e.driveMgr?'background:rgba(61,214,140,.15);border:1px solid var(--gn);color:var(--gn)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="setDriveRole('${e.id}','mgr')">運転管理者</button>
+            <button class="mb" style="padding:5px 12px;${e.subDriveMgr?'background:rgba(61,214,140,.15);border:1px solid var(--gn);color:var(--gn)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="setDriveRole('${e.id}','sub')">副運転管理者</button>
+            <button class="mb" style="padding:5px 12px;${e.assistant?'background:rgba(61,214,140,.15);border:1px solid var(--gn);color:var(--gn)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="setDriveRole('${e.id}','assistant')">補助者</button>
+            <button class="mb" style="padding:5px 12px;${(!e.driveMgr&&!e.subDriveMgr&&!e.assistant)?'background:rgba(247,95,95,.12);border:1px solid var(--rd);color:var(--rd)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="setDriveRole('${e.id}','none')">なし</button>`:'')+
+          `</div>`;
+      }).join('')+`</div>`;
+  }
+  if(!el.innerHTML)el.innerHTML='<div class="empty">他のアカウントがありません</div>';
 }
 function changeEmpRole(id){
   if(id===session?.id){showToast('⚠ 自分自身のロールは変更できません');return;}
@@ -4740,8 +4760,8 @@ const ADMIN_FEATURE_DEFS=[
 ];
 // ── 運転管理者 / 副運転管理者（酒気確認の権限保持者。役員が選任） ──
 function driveRoleLabel(acc){if(!acc)return'';if(acc.driveMgr)return'運転管理者';if(acc.subDriveMgr)return'副運転管理者';if(acc.assistant)return'補助者';return'';}
-// 役員は管理対象店舗の酒気確認を判定可能（統括）。加えて運転管理者・副・補助者も判定可能。
-function canConfirmAlc(){const a=curAcc();return !!(a&&(a.role==='executive'||a.driveMgr||a.subDriveMgr||a.assistant));}
+// 酒気確認の判定ができるのは運転管理者・副運転管理者・補助者のみ（役員でも、選任されていなければ判定不可）。
+function canConfirmAlc(){const a=curAcc();return !!(a&&(a.driveMgr||a.subDriveMgr||a.assistant));}
 // 酒気確認タブの表示制御（運転管理者・副・補助者のみ表示）
 function applyAlcTabVisibility(){
   const show=canConfirmAlc();
