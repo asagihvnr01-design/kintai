@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.06.25-alc17 (同期マージで打刻データを失わない補完方式・退勤可否を記録基準に・打刻先行/自動更新対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.04-alc18 (役員トップで店舗別タブ承認・確認履歴を1日ごと折りたたみ・退勤忘れ強調＆一覧対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -914,11 +914,9 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       <div id="execDriveRole"></div>
     </div>
     <div class="card" id="execAlcCard" style="display:none">
-      <div class="ct">🍃 酒気帯び確認（未確認）<span class="badge-dot" id="alcBadgeExec"></span></div>
-      <p style="font-size:12px;color:var(--dim);margin-bottom:11px">写真の顔色・表情と検知器の測定値を確認し、判定してください。写真なしの場合は電話等で本人と直接対話し、声の調子を確認してください。<b>確認すると写真は自動削除されます</b>（確認記録は1年間保存されます）。自分自身の分もここで確認できます。</p>
-      <div id="alcQueueListExec"></div>
-      <div class="ct" style="margin-top:14px">確認履歴（直近14日）</div>
-      <div id="alcHistListExec"></div>
+      <div class="ct">🍃 酒気帯び確認（店舗別）<span class="badge-dot" id="alcBadgeExec"></span></div>
+      <p style="font-size:12px;color:var(--dim);margin-bottom:11px">店舗ごとにタブで折りたためます。各店舗の「確認待ち」を判定でき、「確認履歴」は1日ごとに折りたたみ表示（⚠退勤忘れは赤で強調）。写真なしは電話等で本人と対話し声の調子を確認してください。<b>確認すると写真は自動削除されます</b>（記録は1年間保存）。自分自身の分もここで確認できます。</p>
+      <div id="alcExecByStore"></div>
     </div>
     <div class="card">
       <div class="ct">📊 全店舗サマリー</div>
@@ -1218,7 +1216,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=17;
+const APP_BUILD=18;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1681,7 +1679,8 @@ function renderExecScreen(){
       <div><div class="sml">${parseInt(am)}月 総労働時間</div><div class="smv">${toHHMM(totalHours)}</div></div>
       <div><div class="sml">${parseInt(am)}月 総走行距離</div><div class="smv">${totalKm.toFixed(1)} km</div></div>
     </div>
-    <div style="margin-top:12px;text-align:right"><button class="mb mb-b" style="padding:8px 16px;font-size:12px" onclick="exportCSV('${month}')">📥 全店舗 CSV出力（${parseInt(am)}月）</button></div>`;
+    <div style="margin-top:12px;text-align:right"><button class="mb mb-b" style="padding:8px 16px;font-size:12px" onclick="exportCSV('${month}')">📥 全店舗 CSV出力（${parseInt(am)}月）</button></div>`
+    +_forgotListHtml(accounts.map(a=>a.id),month);
   // Store list
   el.innerHTML=stores.map(st=>{
     const accs=accounts.filter(a=>a.storeId===st.id);
@@ -3036,7 +3035,7 @@ function renderAdmin(){
         ${tNY>0?`<div><div class="sml">🎍 年末年始手当</div><div class="smv" style="color:var(--ac2)">¥${tNY.toLocaleString()}</div></div>`:''}
       </div>
       <div style="margin-top:12px;text-align:right"><button class="mb mb-b" style="padding:8px 16px;font-size:12px" onclick="exportCSV('${month}','${curAcc()?.storeId||''}')">📥 CSV出力（${parseInt(am)}月）</button></div>
-    </div>`;
+    </div>`+_forgotListHtml(emps.map(e=>e.id),month);
   const dk=todayKey();
   document.getElementById('adminEmpCards').innerHTML=emps.map(e=>{
     const mr=(records[e.id]||[]).filter(r=>r.date.startsWith(month));
@@ -4048,18 +4047,26 @@ function updateAlcBadge(){
   const cnt=canConfirmAlc()?alcChecks.filter(c=>(c.status==='pending'||c.status==='nophoto')&&ids.has(c.empId)).length:0;
   ['alcBadge','alcBadgeEmp','alcBadgeExec'].forEach(id=>{const bd=document.getElementById(id);if(bd)bd.classList.toggle('show',cnt>0);});
 }
-function renderAlcQueue(){
-  // 管理者・スタッフ・役員いずれの確認キューにも描画（存在する方へ）
-  const listEls=[document.getElementById('alcQueueList'),document.getElementById('alcQueueListEmp'),document.getElementById('alcQueueListExec')].filter(Boolean);
-  const histEls=[document.getElementById('alcHistList'),document.getElementById('alcHistListEmp'),document.getElementById('alcHistListExec')].filter(Boolean);
-  if(!listEls.length)return;
-  const ids=alcScopeIds();
-  const pend=alcChecks.filter(c=>(c.status==='pending'||c.status==='nophoto')&&ids.has(c.empId))
-    .sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
-  const pendHtml=pend.length?pend.map(c=>`
+function _alcIsForgot(c){return c&&(c.forgotCheckout===true||(c.type==='co'&&c.note&&c.note.indexOf('退勤忘れ')>=0));}
+// 退勤忘れ（自動退勤）一覧: 管理者・役員のサマリーで目立つように表示
+function _forgotListHtml(empIds,month){
+  const nameById={};accounts.forEach(a=>nameById[a.id]=a.name);
+  const rows=[];
+  (empIds||[]).forEach(id=>{(records[id]||[]).filter(r=>(r.date||'').startsWith(month)&&r.autoCheckout).forEach(r=>rows.push({name:nameById[id]||id,date:r.date,co:r.checkout}));});
+  rows.sort((a,b)=>b.date.localeCompare(a.date));
+  if(!rows.length)return '';
+  return `<div class="card" style="border:1px solid var(--rd);background:rgba(247,95,95,.06);margin-top:10px">
+    <div class="ct" style="color:var(--rd)">⚠ 退勤忘れ（自動退勤）— ${rows.length}件</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:6px">退勤打刻を忘れ、就業時刻で自動退勤された記録です。実際の退勤時刻に直す場合は「勤怠修正」で対応してください。</div>
+    ${rows.map(r=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 4px;border-bottom:1px solid var(--bd)"><span>👤 ${r.name}</span><span style="color:var(--rd);font-weight:700">${r.date}（自動退勤 ${r.co||'--:--'}）</span></div>`).join('')}
+  </div>`;
+}
+// 確認待ち1件の描画
+function _alcPendRow(c){
+  return `
     <div class="pend-req">
       <div class="pend-top"><div class="pend-name">👤 ${c.empName}</div>
-        <span class="req-status rs-pending">${c.type==='ci'?'🟢 出勤':'🔴 退勤'} ${c.date} ${c.time}</span></div>
+        <span class="req-status rs-pending">${c.type==='ci'?'🟢 出勤':'🔴 退勤'} ${c.date} ${c.time}${_alcIsForgot(c)?' <span style="color:var(--rd);font-weight:700">⚠退勤忘れ</span>':''}</span></div>
       <div style="display:flex;gap:12px;align-items:flex-start;margin:8px 0">
         ${c.photo
           ?`<img src="${alcPhotoUrl(c.photo)}" alt="チェック写真" style="width:130px;height:130px;object-fit:cover;border-radius:8px;border:1px solid var(--bd);cursor:pointer" onclick="window.open(this.src,'_blank')" onerror="this.outerHTML='<div style=&quot;font-size:11px;color:var(--rd);padding:8px&quot;>⚠ 写真を取得できません（通信状況を確認）</div>'">`
@@ -4073,7 +4080,18 @@ function renderAlcQueue(){
         <button class="app-btn ok" onclick="confirmAlcCheck('${c.id}')">✅ 酒気帯びなし</button>
         <button class="app-btn ng" onclick="openAlcNg('${c.id}')">⚠ 異常あり</button>
       </div>
-    </div>`).join(''):'<div class="empty">未確認のチェックはありません ✨</div>';
+    </div>`;
+}
+function renderAlcQueue(){
+  // 管理者・スタッフの確認キューに描画（役員トップは店舗別に別描画）
+  const listEls=[document.getElementById('alcQueueList'),document.getElementById('alcQueueListEmp')].filter(Boolean);
+  const histEls=[document.getElementById('alcHistList'),document.getElementById('alcHistListEmp')].filter(Boolean);
+  if(document.getElementById('alcExecByStore'))renderExecAlcByStore(); // 役員トップ(店舗別)も同時更新
+  if(!listEls.length)return;
+  const ids=alcScopeIds();
+  const pend=alcChecks.filter(c=>(c.status==='pending'||c.status==='nophoto')&&ids.has(c.empId))
+    .sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  const pendHtml=pend.length?pend.map(_alcPendRow).join(''):'<div class="empty">未確認のチェックはありません ✨</div>';
   listEls.forEach(el=>el.innerHTML=pendHtml);
   const cut=new Date();cut.setDate(cut.getDate()-14);
   const ck=[cut.getFullYear(),String(cut.getMonth()+1).padStart(2,'0'),String(cut.getDate()).padStart(2,'0')].join('-');
@@ -4082,26 +4100,58 @@ function renderAlcQueue(){
   _renderAlcHistGrouped(histEls,hist);
 }
 function _alcHistRow(c){
+  const fg=_alcIsForgot(c);
   return `
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--bd);font-size:12px;flex-wrap:wrap">
-      <span style="flex:1;min-width:200px">${c.status==='ok'?'✅':'🚫'} ${c.empName}（${c.type==='ci'?'出勤':'退勤'} ${c.date} ${c.time}）<b style="font-family:var(--mo);color:${alcValColor(c.val)}">${parseFloat(c.val||0).toFixed(2)}</b><br>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--bd);font-size:12px;flex-wrap:wrap${fg?';background:rgba(247,95,95,.08);border-left:3px solid var(--rd);padding-left:6px':''}">
+      <span style="flex:1;min-width:200px">${c.status==='ok'?'✅':'🚫'} ${c.empName}（${c.type==='ci'?'出勤':'退勤'} ${c.date} ${c.time}）<b style="font-family:var(--mo);color:${alcValColor(c.val)}">${parseFloat(c.val||0).toFixed(2)}</b>${fg?' <span style="color:var(--rd);font-weight:700">⚠退勤忘れ</span>':''}<br>
       <span style="color:var(--dim);font-size:11px">${c.confirmerRole?c.confirmerRole+'：':''}${c.confirmedBy||''}／${c.confirmedAt||''}／${c.method||''}${c.note?'／'+c.note:''}</span></span>
       <button class="hbtn" onclick="reopenAlcCheck('${c.id}')" style="flex-shrink:0">↩ 判定を変更</button>
     </div>`;
 }
-// 確認履歴を月ごとに折りたたみ表示（最新月は開く・過去月は閉じる・各月に件数。確認待ちは折りたたまない）
-function _renderAlcHistGrouped(els,hist){
-  if(!hist||!hist.length){els.forEach(el=>{if(el)el.innerHTML='<div class="empty">履歴はありません</div>';});return;}
+// 確認履歴を「1日ごと」に折りたたみ表示（最新日は開く・各日に出/退件数・退勤忘れを赤で強調）
+function _alcHistGroupedHtml(hist){
+  if(!hist||!hist.length)return '<div class="empty">履歴はありません</div>';
   const groups={};
-  hist.forEach(c=>{const ym=(c.date&&/^\d{4}-\d{2}/.test(c.date))?c.date.slice(0,7):'----';(groups[ym]=groups[ym]||[]).push(c);});
-  const months=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
-  const html=months.map((ym,i)=>{
-    const [yy,mm]=ym.split('-');
-    const label=(yy!=='----'&&mm)?`${parseInt(yy)}年${parseInt(mm)}月`:'日付不明';
-    const items=groups[ym].map(_alcHistRow).join('');
-    return`<details${i===0?' open':''} style="margin-bottom:6px"><summary style="cursor:pointer;padding:8px 10px;background:var(--sf2);border-radius:8px;font-size:13px;font-weight:700;list-style:none">📅 ${label}　<span style="color:var(--dim);font-weight:400">${groups[ym].length}件</span></summary><div style="padding:6px 2px 2px">${items}</div></details>`;
+  hist.forEach(c=>{const d=(c.date&&/^\d{4}-\d{2}-\d{2}/.test(c.date))?c.date.slice(0,10):'----';(groups[d]=groups[d]||[]).push(c);});
+  const days=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+  return days.map((d,i)=>{
+    const arr=groups[d];
+    const ci=arr.filter(c=>c.type==='ci').length, co=arr.filter(c=>c.type==='co').length;
+    const fg=arr.filter(_alcIsForgot).length;
+    const parts=d.split('-');
+    const label=(d!=='----'&&parts.length===3)?`${parseInt(parts[1])}月${parseInt(parts[2])}日`:'日付不明';
+    const items=arr.map(_alcHistRow).join('');
+    const fgBadge=fg?`　<span style="color:var(--rd);font-weight:700">⚠退勤忘れ${fg}</span>`:'';
+    return`<details${i===0?' open':''} style="margin-bottom:5px"><summary style="cursor:pointer;padding:7px 10px;background:var(--sf2);border-radius:8px;font-size:12px;font-weight:700;list-style:none">📅 ${label}　<span style="color:var(--dim);font-weight:400">出${ci}/退${co}・計${arr.length}件</span>${fgBadge}</summary><div style="padding:5px 2px 2px">${items}</div></details>`;
   }).join('');
+}
+function _renderAlcHistGrouped(els,hist){
+  const html=_alcHistGroupedHtml(hist);
   els.forEach(el=>{if(el)el.innerHTML=html;});
+}
+// 役員トップ: 店舗ごとにタブ(折りたたみ)で「確認待ち」＋「確認履歴(日ごと)」を表示
+function renderExecAlcByStore(){
+  const el=document.getElementById('alcExecByStore');if(!el)return;
+  if(!canConfirmAlc()){el.innerHTML='<div class="empty">確認権限がありません（運転管理者・副・補助者のみ）</div>';return;}
+  const cut=new Date();cut.setDate(cut.getDate()-14);
+  const ck=[cut.getFullYear(),String(cut.getMonth()+1).padStart(2,'0'),String(cut.getDate()).padStart(2,'0')].join('-');
+  const groups=stores.map(s=>({name:'🏪 '+s.name, ids:new Set(accounts.filter(a=>a.storeId===s.id).map(a=>a.id))}));
+  const storeless=new Set(accounts.filter(a=>!a.storeId).map(a=>a.id));
+  if(storeless.size)groups.push({name:'👔 役員・店舗未所属', ids:storeless});
+  const html=groups.map((g,gi)=>{
+    const pend=alcChecks.filter(c=>(c.status==='pending'||c.status==='nophoto')&&g.ids.has(c.empId)).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+    const hist=alcChecks.filter(c=>(c.status==='ok'||c.status==='ng')&&g.ids.has(c.empId)&&c.date>=ck).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+    const pc=pend.length;
+    const badge=pc?`<span style="color:var(--rd);font-weight:700">🔴未確認 ${pc}</span>`:`<span style="color:var(--gn)">✅未確認なし</span>`;
+    const pendHtml=pc?pend.map(_alcPendRow).join(''):'<div class="empty">確認待ちはありません ✨</div>';
+    const histHtml=_alcHistGroupedHtml(hist);
+    return `<details${(gi===0||pc)?' open':''} style="margin-bottom:8px"><summary style="cursor:pointer;padding:9px 12px;background:var(--sf2);border-radius:10px;font-size:14px;font-weight:700;list-style:none">${g.name}　${badge}</summary>
+      <div style="padding:8px 2px 2px">
+        <div style="font-size:11px;color:var(--dim);font-weight:700;margin:2px 0 4px">確認待ち</div>${pendHtml}
+        <div style="font-size:11px;color:var(--dim);font-weight:700;margin:12px 0 4px">確認履歴（直近14日・1日ごと）</div>${histHtml}
+      </div></details>`;
+  }).join('');
+  el.innerHTML=html||'<div class="empty">店舗がありません</div>';
 }
 function confirmAlcCheck(id){
   // 「酒気帯びなし」判定（異常ありは openAlcNg → submitAlcNg 経由）
@@ -4720,10 +4770,10 @@ function renderExecDriveRole(){
     <button class="mb" style="padding:6px 14px;${bs(!has,true)}" onclick="setDriveRole('${a.id}','none')">なし</button>
   </div>
   <div style="font-size:11px;color:var(--dim);margin-top:6px">現在: <b style="color:${has?'var(--gn)':'var(--dim)'}">${driveRoleLabel(a)||'未選任'}</b>${has?'　※下に酒気確認の確認キューが表示され、自分の分も含め判定できます':''}</div>`;
-  // 役員の酒気確認は「各店舗に入ってから」管理者と同一の画面で行う（店舗別スコープ）。
-  // そのため役員ダッシュボード上の全店舗まとめ表示カードは常に非表示にする。
+  // 役員トップでも酒気確認の承認を可能に（店舗別タブ）。確認権限がある場合のみ表示。
   const card=document.getElementById('execAlcCard');
-  if(card)card.style.display='none';
+  if(card)card.style.display=canConfirmAlc()?'':'none';
+  if(canConfirmAlc()){renderExecAlcByStore();updateAlcBadge();}
 }
 // kintai/health/odo は保存値に関わらず常にtrue（出勤ボタン非表示等の旧機能は廃止）
 function getAdminFeatures(){const f=curAcc()?.adminFeatures||{};return {kintai:true,health:true,odo:true,visits:f.visits!==false,leave:f.leave!==false};}
