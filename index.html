@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.04-alc18 (役員トップで店舗別タブ承認・確認履歴を1日ごと折りたたみ・退勤忘れ強調＆一覧対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.04-alc19 (役員は管理対象店舗の酒気確認を統括・自己選任カード廃止/選任は店舗内・店舗タブ既定折りたたみ・退勤忘れ確認済み対応版)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -908,14 +908,9 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
         <input type="number" id="eAlcVal"><input type="number" id="eAlcValOut"><input type="number" id="eOdoNow">
       </div>
     </div>
-    <div class="card">
-      <div class="ct">🚗 自分の運転管理者資格</div>
-      <p style="font-size:12px;color:var(--dim);margin-bottom:10px">自分自身を運転管理者・副運転管理者に選任できます（酒気確認の判定権限が付きます）。他の人の選任は店舗の「従業員管理」から行えます。</p>
-      <div id="execDriveRole"></div>
-    </div>
     <div class="card" id="execAlcCard" style="display:none">
       <div class="ct">🍃 酒気帯び確認（店舗別）<span class="badge-dot" id="alcBadgeExec"></span></div>
-      <p style="font-size:12px;color:var(--dim);margin-bottom:11px">店舗ごとにタブで折りたためます。各店舗の「確認待ち」を判定でき、「確認履歴」は1日ごとに折りたたみ表示（⚠退勤忘れは赤で強調）。写真なしは電話等で本人と対話し声の調子を確認してください。<b>確認すると写真は自動削除されます</b>（記録は1年間保存）。自分自身の分もここで確認できます。</p>
+      <p style="font-size:12px;color:var(--dim);margin-bottom:11px">管理対象店舗の酒気確認をここで判定できます。店舗タブは折りたたみ（未確認件数を表示）。タップで開くと「確認待ち」の判定と、1日ごとに折りたたんだ「確認履歴」を表示（⚠退勤忘れは赤で強調）。<b>確認すると写真は自動削除されます</b>（記録は1年間保存）。※運転管理者の選任は各店舗に入って「従業員管理」で行います。</p>
       <div id="alcExecByStore"></div>
     </div>
     <div class="card">
@@ -1216,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=18;
+const APP_BUILD=19;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -4048,18 +4043,36 @@ function updateAlcBadge(){
   ['alcBadge','alcBadgeEmp','alcBadgeExec'].forEach(id=>{const bd=document.getElementById(id);if(bd)bd.classList.toggle('show',cnt>0);});
 }
 function _alcIsForgot(c){return c&&(c.forgotCheckout===true||(c.type==='co'&&c.note&&c.note.indexOf('退勤忘れ')>=0));}
-// 退勤忘れ（自動退勤）一覧: 管理者・役員のサマリーで目立つように表示
+// 退勤忘れ（自動退勤）一覧: 管理者・役員のサマリーで目立つように表示。「確認済み」で非表示（記録・CSVには残る）。
 function _forgotListHtml(empIds,month){
   const nameById={};accounts.forEach(a=>nameById[a.id]=a.name);
   const rows=[];
-  (empIds||[]).forEach(id=>{(records[id]||[]).filter(r=>(r.date||'').startsWith(month)&&r.autoCheckout).forEach(r=>rows.push({name:nameById[id]||id,date:r.date,co:r.checkout}));});
+  (empIds||[]).forEach(id=>{(records[id]||[]).filter(r=>(r.date||'').startsWith(month)&&r.autoCheckout&&!r.forgotAcked).forEach(r=>rows.push({id,name:nameById[id]||id,date:r.date,co:r.checkout}));});
   rows.sort((a,b)=>b.date.localeCompare(a.date));
   if(!rows.length)return '';
+  const idsCsv=[...new Set(rows.map(r=>r.id))].join(',');
   return `<div class="card" style="border:1px solid var(--rd);background:rgba(247,95,95,.06);margin-top:10px">
-    <div class="ct" style="color:var(--rd)">⚠ 退勤忘れ（自動退勤）— ${rows.length}件</div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:6px">退勤打刻を忘れ、就業時刻で自動退勤された記録です。実際の退勤時刻に直す場合は「勤怠修正」で対応してください。</div>
-    ${rows.map(r=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 4px;border-bottom:1px solid var(--bd)"><span>👤 ${r.name}</span><span style="color:var(--rd);font-weight:700">${r.date}（自動退勤 ${r.co||'--:--'}）</span></div>`).join('')}
+    <div class="ct" style="color:var(--rd);display:flex;justify-content:space-between;align-items:center;gap:8px">⚠ 退勤忘れ（自動退勤）— ${rows.length}件<button class="mb" style="padding:5px 12px;font-size:11px;border:1px solid var(--rd);color:var(--rd);background:none" onclick="ackAllForgot('${idsCsv}','${month}')">すべて確認済み</button></div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:6px">退勤打刻を忘れ、就業時刻で自動退勤された記録です。実際の退勤時刻に直す場合は「勤怠修正」で対応。「確認済み」を押すとこの一覧から消えます（記録・CSVには残ります）。</div>
+    ${rows.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;padding:5px 4px;border-bottom:1px solid var(--bd)"><span>👤 ${r.name}　<span style="color:var(--rd);font-weight:700">${r.date}（自動退勤 ${r.co||'--:--'}）</span></span><button class="hbtn" style="flex-shrink:0" onclick="ackForgot('${r.id}','${r.date}')">✔ 確認済み</button></div>`).join('')}
   </div>`;
+}
+// 退勤忘れを「確認済み」にする（アラート一覧から消す。記録のautoCheckout自体は保持）。
+function ackForgot(empId,date){
+  const rec=(records[empId]||[]).find(r=>r.date===date&&r.autoCheckout);
+  if(rec){rec.forgotAcked=true;S.set('ka_records',records);}
+  if(typeof renderAdmin==='function'&&document.getElementById('adminOverall'))renderAdmin();
+  if(typeof renderExecScreen==='function'&&document.getElementById('execSummary'))renderExecScreen();
+  showToast('✔ 退勤忘れを確認済みにしました');
+}
+function ackAllForgot(idsCsv,month){
+  const ids=(idsCsv||'').split(',').filter(Boolean);
+  let n=0;
+  ids.forEach(id=>{(records[id]||[]).filter(r=>(r.date||'').startsWith(month)&&r.autoCheckout&&!r.forgotAcked).forEach(r=>{r.forgotAcked=true;n++;});});
+  if(n)S.set('ka_records',records);
+  if(typeof renderAdmin==='function'&&document.getElementById('adminOverall'))renderAdmin();
+  if(typeof renderExecScreen==='function'&&document.getElementById('execSummary'))renderExecScreen();
+  showToast(`✔ 退勤忘れ ${n}件 を確認済みにしました`);
 }
 // 確認待ち1件の描画
 function _alcPendRow(c){
@@ -4109,7 +4122,8 @@ function _alcHistRow(c){
     </div>`;
 }
 // 確認履歴を「1日ごと」に折りたたみ表示（最新日は開く・各日に出/退件数・退勤忘れを赤で強調）
-function _alcHistGroupedHtml(hist){
+function _alcHistGroupedHtml(hist,openFirst){
+  if(openFirst===undefined)openFirst=true;
   if(!hist||!hist.length)return '<div class="empty">履歴はありません</div>';
   const groups={};
   hist.forEach(c=>{const d=(c.date&&/^\d{4}-\d{2}-\d{2}/.test(c.date))?c.date.slice(0,10):'----';(groups[d]=groups[d]||[]).push(c);});
@@ -4122,7 +4136,7 @@ function _alcHistGroupedHtml(hist){
     const label=(d!=='----'&&parts.length===3)?`${parseInt(parts[1])}月${parseInt(parts[2])}日`:'日付不明';
     const items=arr.map(_alcHistRow).join('');
     const fgBadge=fg?`　<span style="color:var(--rd);font-weight:700">⚠退勤忘れ${fg}</span>`:'';
-    return`<details${i===0?' open':''} style="margin-bottom:5px"><summary style="cursor:pointer;padding:7px 10px;background:var(--sf2);border-radius:8px;font-size:12px;font-weight:700;list-style:none">📅 ${label}　<span style="color:var(--dim);font-weight:400">出${ci}/退${co}・計${arr.length}件</span>${fgBadge}</summary><div style="padding:5px 2px 2px">${items}</div></details>`;
+    return`<details${(openFirst&&i===0)?' open':''} style="margin-bottom:5px"><summary style="cursor:pointer;padding:7px 10px;background:var(--sf2);border-radius:8px;font-size:12px;font-weight:700;list-style:none">📅 ${label}　<span style="color:var(--dim);font-weight:400">出${ci}/退${co}・計${arr.length}件</span>${fgBadge}</summary><div style="padding:5px 2px 2px">${items}</div></details>`;
   }).join('');
 }
 function _renderAlcHistGrouped(els,hist){
@@ -4144,8 +4158,8 @@ function renderExecAlcByStore(){
     const pc=pend.length;
     const badge=pc?`<span style="color:var(--rd);font-weight:700">🔴未確認 ${pc}</span>`:`<span style="color:var(--gn)">✅未確認なし</span>`;
     const pendHtml=pc?pend.map(_alcPendRow).join(''):'<div class="empty">確認待ちはありません ✨</div>';
-    const histHtml=_alcHistGroupedHtml(hist);
-    return `<details${(gi===0||pc)?' open':''} style="margin-bottom:8px"><summary style="cursor:pointer;padding:9px 12px;background:var(--sf2);border-radius:10px;font-size:14px;font-weight:700;list-style:none">${g.name}　${badge}</summary>
+    const histHtml=_alcHistGroupedHtml(hist,false); // 履歴も各日折りたたみ（多人数でも省スペース）
+    return `<details style="margin-bottom:8px"><summary style="cursor:pointer;padding:9px 12px;background:var(--sf2);border-radius:10px;font-size:14px;font-weight:700;list-style:none">${g.name}　${badge}</summary>
       <div style="padding:8px 2px 2px">
         <div style="font-size:11px;color:var(--dim);font-weight:700;margin:2px 0 4px">確認待ち</div>${pendHtml}
         <div style="font-size:11px;color:var(--dim);font-weight:700;margin:12px 0 4px">確認履歴（直近14日・1日ごと）</div>${histHtml}
@@ -4726,7 +4740,8 @@ const ADMIN_FEATURE_DEFS=[
 ];
 // ── 運転管理者 / 副運転管理者（酒気確認の権限保持者。役員が選任） ──
 function driveRoleLabel(acc){if(!acc)return'';if(acc.driveMgr)return'運転管理者';if(acc.subDriveMgr)return'副運転管理者';if(acc.assistant)return'補助者';return'';}
-function canConfirmAlc(){const a=curAcc();return !!(a&&(a.driveMgr||a.subDriveMgr||a.assistant));}
+// 役員は管理対象店舗の酒気確認を判定可能（統括）。加えて運転管理者・副・補助者も判定可能。
+function canConfirmAlc(){const a=curAcc();return !!(a&&(a.role==='executive'||a.driveMgr||a.subDriveMgr||a.assistant));}
 // 酒気確認タブの表示制御（運転管理者・副・補助者のみ表示）
 function applyAlcTabVisibility(){
   const show=canConfirmAlc();
@@ -4757,20 +4772,9 @@ function setDriveRole(id,role){
   const lbl=role==='mgr'?'運転管理者':role==='sub'?'副運転管理者':role==='assistant'?'補助者（安全運転管理者の業務を補助する者）':'';
   showToast(role==='none'?`✅ ${e.name} の確認権限を解除しました`:`✅ ${e.name} を${lbl}に選任しました`);
 }
-// 役員ダッシュボード: 自分自身の運転管理者資格の付与/解除
+// 役員ダッシュボード: 管理対象店舗の酒気確認カード（店舗別タブ）を表示。
+//   運転管理者の選任は各店舗の「従業員管理」で行うため、役員トップの自己選任カードは廃止。
 function renderExecDriveRole(){
-  const el=document.getElementById('execDriveRole');if(!el)return;
-  const a=curAcc();if(!a)return;
-  const bs=(active,danger)=>active?(danger?'background:rgba(247,95,95,.12);border:1px solid var(--rd);color:var(--rd)':'background:rgba(61,214,140,.15);border:1px solid var(--gn);color:var(--gn)'):'background:none;border:1px solid var(--bd);color:var(--dim)';
-  const has=(a.driveMgr||a.subDriveMgr||a.assistant);
-  el.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="mb" style="padding:6px 14px;${bs(a.driveMgr,false)}" onclick="setDriveRole('${a.id}','mgr')">運転管理者</button>
-    <button class="mb" style="padding:6px 14px;${bs(a.subDriveMgr,false)}" onclick="setDriveRole('${a.id}','sub')">副運転管理者</button>
-    <button class="mb" style="padding:6px 14px;${bs(a.assistant,false)}" onclick="setDriveRole('${a.id}','assistant')">補助者</button>
-    <button class="mb" style="padding:6px 14px;${bs(!has,true)}" onclick="setDriveRole('${a.id}','none')">なし</button>
-  </div>
-  <div style="font-size:11px;color:var(--dim);margin-top:6px">現在: <b style="color:${has?'var(--gn)':'var(--dim)'}">${driveRoleLabel(a)||'未選任'}</b>${has?'　※下に酒気確認の確認キューが表示され、自分の分も含め判定できます':''}</div>`;
-  // 役員トップでも酒気確認の承認を可能に（店舗別タブ）。確認権限がある場合のみ表示。
   const card=document.getElementById('execAlcCard');
   if(card)card.style.display=canConfirmAlc()?'':'none';
   if(canConfirmAlc()){renderExecAlcByStore();updateAlcBadge();}
