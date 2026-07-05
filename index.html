@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.04-alc20 (酒気確認の判定は運転管理者・副・補助者のみ/役員は選任者・従業員管理で役員も選任可・店舗タブ折りたたみ・退勤忘れ確認済み対応版)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc21 (セキュリティ強化: 氏名・メモ等のHTMLエスケープ/負数入力ガード/時間休プール未設定時は申請不可/有給の同日重複申請ガード/CSV数式無害化)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1211,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=20;
+const APP_BUILD=21;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1461,6 +1461,11 @@ const currentStoreName=()=>(stores.find(s=>s.id===currentStoreId)||{}).name||'';
 const fmtH=h=>{if(!h)return'0時間';const hr=Math.floor(h),mn=Math.round((h-hr)*60);if(hr===0)return`${mn}分`;return mn===0?`${hr}時間`:`${hr}時間${mn}分`;};
 const fmtDate=s=>{if(!s)return'';const[y,m,d]=s.split('-');return`${y}年${m}月${d}日`;};
 const uid=prefix=>`${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+// ★XSS対策: innerHTMLに埋め込む自由入力文字（氏名・メモ・備考・利用目的・コメント等）は必ずこれを通す。
+//   保存済みデータは無加工（表示時のみエスケープ）なので既存データに影響しない。
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+// ★CSVの数式インジェクション対策: 先頭が = + - @ 等のセルは無害化（Excel等で数式実行されないよう先頭にアポストロフィ）。
+function csvCell(c){let s=String(c==null?'':c);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
 const addYears=(dateStr,n)=>{const[y,m,d]=dateStr.split('-').map(Number);return[y+n,String(m).padStart(2,'0'),String(Math.min(d,new Date(y+n,m,0).getDate())).padStart(2,'0')].join('-');};
 
 // ═══════════════════════════════════
@@ -1684,7 +1689,7 @@ function renderExecScreen(){
     return`<div class="mgmt-item" style="flex-direction:column;align-items:stretch;gap:8px;cursor:pointer" onclick="enterStore('${st.id}')">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div>
-          <div class="mi-name">🏪 ${st.name}</div>
+          <div class="mi-name">🏪 ${esc(st.name)}</div>
           <div class="mi-user">管理者: ${admins.length}名 ／ スタッフ: ${emps.length}名</div>
         </div>
         <div class="mi-btns">
@@ -1949,7 +1954,7 @@ function openCheckinModal(){
 function closeCheckinModal(){document.getElementById('ciModal').classList.remove('open');}
 async function confirmCheckin(){
   const odoVal=document.getElementById('ci-odo').value;
-  if(!odoVal||isNaN(parseFloat(odoVal))){const h=document.getElementById('ci-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を入力してください</span>';return;}
+  if(!odoVal||isNaN(parseFloat(odoVal))||parseFloat(odoVal)<0){const h=document.getElementById('ci-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を正しく入力してください（0以上）</span>';return;}
   const ftFlag=document.getElementById('ci-fulltime')?.checked||false;
   closeCheckinModal();
   document.getElementById('odoNow').value=odoVal;
@@ -1985,7 +1990,7 @@ function submitHolidayOdo(){
   const dk=todayKey();
   if(isMonthLocked(dk.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const odoStr=document.getElementById('hol-odo').value;
-  if(!odoStr||isNaN(parseFloat(odoStr))){const h=document.getElementById('hol-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を入力してください</span>';return;}
+  if(!odoStr||isNaN(parseFloat(odoStr))||parseFloat(odoStr)<0){const h=document.getElementById('hol-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を正しく入力してください（0以上）</span>';return;}
   const purpose=(document.getElementById('hol-purpose')?.value||'').trim();
   if(!purpose){const pe=document.getElementById('hol-purpose');if(pe)pe.focus();showToast('⚠ 利用目的を入力してください（例：買い物利用、娯楽施設移動）');return;}
   const odoNum=parseFloat(odoStr);
@@ -2060,7 +2065,7 @@ function saveVisits(){
 }
 function _saveVisitsInner(){
   const empId=session.id,dk=document.getElementById('vDate').value||todayKey();
-  const g=id=>parseFloat(document.getElementById(id).value)||0;
+  const g=id=>Math.max(0,parseFloat(document.getElementById(id).value)||0);
   const rec={date:dk,sales:g('v-sales'),c30:g('v-c30'),c60:g('v-c60'),c90:g('v-c90'),medical:g('v-med'),staff:g('v-stf'),pre:g('v-pre'),contract:g('v-con'),training:g('v-trn'),overtime:g('v-ov'),oncall:g('v-oncall'),angel:g('v-angel')};
   if(!visits[empId])visits[empId]=[];
   const idx=visits[empId].findIndex(v=>v.date===dk);
@@ -2110,7 +2115,7 @@ async function submitVisitConfirm(){
   try{
     if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;await _alcCommit(pc);}
     const dk=todayKey();
-    const g=id=>parseFloat(document.getElementById(id)?.value)||0;
+    const g=id=>Math.max(0,parseFloat(document.getElementById(id)?.value)||0);
     const rec={date:dk,sales:g('vc-sales'),c30:g('vc-c30'),c60:g('vc-c60'),c90:g('vc-c90'),medical:g('vc-med'),staff:g('vc-stf'),pre:g('vc-pre'),contract:g('vc-con'),training:g('vc-trn'),overtime:g('vc-ov'),oncall:g('vc-oncall'),angel:g('vc-angel')};
     if(!visits[session.id])visits[session.id]=[];
     const idx=visits[session.id].findIndex(v=>v.date===dk);
@@ -2239,7 +2244,7 @@ function buildAttendanceCsv(month,targetStoreId){
       lvSummary?`${lvSummary}（${lvBalStr}）`:'',lvTotalH||'']);
   });
   // BOM + CSV生成
-  const csvContent='\uFEFF'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const csvContent='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\n');
   return {csv:csvContent,storeName,y,m};
 }
 function exportCSV(month,targetStoreId){
@@ -2305,7 +2310,7 @@ function exportLeaveCSV(empId){
     rows.push([r.targetDate,typeMap[r.type]||r.type,consume,statusMap[r.status]||r.status,
       r.createdAt?r.createdAt.slice(0,10):'',r.reviewedAt?r.reviewedAt.slice(0,10):'',r.reviewedBy||'',r.note||'']);
   });
-  const csvContent='\uFEFF'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const csvContent='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\n');
   const blob=new Blob([csvContent],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -2611,8 +2616,8 @@ function renderLeaveTab(){
     return`<div class="req-item">
       <div class="req-main">
         <div class="req-date">${r.targetDate}　<span style="font-size:12px;color:var(--dim)">${typeMap[r.type]||r.type} / ${r.type==='hourly'?r.hours+'時間':r.type==='full'?'1日':'0.5日'}</span></div>
-        ${r.note?`<div class="req-detail">備考: ${r.note}</div>`:''}
-        ${r.reviewedAt?`<div class="req-detail">審査: ${new Date(r.reviewedAt).toLocaleDateString('ja-JP')} ${r.reviewedBy||''}</div>`:''}
+        ${r.note?`<div class="req-detail">備考: ${esc(r.note)}</div>`:''}
+        ${r.reviewedAt?`<div class="req-detail">審査: ${new Date(r.reviewedAt).toLocaleDateString('ja-JP')} ${esc(r.reviewedBy||'')}</div>`:''}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <span class="req-status ${st.cls}">${st.lbl}</span>
@@ -2648,6 +2653,10 @@ function submitLeaveReq(){
   if(!targetDate){showToast('⚠ 日付を入力してください');return;}
   if(hours<=0){showToast('⚠ 時間数を入力してください');return;}
   const bal=getLeaveBal(empId);
+  // ★時間給プール未設定（0h）の人は時間休を申請できない（消化されず残数が減らない不整合の防止）
+  if(type==='hourly'&&!bal.hasHourlyPool){showToast('⚠ 時間休プールが未設定です。管理者に時間休付与を依頼するか、全日休・半日休で申請してください');return;}
+  // ★同一日・同一種別の重複申請ガード（申請中・承認済みが既にある場合はブロック）
+  if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
   // 日数プール: full=1日, half=0.5日で残日数チェック / 時間プール: hourly申請で残時間チェック
   if(type==='hourly'&&bal.hasHourlyPool){
     if(hours>bal.remHourlyH){showToast(`⚠ 時間給残数が不足しています（残: ${bal.remHourlyH}時間）`);return;}
@@ -2688,8 +2697,8 @@ function renderAdminLeave(){
   const typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
   document.getElementById('pendingLeave').innerHTML=pending.length?pending.map(r=>`
     <div class="pend-req">
-      <div class="pend-top"><div class="pend-name">👤 ${r.empName}</div><span class="req-status rs-pending">⏳ 申請中</span></div>
-      <div class="pend-info">${r.targetDate} ／ ${typeMap[r.type]||r.type} ／ ${r.hours}時間${r.note?` ／ ${r.note}`:''}</div>
+      <div class="pend-top"><div class="pend-name">👤 ${esc(r.empName)}</div><span class="req-status rs-pending">⏳ 申請中</span></div>
+      <div class="pend-info">${r.targetDate} ／ ${typeMap[r.type]||r.type} ／ ${r.hours}時間${r.note?` ／ ${esc(r.note)}`:''}</div>
       <div class="pend-btns">
         <button class="app-btn ok" onclick="approveLeave('${r.id}')">✅ 承認</button>
         <button class="app-btn ng" onclick="rejectLeave('${r.id}')">❌ 却下</button>
@@ -2715,14 +2724,14 @@ function renderAdminLeave(){
           const summary=`${dayCount?dayCount+'日':''}${dayCount&&hourlyCount?' ＋ ':''}${hourlyCount?hourlyCount+'h':''}`;
           html+=`<div style="border:1px solid rgba(61,214,140,.2);border-radius:10px;margin-bottom:8px;overflow:hidden">
             <div onclick="toggleApprovedEmp('ale_${eid}_${selAY}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:rgba(61,214,140,.04)">
-              <div><span style="font-weight:700;color:var(--ac)">👤 ${eg.name}</span><span style="font-size:11px;color:var(--dim);margin-left:8px">${eg.reqs.length}件（${summary}）</span></div>
+              <div><span style="font-weight:700;color:var(--ac)">👤 ${esc(eg.name)}</span><span style="font-size:11px;color:var(--dim);margin-left:8px">${eg.reqs.length}件（${summary}）</span></div>
               <span style="font-size:10px;color:var(--dim)" id="ale_${eid}_${selAY}_icon">▼ 開く</span>
             </div>
             <div id="ale_${eid}_${selAY}" style="display:none;padding:0 10px 10px">`;
           eg.reqs.forEach(r=>{
             html+=`<div class="pend-req" style="border:1px solid rgba(61,214,140,.15);margin-top:6px">
               <div class="pend-top"><div class="pend-name">${r.targetDate}</div><span class="req-status rs-approved" style="font-size:10px">✅</span></div>
-              <div class="pend-info">${typeMap[r.type]||r.type} ／ ${r.type==='hourly'?r.hours+'時間':r.type==='full'?'1日':'0.5日'}${r.note?` ／ ${r.note}`:''}<br><span style="font-size:10px;color:var(--dim)">承認: ${r.reviewedBy||''} ${r.reviewedAt?new Date(r.reviewedAt).toLocaleDateString('ja-JP'):''}</span></div>
+              <div class="pend-info">${typeMap[r.type]||r.type} ／ ${r.type==='hourly'?r.hours+'時間':r.type==='full'?'1日':'0.5日'}${r.note?` ／ ${esc(r.note)}`:''}<br><span style="font-size:10px;color:var(--dim)">承認: ${esc(r.reviewedBy||'')} ${r.reviewedAt?new Date(r.reviewedAt).toLocaleDateString('ja-JP'):''}</span></div>
               <div class="pend-btns"><button class="app-btn" style="background:rgba(247,211,79,.15);color:var(--yw);font-size:10px;padding:3px 8px" onclick="returnLeave('${r.id}')">↩ 差し戻す</button></div>
             </div>`;
           });
@@ -2738,7 +2747,7 @@ function renderAdminLeave(){
     const bal=cfg?.grantDate?getLeaveBal(e.id):null;
     return`<div class="leave-cfg-row">
       <div class="lcr-top">
-        <div class="lcr-name">👤 ${e.name}</div>
+        <div class="lcr-name">👤 ${esc(e.name)}</div>
         <div style="display:flex;gap:6px">
           <button class="mb mb-b" style="font-size:10px;padding:4px 8px" onclick="exportLeaveCSV('${e.id}')">📥 有給CSV</button>
           <button class="mb mb-g" onclick="openLCModal('${e.id}')">⚙ 設定</button>
@@ -2848,12 +2857,12 @@ function renderRecords(){
       <div style="flex:1">
         <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${autoCoBadge(r)}</div>
         ${isHolidayVehicle
-          ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}${r.memo?' ／ 目的: '+r.memo:''}</div>`
+          ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}${r.memo?' ／ 目的: '+esc(r.memo):''}</div>`
           :isOdoOnly&&!sKintai
             ?`<div class="rt" style="color:var(--ac)">ODO: ${r.odometer?.toFixed(1)} km${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
           :`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`}
-        <div class="rd">${!isOdoOnly&&r.overtimeMinutes>0?'残業 '+toHHMM(r.overtimeMinutes)+' ／ ':''}体調:${r.health||'-'} ／ アルコール:${r.alcohol||'0.00'}${r.alcoholOut?'→'+r.alcoholOut:''}mg/L${!isOdoOnly&&r.todayKm!=null?' ／ 🚗 '+r.todayKm+'km':''}${r.memo?' ／ 📝'+r.memo:''}</div>
-        ${r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
+        <div class="rd">${!isOdoOnly&&r.overtimeMinutes>0?'残業 '+toHHMM(r.overtimeMinutes)+' ／ ':''}体調:${esc(r.health||'-')} ／ アルコール:${esc(r.alcohol||'0.00')}${r.alcoholOut?'→'+esc(r.alcoholOut):''}mg/L${!isOdoOnly&&r.todayKm!=null?' ／ 🚗 '+r.todayKm+'km':''}${r.memo?' ／ 📝'+esc(r.memo):''}</div>
+        ${r.checkinLoc?.address?`<div class="rd">📍 ${esc(r.checkinLoc.address)}</div>`:''}
       </div>
       <button class="delbtn" onclick="deleteRecord(${globalIdx})">🗑</button>
     </div>`;
@@ -2910,7 +2919,7 @@ function renderEditList(){
         <div class="ef"><label>アルコール退勤(mg/L)</label><input type="number" class="einp" id="e_ao_${i}" value="${r.alcoholOut||''}" step="0.01"${dis}></div>
       </div>
       <div class="er">
-        <div class="ef"><label>メモ</label><input type="text" class="einp" id="e_me_${i}" value="${r.memo||''}"${dis}></div>
+        <div class="ef"><label>メモ</label><input type="text" class="einp" id="e_me_${i}" value="${esc(r.memo||'')}"${dis}></div>
       </div>
       ${(()=>{const ea=accounts.find(a=>a.id===empId);return ea&&ea.workStart&&ea.workEnd&&(ea.workStart!==settings.start||ea.workEnd!==settings.end)?`<div class="er"><div class="ef"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="e_ft_${i}" ${r.fullTimeFlag?'checked':''}${dis} style="width:16px;height:16px;accent-color:var(--ac)"> 常勤時間出勤</label></div></div>`:`<input type="hidden" id="e_ft_${i}">`})()}
       ${isLocked?'':'<div style="display:flex;gap:6px"><button class="esbtn" onclick="saveEdit('+i+')">✏ 修正する</button><button class="esbtn" style="background:rgba(247,95,95,.1);border-color:var(--rd);color:var(--rd)" onclick="deleteEditRecord('+i+')">🗑 削除</button></div>'}
@@ -3049,7 +3058,7 @@ function renderAdmin(){
         ?'<span style="font-size:10px;background:rgba(247,211,79,.15);color:var(--yw);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:5px">🔑 管理者</span>'
         :'';
     return`<div class="aec">
-      <div class="aeh"><div class="aen">👤 ${e.name}${nameBadge}</div><div class="tc ${chipCls}">${chipLbl}</div></div>
+      <div class="aeh"><div class="aen">👤 ${esc(e.name)}${nameBadge}</div><div class="tc ${chipCls}">${chipLbl}</div></div>
       <div class="sec-sep">勤怠</div>
       <div class="ag">
         <div class="as"><div class="asl">出勤日数</div><div class="asv" style="color:var(--gn)">${days}日</div></div>
@@ -3114,8 +3123,8 @@ function renderEmpMgmt(){
     return`<div class="mgmt-item" style="flex-direction:column;align-items:stretch;gap:8px">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div class="mi-info">
-          <div class="mi-name">${e.name}${roleBdg}${driveBdg}</div>
-          <div class="mi-user">@${e.username} ／ ${wtLabel}</div>
+          <div class="mi-name">${esc(e.name)}${roleBdg}${driveBdg}</div>
+          <div class="mi-user">@${esc(e.username)} ／ ${wtLabel}</div>
         </div>
         <div class="mi-btns">
           ${roleButtons}
@@ -3171,7 +3180,7 @@ function renderEmpMgmt(){
       execs.map(e=>{
         const dbg=e.driveMgr?'🚗 運転管理者':e.subDriveMgr?'🚗 副運転管理者':e.assistant?'🚗 補助者':'（未選任）';
         return `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--sf2);border-radius:8px;padding:8px 10px">
-          <span style="font-size:12px;font-weight:700;flex-shrink:0">${e.name}${e.id===session?.id?'（自分）':''}</span>
+          <span style="font-size:12px;font-weight:700;flex-shrink:0">${esc(e.name)}${e.id===session?.id?'（自分）':''}</span>
           <span style="font-size:10px;color:${(e.driveMgr||e.subDriveMgr||e.assistant)?'var(--gn)':'var(--dim)'}">${dbg}</span>`+
           (isExec?`<span style="width:100%;height:1px"></span>
             <button class="mb" style="padding:5px 12px;${e.driveMgr?'background:rgba(61,214,140,.15);border:1px solid var(--gn);color:var(--gn)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="setDriveRole('${e.id}','mgr')">運転管理者</button>
@@ -4042,8 +4051,8 @@ function alcStatusLabel(c){
   if(!c)return'<span style="color:var(--dim)">未実施</span>';
   if(c.status==='pending')return'<span style="color:var(--yw)">⏳ 管理者確認待ち</span>';
   if(c.status==='nophoto')return'<span style="color:var(--yw)">📵 写真なし・電話確認待ち</span>';
-  if(c.status==='ok')return`<span style="color:var(--gn)">✅ 確認済み（${c.confirmedBy}）</span>`;
-  if(c.status==='ng')return`<span style="color:var(--rd)">🚫 異常あり${c.note?'：'+c.note:''}</span>${c.rolledBack?'<br><span style="color:var(--yw);font-size:11px">⚠ 打刻が差し戻されました。画面を再読み込みして、もう一度打刻してください</span>':''}`;
+  if(c.status==='ok')return`<span style="color:var(--gn)">✅ 確認済み（${esc(c.confirmedBy)}）</span>`;
+  if(c.status==='ng')return`<span style="color:var(--rd)">🚫 異常あり${c.note?'：'+esc(c.note):''}</span>${c.rolledBack?'<br><span style="color:var(--yw);font-size:11px">⚠ 打刻が差し戻されました。画面を再読み込みして、もう一度打刻してください</span>':''}`;
   return'';
 }
 function renderAlcStatusSelf(){
@@ -4074,7 +4083,7 @@ function _forgotListHtml(empIds,month){
   return `<div class="card" style="border:1px solid var(--rd);background:rgba(247,95,95,.06);margin-top:10px">
     <div class="ct" style="color:var(--rd);display:flex;justify-content:space-between;align-items:center;gap:8px">⚠ 退勤忘れ（自動退勤）— ${rows.length}件<button class="mb" style="padding:5px 12px;font-size:11px;border:1px solid var(--rd);color:var(--rd);background:none" onclick="ackAllForgot('${idsCsv}','${month}')">すべて確認済み</button></div>
     <div style="font-size:11px;color:var(--dim);margin-bottom:6px">退勤打刻を忘れ、就業時刻で自動退勤された記録です。実際の退勤時刻に直す場合は「勤怠修正」で対応。「確認済み」を押すとこの一覧から消えます（記録・CSVには残ります）。</div>
-    ${rows.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;padding:5px 4px;border-bottom:1px solid var(--bd)"><span>👤 ${r.name}　<span style="color:var(--rd);font-weight:700">${r.date}（自動退勤 ${r.co||'--:--'}）</span></span><button class="hbtn" style="flex-shrink:0" onclick="ackForgot('${r.id}','${r.date}')">✔ 確認済み</button></div>`).join('')}
+    ${rows.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;padding:5px 4px;border-bottom:1px solid var(--bd)"><span>👤 ${esc(r.name)}　<span style="color:var(--rd);font-weight:700">${r.date}（自動退勤 ${r.co||'--:--'}）</span></span><button class="hbtn" style="flex-shrink:0" onclick="ackForgot('${r.id}','${r.date}')">✔ 確認済み</button></div>`).join('')}
   </div>`;
 }
 // 退勤忘れを「確認済み」にする（アラート一覧から消す。記録のautoCheckout自体は保持）。
@@ -4098,7 +4107,7 @@ function ackAllForgot(idsCsv,month){
 function _alcPendRow(c){
   return `
     <div class="pend-req">
-      <div class="pend-top"><div class="pend-name">👤 ${c.empName}</div>
+      <div class="pend-top"><div class="pend-name">👤 ${esc(c.empName)}</div>
         <span class="req-status rs-pending">${c.type==='ci'?'🟢 出勤':'🔴 退勤'} ${c.date} ${c.time}${_alcIsForgot(c)?' <span style="color:var(--rd);font-weight:700">⚠退勤忘れ</span>':''}</span></div>
       <div style="display:flex;gap:12px;align-items:flex-start;margin:8px 0">
         ${c.photo
@@ -4136,8 +4145,8 @@ function _alcHistRow(c){
   const fg=_alcIsForgot(c);
   return `
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--bd);font-size:12px;flex-wrap:wrap${fg?';background:rgba(247,95,95,.08);border-left:3px solid var(--rd);padding-left:6px':''}">
-      <span style="flex:1;min-width:200px">${c.status==='ok'?'✅':'🚫'} ${c.empName}（${c.type==='ci'?'出勤':'退勤'} ${c.date} ${c.time}）<b style="font-family:var(--mo);color:${alcValColor(c.val)}">${parseFloat(c.val||0).toFixed(2)}</b>${fg?' <span style="color:var(--rd);font-weight:700">⚠退勤忘れ</span>':''}<br>
-      <span style="color:var(--dim);font-size:11px">${c.confirmerRole?c.confirmerRole+'：':''}${c.confirmedBy||''}／${c.confirmedAt||''}／${c.method||''}${c.note?'／'+c.note:''}</span></span>
+      <span style="flex:1;min-width:200px">${c.status==='ok'?'✅':'🚫'} ${esc(c.empName)}（${c.type==='ci'?'出勤':'退勤'} ${c.date} ${c.time}）<b style="font-family:var(--mo);color:${alcValColor(c.val)}">${parseFloat(c.val||0).toFixed(2)}</b>${fg?' <span style="color:var(--rd);font-weight:700">⚠退勤忘れ</span>':''}<br>
+      <span style="color:var(--dim);font-size:11px">${c.confirmerRole?esc(c.confirmerRole)+'：':''}${esc(c.confirmedBy||'')}／${c.confirmedAt||''}／${esc(c.method||'')}${c.note?'／'+esc(c.note):''}</span></span>
       <button class="hbtn" onclick="reopenAlcCheck('${c.id}')" style="flex-shrink:0">↩ 判定を変更</button>
     </div>`;
 }
@@ -4169,7 +4178,7 @@ function renderExecAlcByStore(){
   if(!canConfirmAlc()){el.innerHTML='<div class="empty">確認権限がありません（運転管理者・副・補助者のみ）</div>';return;}
   const cut=new Date();cut.setDate(cut.getDate()-14);
   const ck=[cut.getFullYear(),String(cut.getMonth()+1).padStart(2,'0'),String(cut.getDate()).padStart(2,'0')].join('-');
-  const groups=stores.map(s=>({name:'🏪 '+s.name, ids:new Set(accounts.filter(a=>a.storeId===s.id).map(a=>a.id))}));
+  const groups=stores.map(s=>({name:'🏪 '+esc(s.name), ids:new Set(accounts.filter(a=>a.storeId===s.id).map(a=>a.id))}));
   const storeless=new Set(accounts.filter(a=>!a.storeId).map(a=>a.id));
   if(storeless.size)groups.push({name:'👔 役員・店舗未所属', ids:storeless});
   const html=groups.map((g,gi)=>{
@@ -4541,7 +4550,7 @@ function renderLeaveTabA(){
     const yearNavA=yearsA.length>1?`<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">${yearsA.map(y=>`<button class="mb ${y===selYA?'mb-g':'mb-b'}" style="padding:4px 12px;font-size:11px" onclick="adminLeaveYearA='${y}';renderLeaveTabA()">${y}年</button>`).join('')}</div>`:'';
     lhEl.innerHTML=allReqsA.length?(yearNavA+(filtReqsA.length?filtReqsA.map(r=>{
       const st=statusMap[r.status]||statusMap.pending;
-      return`<div class="req-item"><div class="req-main"><div class="req-date">${r.targetDate}　<span style="font-size:12px;color:var(--dim)">${typeMap[r.type]||r.type} / ${r.type==='hourly'?r.hours+'時間':r.type==='full'?'1日':'0.5日'}</span></div>${r.note?`<div class="req-detail">備考: ${r.note}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="req-status ${st.cls}">${st.lbl}</span>${r.status==='pending'?`<button class="req-cancel-btn" onclick="cancelLeaveReqA('${r.id}')">取消</button>`:''}</div></div>`;
+      return`<div class="req-item"><div class="req-main"><div class="req-date">${r.targetDate}　<span style="font-size:12px;color:var(--dim)">${typeMap[r.type]||r.type} / ${r.type==='hourly'?r.hours+'時間':r.type==='full'?'1日':'0.5日'}</span></div>${r.note?`<div class="req-detail">備考: ${esc(r.note)}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="req-status ${st.cls}">${st.lbl}</span>${r.status==='pending'?`<button class="req-cancel-btn" onclick="cancelLeaveReqA('${r.id}')">取消</button>`:''}</div></div>`;
     }).join(''):'<div class="empty">この年の申請はありません</div>')):'<div class="empty">申請履歴なし</div>';
   }
   updateLeaveTypeUIA();
@@ -4558,6 +4567,8 @@ function submitLeaveReqA(){
   if(!targetDate){showToast('⚠ 日付を入力してください');return;}
   if(hours<=0){showToast('⚠ 時間数を入力してください');return;}
   const bal=getLeaveBal(empId);
+  if(type==='hourly'&&!bal.hasHourlyPool){showToast('⚠ 時間休プールが未設定です。時間休付与を設定するか、全日休・半日休で申請してください');return;}
+  if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
   if(type==='hourly'&&bal.hasHourlyPool){if(hours>bal.remHourlyH){showToast(`⚠ 時間給残数不足（残: ${bal.remHourlyH}時間）`);return;}}
   else if(type==='full'||type==='half'){const needDays=type==='full'?1:0.5;if(needDays>bal.remDays){showToast(`⚠ 有給日数残不足（残: ${bal.remDays}日）`);return;}}
   else{if(hours>bal.remDayH){showToast(`⚠ 有給残数不足（残: ${bal.remDayH}時間）`);return;}}
@@ -4630,9 +4641,9 @@ function renderRecordsA(){
     const missOdo=rShowO&&r.checkin&&r.odometer==null&&!isOdoOnly;
     const detailParts=[];
     if(rShowK&&!isOdoOnly&&r.overtimeMinutes>0)detailParts.push('残業 '+toHHMM(r.overtimeMinutes));
-    if(rShowH){detailParts.push('体調:'+(r.health||'-'));detailParts.push('アルコール:'+(r.alcohol||'0.00')+(r.alcoholOut?'→'+r.alcoholOut:'')+'mg/L');}
+    if(rShowH){detailParts.push('体調:'+esc(r.health||'-'));detailParts.push('アルコール:'+esc(r.alcohol||'0.00')+(r.alcoholOut?'→'+esc(r.alcoholOut):'')+'mg/L');}
     if(rShowO&&!isOdoOnly&&r.todayKm!=null)detailParts.push('🚗 '+r.todayKm+'km');
-    if(r.memo)detailParts.push('📝'+r.memo);
+    if(r.memo)detailParts.push('📝'+esc(r.memo));
     return`<div class="ri"${isHolidayVehicle?' style="border-left:3px solid var(--ac);opacity:.85"':''}${(missCO||missCI)?' style="border-left:3px solid var(--rd);background:rgba(247,95,95,.06)"':''}><div style="flex:1">
       <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${autoCoBadge(r)}</div>
       ${isHolidayVehicle
@@ -4641,7 +4652,7 @@ function renderRecordsA(){
           ?`<div class="rt" style="color:var(--ac)">ODO: ${r.odometer?.toFixed(1)} km${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
         :(rShowK?`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`:'')}
       ${detailParts.length?`<div class="rd">${detailParts.join(' ／ ')}</div>`:''}
-      ${rShowK&&!isOdoOnly&&r.checkinLoc?.address?`<div class="rd">📍 ${r.checkinLoc.address}</div>`:''}
+      ${rShowK&&!isOdoOnly&&r.checkinLoc?.address?`<div class="rd">📍 ${esc(r.checkinLoc.address)}</div>`:''}
     </div><button class="delbtn" onclick="deleteRecordA(${gi})">🗑</button></div>`;
   }).join('');
 }
@@ -4677,7 +4688,7 @@ function renderEditListA(){
       ${showKintai?`<div class="er"><div class="ef"><label>出勤時刻</label><input type="time" class="einp" id="ea_ci_${i}" value="${r.checkin||''}"${dis}></div><div class="ef"><label>退勤時刻</label><input type="time" class="einp" id="ea_co_${i}" value="${r.checkout||''}"${dis}></div></div>`:`<input type="hidden" id="ea_ci_${i}" value="${r.checkin||''}"><input type="hidden" id="ea_co_${i}" value="${r.checkout||''}">`}
       <div class="er">${showOdo?`<div class="ef"><label>ODO(km)</label><input type="number" class="einp" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}" step="0.1"${dis}></div>`:`<input type="hidden" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}">`}${showHealth?`<div class="ef"><label>体調</label><select class="einp" id="ea_hl_${i}"${dis}>${['良好','普通','不調'].map(v=>`<option${r.health===v?' selected':''}>${v}</option>`).join('')}</select></div>`:`<input type="hidden" id="ea_hl_${i}" value="${r.health||'良好'}">`}</div>
       <div class="er">${showHealth?`<div class="ef"><label>アルコール出勤</label><input type="number" class="einp" id="ea_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div><div class="ef"><label>アルコール退勤</label><input type="number" class="einp" id="ea_ao_${i}" value="${r.alcoholOut||''}" step="0.01"${dis}></div>`:`<input type="hidden" id="ea_al_${i}" value="${r.alcohol||'0.00'}"><input type="hidden" id="ea_ao_${i}" value="${r.alcoholOut||''}">`}</div>
-      <div class="er"><div class="ef"><label>メモ</label><input type="text" class="einp" id="ea_me_${i}" value="${r.memo||''}"${dis}></div></div>
+      <div class="er"><div class="ef"><label>メモ</label><input type="text" class="einp" id="ea_me_${i}" value="${esc(r.memo||'')}"${dis}></div></div>
       ${(()=>{const ea=accounts.find(a=>a.id===empId);return ea&&ea.workStart&&ea.workEnd&&(ea.workStart!==settings.start||ea.workEnd!==settings.end)?`<div class="er"><div class="ef"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="ea_ft_${i}" ${r.fullTimeFlag?'checked':''}${dis} style="width:16px;height:16px;accent-color:var(--ac)"> 常勤時間出勤</label></div></div>`:`<input type="hidden" id="ea_ft_${i}">`})()}
       ${isLocked?'':'<div style="display:flex;gap:6px"><button class="esbtn" onclick="saveEditA('+i+')">✏ 修正する</button><button class="esbtn" style="background:rgba(247,95,95,.1);border-color:var(--rd);color:var(--rd)" onclick="aDeleteEditRecord('+i+')">🗑 削除</button></div>'}
     </div>`;
@@ -4875,7 +4886,7 @@ function openAdminCheckinModal(){
 function closeAdminCheckinModal(){document.getElementById('aciModal').classList.remove('open');}
 async function confirmAdminCheckin(){
   const ov=document.getElementById('aci-odo').value;
-  if(!ov||isNaN(parseFloat(ov))){const h=document.getElementById('aci-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を入力してください</span>';return;}
+  if(!ov||isNaN(parseFloat(ov))||parseFloat(ov)<0){const h=document.getElementById('aci-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を正しく入力してください（0以上）</span>';return;}
   const ftFlag=document.getElementById('aci-fulltime')?.checked||false;
   closeAdminCheckinModal();
   document.getElementById('aOdoNow').value=ov;
@@ -5042,7 +5053,7 @@ function openExecCheckinModal(){
 function closeExecCheckinModal(){document.getElementById('eciModal').classList.remove('open');}
 async function confirmExecCheckin(){
   const ov=document.getElementById('eci-odo').value;
-  if(!ov||isNaN(parseFloat(ov))){const h=document.getElementById('eci-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を入力してください</span>';return;}
+  if(!ov||isNaN(parseFloat(ov))||parseFloat(ov)<0){const h=document.getElementById('eci-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を正しく入力してください（0以上）</span>';return;}
   const ftFlag=document.getElementById('eci-fulltime')?.checked||false;
   closeExecCheckinModal();
   document.getElementById('eOdoNow').value=ov;
@@ -5181,7 +5192,7 @@ function aLoadVisit(dk){
 function aSaveVisits(){
   if(!session)return;
   const empId=session.id,dk=document.getElementById('aVDate')?.value||todayKey();
-  const g=id=>{const el=document.getElementById(id);return parseFloat(el?.value)||0;};
+  const g=id=>{const el=document.getElementById(id);return Math.max(0,parseFloat(el?.value)||0);};
   const rec={date:dk,sales:g('av-sales'),c30:g('av-c30'),c60:g('av-c60'),c90:g('av-c90'),medical:g('av-med'),staff:g('av-stf'),pre:g('av-pre'),contract:g('av-con'),training:g('av-trn'),overtime:g('av-ov'),oncall:g('av-oncall'),angel:g('av-angel')};
   if(!visits[empId])visits[empId]=[];
   const idx=visits[empId].findIndex(v=>v.date===dk);
@@ -5215,6 +5226,8 @@ function aSubmitLeave(){
   if(!targetDate){showToast('⚠ 日付を入力してください');return;}
   if(hours<=0){showToast('⚠ 時間数を入力してください');return;}
   const bal=getLeaveBal(empId);
+  if(type==='hourly'&&!bal.hasHourlyPool){showToast('⚠ 時間休プールが未設定です。時間休付与を設定するか、全日休・半日休で申請してください');return;}
+  if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
   if(type==='hourly'&&bal.hasHourlyPool){if(hours>bal.remHourlyH){showToast(`⚠ 時間給残数が不足しています（残: ${bal.remHourlyH}時間）`);return;}}
   else if(type==='full'||type==='half'){const needDays=type==='full'?1:0.5;if(needDays>bal.remDays){showToast(`⚠ 有給日数残が不足しています（残: ${bal.remDays}日）`);return;}}
   else{if(hours>bal.remDayH){showToast(`⚠ 有給残数が不足しています（残: ${bal.remDayH}時間）`);return;}}
@@ -5311,7 +5324,7 @@ function buildHealthDetail(empId, month){
   const alcClass=a=>{const v=parseFloat(a||0);return v===0?'alc-ok':v<0.15?'alc-warn':'alc-ng';};
   const dayNames='日月火水木金土';
   const getDow=ds=>{const d=new Date(ds);return'（'+dayNames[d.getDay()]+'）';};
-  const fmtLoc=loc=>loc&&loc.address?loc.address:loc?`${loc.lat},${loc.lon}`:'—';
+  const fmtLoc=loc=>esc(loc&&loc.address?loc.address:loc?`${loc.lat},${loc.lon}`:'—');
   return recs.map(r=>{
     const dow=getDow(r.date);
     const isOdoOnly=!r.checkin&&!r.checkout&&r.odometer!=null;
@@ -5327,13 +5340,13 @@ function buildHealthDetail(empId, month){
         ${missCO?'<span style="font-size:10px;background:rgba(247,95,95,.15);color:var(--rd);padding:2px 6px;border-radius:4px;font-weight:700">⚠ 退勤未打刻</span>':''}
         ${missCI?'<span style="font-size:10px;background:rgba(247,95,95,.15);color:var(--rd);padding:2px 6px;border-radius:4px;font-weight:700">⚠ 出勤未打刻</span>':''}
         ${missOdo?'<span style="font-size:10px;background:rgba(247,211,79,.15);color:var(--yw);padding:2px 6px;border-radius:4px;font-weight:700">⚠ ODO未入力</span>':''}
-        <span class="health-badge ${healthClass(r.health||'良好')}">${r.health||'良好'}</span>
+        <span class="health-badge ${healthClass(r.health||'良好')}">${esc(r.health||'良好')}</span>
         <span class="${alcClass(r.alcohol)}" style="font-family:var(--mo);font-size:12px">${parseFloat(r.alcohol||0).toFixed(2)}${r.alcoholOut?' → '+parseFloat(r.alcoholOut||0).toFixed(2):''} <span style="font-size:10px">mg/L</span></span>
         <span style="font-family:var(--mo);font-size:12px;color:var(--yw)">${r.todayKm!=null?r.todayKm+' km':'—'}</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--dim);padding-left:4px">
         ${isHolidayVehicle
-          ?`<div style="grid-column:span 2;color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.memo?' ／ 目的: '+r.memo:''}</div>`
+          ?`<div style="grid-column:span 2;color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.memo?' ／ 目的: '+esc(r.memo):''}</div>`
           :isOdoOnly&&!hShowK
             ?`<div style="grid-column:span 2;color:var(--ac)">ODO: ${r.odometer?.toFixed(1)} km${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
           :`<div>出勤: <span style="color:var(--gn);font-family:var(--mo)">${r.checkin||'—'}</span></div>
@@ -5445,7 +5458,7 @@ function buildVisitEditHTML(empId, month, prefix){
 function saveVisitEdit(empId, gi, prefix){
   if(isMonthLocked((visits[empId]||[])[gi]?.date?.slice(0,7),empId)){showToast('🔒 この月はロックされています');return;}
   const v=(visits[empId]||[])[gi];if(!v)return;
-  const g=id=>{const el=document.getElementById(id);return parseFloat(el?.value)||0;};
+  const g=id=>{const el=document.getElementById(id);return Math.max(0,parseFloat(el?.value)||0);};
   const before={...v};
   v.sales=g(`ve${prefix}_sales_${gi}`);v.c30=g(`ve${prefix}_c30_${gi}`);v.c60=g(`ve${prefix}_c60_${gi}`);
   v.c90=g(`ve${prefix}_c90_${gi}`);v.medical=g(`ve${prefix}_med_${gi}`);v.staff=g(`ve${prefix}_stf_${gi}`);
