@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc21 (セキュリティ強化: 氏名・メモ等のHTMLエスケープ/負数入力ガード/時間休プール未設定時は申請不可/有給の同日重複申請ガード/CSV数式無害化)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc22 (酒気確認: 未確認は常時表示・確認済みのみ折りたたみ/確認のたびに閉じない・店舗内も同様。alc21のセキュリティ強化を継承)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1211,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=21;
+const APP_BUILD=22;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -4169,7 +4169,8 @@ function _alcHistGroupedHtml(hist,openFirst){
   }).join('');
 }
 function _renderAlcHistGrouped(els,hist){
-  const html=_alcHistGroupedHtml(hist);
+  // ★確認済み（履歴）は既定で折りたたむ（＝スタック）。未確認は別カードで常に表示されるため干渉しない。
+  const html=_alcHistGroupedHtml(hist,false);
   els.forEach(el=>{if(el)el.innerHTML=html;});
 }
 // 役員トップ: 店舗ごとにタブ(折りたたみ)で「確認待ち」＋「確認履歴(日ごと)」を表示
@@ -4186,13 +4187,15 @@ function renderExecAlcByStore(){
     const hist=alcChecks.filter(c=>(c.status==='ok'||c.status==='ng')&&g.ids.has(c.empId)&&c.date>=ck).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
     const pc=pend.length;
     const badge=pc?`<span style="color:var(--rd);font-weight:700">🔴未確認 ${pc}</span>`:`<span style="color:var(--gn)">✅未確認なし</span>`;
-    const pendHtml=pc?pend.map(_alcPendRow).join(''):'<div class="empty">確認待ちはありません ✨</div>';
-    const histHtml=_alcHistGroupedHtml(hist,false); // 履歴も各日折りたたみ（多人数でも省スペース）
-    return `<details style="margin-bottom:8px"><summary style="cursor:pointer;padding:9px 12px;background:var(--sf2);border-radius:10px;font-size:14px;font-weight:700;list-style:none">${g.name}　${badge}</summary>
-      <div style="padding:8px 2px 2px">
-        <div style="font-size:11px;color:var(--dim);font-weight:700;margin:2px 0 4px">確認待ち</div>${pendHtml}
-        <div style="font-size:11px;color:var(--dim);font-weight:700;margin:12px 0 4px">確認履歴（直近14日・1日ごと）</div>${histHtml}
-      </div></details>`;
+    // ★未確認（確認待ち）は折りたたまず常に表示。1件確認するたびにタブが閉じないようにする。
+    const pendHtml=pc?pend.map(_alcPendRow).join(''):'<div class="empty" style="padding:12px">確認待ちはありません ✨</div>';
+    // ★確認済み（履歴）だけを折りたたみ（スタック）に格納。
+    const histHtml=hist.length?`<details style="margin-top:8px"><summary style="cursor:pointer;padding:7px 10px;background:var(--sf2);border-radius:8px;font-size:12px;font-weight:700;list-style:none;color:var(--dim)">✅ 確認済み履歴（直近14日・${hist.length}件）</summary><div style="padding:6px 2px 2px">${_alcHistGroupedHtml(hist,false)}</div></details>`:'';
+    return `<div style="margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;padding:8px 8px 10px">
+      <div style="padding:4px 4px 8px;font-size:14px;font-weight:700;border-bottom:1px solid var(--bd);margin-bottom:8px">${g.name}　${badge}</div>
+      ${pendHtml}
+      ${histHtml}
+    </div>`;
   }).join('');
   el.innerHTML=html||'<div class="empty">店舗がありません</div>';
 }
