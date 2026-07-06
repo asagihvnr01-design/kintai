@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc22 (酒気確認: 未確認は常時表示・確認済みのみ折りたたみ/確認のたびに閉じない・店舗内も同様。alc21のセキュリティ強化を継承)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc23 (酒気確認: 承認が未確認へ復活するバグを修正=改訂番号revで端末の時計ズレに強い同期に。alc21/22の変更を継承)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1211,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=22;
+const APP_BUILD=23;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -3688,18 +3688,30 @@ function alcFeatureOn(){const f=getAdminFeatures();return f.kintai!==false&&f.he
 // ★この配列はSupabaseで1キー(ka_alc_checks)同期のため、単純なlast-write-winsだと
 //   「別端末で確認済み(ok/ng)にした記録を、古い配列を持つ端末のpushが pending に復活させる」
 //   事故が起きる（=出勤チェック写真が復活して再承認が必要になるバグ）。
-// → 各記録に updatedAt を持たせ、保存のたびにリモートを id 単位で MERGE してから push する。
-//   新しい updatedAt を優先するため、確認済み記録が古い端末の書き込みで巻き戻らない。
+// → 各記録に「改訂番号 rev（状態変更のたびに +1）」と updatedAt を持たせ、保存のたびに id 単位で MERGE。
+//   ★rev は端末の時計に依存しない単調増加のため、時計ズレがあっても
+//     「承認(rev↑)」が「作成時の未確認(rev=0)」に巻き戻らない（＝承認が復活しないバグの根治）。
+//   比較優先度: ① rev が大きい方 → ② updatedAt が新しい方 → ③ 進んだ状態(確認済み)を優先。
 function _alcWriteLocal(){try{localStorage.setItem(LSK('ka_alc_checks'),JSON.stringify(alcChecks));}catch(e){console.warn('alc local save failed',e);}}
+// 状態の進み具合ランク（確認済み ok/ng=2 ＞ 電話確認待ち nophoto=1 ＞ 未確認 pending=0）
+function _alcRank(c){const s=c&&c.status;return(s==='ok'||s==='ng')?2:(s==='nophoto'?1:0);}
 function alcMergeArrays(a,b){
   const byId=new Map();
   const put=c=>{
     if(!c||!c.id)return;
     const ex=byId.get(c.id);
     if(!ex){byId.set(c.id,c);return;}
+    // ① 改訂番号(rev)＝状態変更のたびに +1。時計ズレに強い。大きい方が新しい状態。
+    const ra=ex.rev||0, rb=c.rev||0;
+    if(rb>ra){byId.set(c.id,c);return;}
+    if(rb<ra){return;}
+    // ② rev同値 → updatedAt が新しい方
     const ta=ex.updatedAt||0, tb=c.updatedAt||0;
-    if(tb>ta){byId.set(c.id,c);}                                  // 新しい更新が勝つ
-    else if(tb===ta&&c.confirmedAt&&!ex.confirmedAt){byId.set(c.id,c);} // 同時刻なら確認済みを優先
+    if(tb>ta){byId.set(c.id,c);return;}
+    if(tb<ta){return;}
+    // ③ rev・updatedAt とも同値（旧データ／同時操作）→ 進んだ状態(確認済み)を優先し、承認が巻き戻らないようにする
+    if(_alcRank(c)>_alcRank(ex)){byId.set(c.id,c);return;}
+    if(_alcRank(c)===_alcRank(ex)&&c.confirmedAt&&!ex.confirmedAt){byId.set(c.id,c);} // 最終手段: 確認済みを優先
   };
   (a||[]).forEach(put);(b||[]).forEach(put);
   return[...byId.values()];
@@ -3778,7 +3790,7 @@ function autoApproveStaleAlcChecks(){
       const mgrName=storeDriveMgrName(c.empId);
       c.status='ok';c.confirmedBy=mgrName;c.confirmerRole='運転管理者';
       c.confirmedAt=alcNowStamp();c.method='4日経過・自動承認（画像/電話未確認）';
-      c.note=(c.note?c.note+'／':'')+'4日経過により自動承認';c.updatedAt=Date.now();
+      c.note=(c.note?c.note+'／':'')+'4日経過により自動承認';c.rev=(c.rev||0)+1;c.updatedAt=Date.now();
       if(c.photo){alcDeletePhoto(c.photo);c.photo=null;}
       changed=true;
     }
@@ -3792,7 +3804,7 @@ function ensureForgotCheckoutAlc(empAcc,dateKey,autoTime){
   alcChecks.push({id:uid('alc'),empId:empAcc.id,empName:empAcc.name||'',storeId:empAcc.storeId||null,
     date:dateKey,type:'co',time:autoTime,val:'',photo:null,status:'nophoto',
     confirmedBy:null,confirmerRole:null,confirmedAt:null,method:null,
-    note:'退勤忘れ（自動退勤）・電話確認で実施',forgotCheckout:true,rolledBack:false,updatedAt:Date.now()});
+    note:'退勤忘れ（自動退勤）・電話確認で実施',forgotCheckout:true,rolledBack:false,rev:0,updatedAt:Date.now()});
   saveAlcChecks();
 }
 function pruneAlcChecks(){
@@ -3955,7 +3967,7 @@ async function _alcCommit(pc){
   const acc=curAcc();
   alcChecks.push({id:uid('alc'),empId:session.id,empName:acc?.name||'',storeId:acc?.storeId||null,
     date:todayKey(),type:pc.type,time:alcNowTime(),val:pc.val,photo:photoPath,status,
-    confirmedBy:null,confirmerRole:null,confirmedAt:null,method:null,note:null,rolledBack:false,updatedAt:Date.now()});
+    confirmedBy:null,confirmerRole:null,confirmedAt:null,method:null,note:null,rolledBack:false,rev:0,updatedAt:Date.now()});
   saveAlcChecks();
   renderAlcStatusSelf();updateAlcBadge();
 }
@@ -4209,7 +4221,7 @@ function confirmAlcCheck(id){
   c.confirmerRole=driveRoleLabel(curAcc());
   c.confirmedAt=alcNowStamp();
   c.method=c.photo?'カメラ画像確認':'電話等による対話確認';
-  c.updatedAt=Date.now();
+  c.rev=(c.rev||0)+1;c.updatedAt=Date.now();
   const ph=c.photo;c.photo=null;
   saveAlcChecks();
   if(ph)alcDeletePhoto(ph); // 確認完了 → 写真は即削除（容量対策・確認記録は保持）
@@ -4247,7 +4259,7 @@ function submitAlcNg(){
   c.confirmedBy=curAcc()?.name||'';
   c.confirmerRole=driveRoleLabel(curAcc());
   c.confirmedAt=alcNowStamp();
-  c.updatedAt=Date.now();
+  c.rev=(c.rev||0)+1;c.updatedAt=Date.now();
   const ph=c.photo;c.photo=null;
   let toast;
   if(malf){
@@ -4305,7 +4317,7 @@ function reopenAlcCheck(id){
   if(!confirm(`${c.empName}（${c.type==='ci'?'出勤':'退勤'} ${c.date} ${c.time}）の判定「${c.status==='ok'?'酒気帯びなし':'異常あり'}」を取り消して未確認に戻しますか？\n※写真は削除済みのため、電話等での再確認になります`))return;
   c.status='nophoto';
   c.confirmedBy=null;c.confirmerRole=null;c.confirmedAt=null;c.method=null;c.note=null;c.rolledBack=false;
-  c.updatedAt=Date.now();
+  c.rev=(c.rev||0)+1;c.updatedAt=Date.now();
   addALog('alc',c.date,`酒気確認: ${c.empName}（${c.type==='ci'?'出勤':'退勤'}）→ 判定取消（未確認に戻す・操作者: ${driveRoleLabel(curAcc())||curAcc()?.name||''}）`);
   saveAlcChecks();
   renderAlcQueue();updateAlcBadge();renderAlcStatusSelf();
