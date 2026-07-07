@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc23 (酒気確認: 承認が未確認へ復活するバグを修正=改訂番号revで端末の時計ズレに強い同期に。alc21/22の変更を継承)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc24 (退勤記録が消え自動退勤になるバグを修正=本物の退勤を同期で保護・古い端末からの自動退勤上書きを防止。alc21-23を継承)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1211,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=23;
+const APP_BUILD=24;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1285,7 +1285,7 @@ const S={
 // ★本番: 本番KVテーブル。既存の全記録はこのテーブルに保存されている。
 const KV_TABLE='kv_store';
 const DB={
-  _url:null,_key:null,_dirtyKeys:new Set(),_pushQueue:Promise.resolve(),
+  _url:null,_key:null,_dirtyKeys:new Set(),_pushQueue:Promise.resolve(),_lastPullAt:0,
 
   init(){
     // ★本番: 本番KVテーブル KV_TABLE='kv_store' を使用（既存の全記録を読み書き）
@@ -1408,9 +1408,14 @@ const DB={
         // ★記録・訪問・todayMap・アカウント等のコレクションはunion-merge（ローカル固有エントリを消さない）
         if(['ka_records','ka_visits','ka_leave_grants','ka_today','ka_accounts','ka_stores','ka_leave_requests'].indexOf(r.key)>=0){
           try{
+            if(r.key==='ka_records')this._recRealRestored=false; // マージ前にリセット
             const localRaw=localStorage.getItem(LSK(r.key));
             const localVal=localRaw?JSON.parse(localRaw):null;
-            localStorage.setItem(LSK(r.key),JSON.stringify(kvMergeForPull(r.key,localVal,r.value)));
+            const merged=kvMergeForPull(r.key,localVal,r.value);
+            localStorage.setItem(LSK(r.key),JSON.stringify(merged));
+            // ★「本物の退勤を自動退勤/退勤なしから復元した」ときだけサーバへ再push。
+            //   （単なるローカル固有エントリの保持=union差分では再pushしない＝無駄な書き戻しを防ぐ）
+            if(r.key==='ka_records'&&this._recRealRestored){this._push(r.key,merged);}
           }catch(e){localStorage.setItem(LSK(r.key),JSON.stringify(r.value));}
           return;
         }
@@ -1418,6 +1423,7 @@ const DB={
       });
       // 古い保護記録をクリア
       for(const[k,t] of this._recentlyFlushed){if(now-t>15000)this._recentlyFlushed.delete(k);}
+      this._lastPullAt=Date.now(); // 最終同期時刻（自動退勤の安全判定に使用）
       return true;
     }catch(e){console.warn('Supabase pull error:',e);return false;}
   },
@@ -1819,7 +1825,13 @@ function checkPendingAutoCheckout(){
   const allTargets=curRole==='executive'
     ?accounts:accounts.filter(a=>a.storeId===curStore);
 
+  // ★他人（自分以外）の記録を自動退勤するのは「直近に同期(pull)できた直後」に限る。
+  //   古い（退勤未反映の）ローカルコピーで自動退勤を書き戻し、本物の退勤を消すのを防ぐ。
+  //   自分自身の記録は自端末が真実なので常に処理する。
+  const freshlyPulled = DB._lastPullAt && (Date.now()-DB._lastPullAt)<120000;
   allTargets.forEach(e=>{
+    const isSelf = e.id===session?.id;
+    if(!isSelf && !freshlyPulled) return; // 未同期時は他人の自動退勤をスキップ（表示上は「退勤未打刻」のまま残す）
     const td=todayMap[e.id]||{};
     // ── todayMapベースの自動退勤 ──
     if(td.checkinDate){
@@ -2947,7 +2959,10 @@ function saveEdit(i){
   const newFt=ftEl?.type==='checkbox'?ftEl.checked:false;
   if(newFt!==(r.fullTimeFlag||false))ch.push(`常勤出勤:${r.fullTimeFlag?'ON':'OFF'}→${newFt?'ON':'OFF'}`);
   if(!ch.length){showToast('変更はありませんでした');return;}
+  const _coChanged=(newCo!==r.checkout); // 退勤時刻が手動で変更されたか
   r.checkin=newCi;r.checkout=newCo;r.health=newHl;r.alcohol=newAl;r.alcoholOut=newAo;r.memo=newMe;r.fullTimeFlag=newFt;
+  // ★退勤時刻を手動で修正したら「自動退勤」フラグを外す（本物の退勤として同期保護の対象にする）
+  if(_coChanged&&newCo)r.autoCheckout=false;
   if(newOd!==null){
     r.odometer=newOd;r.todayKm=null;
     recalcOdoKm(empId,r.date);
@@ -3739,6 +3754,23 @@ function _mergeRecLike(remote,local){
       if(lv!==undefined&&lv!==null&&lv!=='')m[f]=lv;
     }
   });
+  // ★退勤記録の保護（データ消失の根治）:
+  //   「実際に打刻された退勤（手動＝autoCheckout falsy）」は、
+  //   「自動退勤（autoCheckout=true）」や「退勤なし」に上書きされてはならない。
+  //   別端末が古い(退勤未反映の)コピーを持ったまま自動退勤を書き戻しても、本物の退勤が勝つようにする。
+  const realLocal = local && local.checkin && local.checkout && !local.autoCheckout;
+  const realRemote = remote && remote.checkin && remote.checkout && !remote.autoCheckout;
+  if(realLocal && !realRemote){
+    // remote が「自動退勤 or 退勤なし」→ local の本物の退勤を採用
+    m.checkin      = (local.checkin!=null?local.checkin:m.checkin);
+    m.checkout     = local.checkout;
+    m.autoCheckout = false;
+    if(local.checkoutLoc!=null)m.checkoutLoc = local.checkoutLoc;
+    if(local.workMinutes!=null)m.workMinutes = local.workMinutes;
+    if(local.overtimeMinutes!=null)m.overtimeMinutes = local.overtimeMinutes;
+    try{DB._recRealRestored=true;}catch(e){} // 本物の退勤を復元した→pullAll側でサーバへ再pushして収束
+  }
+  // realRemote && !realLocal は remote優先の既定でそのまま本物が残る（対応不要）
   return m;
 }
 function _kvMergeByEmp(local,remote,keyFn,mergeFn){
@@ -4730,7 +4762,10 @@ function saveEditA(i){
   const newFtA=ftElA?.type==='checkbox'?ftElA.checked:false;
   if(newFtA!==(r.fullTimeFlag||false))ch.push(`常勤出勤:${r.fullTimeFlag?'ON':'OFF'}→${newFtA?'ON':'OFF'}`);
   if(!ch.length){showToast('変更はありませんでした');return;}
+  const _coChangedA=(newCo!==r.checkout);
   r.checkin=newCi;r.checkout=newCo;r.health=newHl;r.alcohol=newAl;r.alcoholOut=newAo;r.memo=newMe;r.fullTimeFlag=newFtA;
+  // ★退勤時刻を手動修正したら自動退勤フラグを外す（本物の退勤として同期保護対象に）
+  if(_coChangedA&&newCo)r.autoCheckout=false;
   if(newOd!==null){
     r.odometer=newOd;r.todayKm=null;
     recalcOdoKm(empId,r.date);
