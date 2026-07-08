@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc24 (退勤記録が消え自動退勤になるバグを修正=本物の退勤を同期で保護・古い端末からの自動退勤上書きを防止。alc21-23を継承)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc25 (出退勤記録の消失を根治: 自動退勤が本物の打刻を上書きしない/古い勤務中状態を整合/並行の異常あり誤操作を防止/確認者間で判定が同期されバラバラを解消/記録を日付順に整列。alc21-24継承)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1211,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=24;
+const APP_BUILD=25;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1351,6 +1351,31 @@ const DB={
   },
 
   // 未同期のローカル変更をすべてSupabaseに送信
+  // 単一キーのリモート値を取得（マージ前のfetch用）
+  async _fetchKeyValue(k){
+    try{
+      const res=await fetch(this._url+'/rest/v1/'+KV_TABLE+'?select=value&key=eq.'+encodeURIComponent(k),{headers:this._hdr()});
+      if(!res.ok)return undefined;
+      const rows=await res.json();
+      if(Array.isArray(rows)&&rows[0]&&'value' in rows[0])return rows[0].value;
+    }catch(e){}
+    return undefined;
+  },
+  // ★push前にリモートとマージ（衝突安全キーのみ）。stale localが他端末の新しい値を消すのを防ぐ。
+  //   これをしないと、_flushDirty が古いローカル配列をそのままpushして、
+  //   別確認者の判定や別スタッフの記録をサーバ上で上書き（＝巻き戻し/バラバラ）してしまう。
+  async _mergeBeforePush(k,localVal){
+    try{
+      if(k==='ka_alc_checks'){
+        const rem=await this._fetchKeyValue(k);
+        if(Array.isArray(rem)){const m=alcMergeArrays(Array.isArray(localVal)?localVal:[],rem);localStorage.setItem(LSK(k),JSON.stringify(m));return m;}
+      }else if(['ka_records','ka_visits','ka_leave_grants','ka_accounts','ka_stores','ka_leave_requests'].indexOf(k)>=0){
+        const rem=await this._fetchKeyValue(k);
+        if(rem!=null){const m=kvMergeForPull(k,localVal,rem);localStorage.setItem(LSK(k),JSON.stringify(m));return m;}
+      }
+    }catch(e){}
+    return localVal;
+  },
   async _flushDirty(){
     if(!this._dirtyKeys.size||!this.configured())return;
     const keys=[...this._dirtyKeys];
@@ -1358,7 +1383,8 @@ const DB={
       const raw=localStorage.getItem(LSK(k));
       if(raw===null)continue;
       try{
-        const v=JSON.parse(raw);
+        let v=JSON.parse(raw);
+        v=await this._mergeBeforePush(k,v); // ★衝突安全キーは push 前にリモートとマージ
         const res=await fetch(this._url+'/rest/v1/'+KV_TABLE,{
           method:'POST',
           headers:this._hdr(),
@@ -1390,22 +1416,23 @@ const DB={
       const now=Date.now();
       rows.forEach(r=>{
         if(r.key==='ka_session')return;
-        // 未同期キーは上書きしない（ローカルが最新）
-        if(this._dirtyKeys.has(r.key))return;
-        // 最近フラッシュしたキーは10秒間保護（Supabase反映遅延対策）
-        const flushedAt=this._recentlyFlushed.get(r.key);
-        if(flushedAt&&(now-flushedAt)<10000)return;
-        // ★酒気確認記録は配列を丸ごと上書きせず、id単位でMERGE（確認済みが古い端末の値で巻き戻らないように）
+        // ★★衝突安全なマージ対象キー（id/union マージ）は dirty/flushed でも必ずマージする。
+        //   ここをスキップすると、他端末＝他の確認者の判定や他人の記録が反映されず、
+        //   「確認者ごとに画面がバラバラ／確認済みが復活」といった不整合が起きる。
+        // ── 酒気確認記録: id単位のrevベースMERGE（確認済みが古い値で巻き戻らない）──
         if(r.key==='ka_alc_checks'){
           try{
             const remoteArr=Array.isArray(r.value)?r.value:[];
             const localRaw=localStorage.getItem(LSK('ka_alc_checks'));
             const localArr=localRaw?JSON.parse(localRaw):[];
-            localStorage.setItem(LSK('ka_alc_checks'),JSON.stringify(alcMergeArrays(localArr,remoteArr)));
-          }catch(e){localStorage.setItem(LSK('ka_alc_checks'),JSON.stringify(r.value));}
+            const mergedA=alcMergeArrays(localArr,remoteArr);
+            localStorage.setItem(LSK('ka_alc_checks'),JSON.stringify(mergedA));
+            // ローカルの方が進んでいれば（他確認者の判定を含む）サーバへ再pushして全端末を収束
+            if(_alcAhead(mergedA,remoteArr))this._push('ka_alc_checks',mergedA);
+          }catch(e){/* マージ失敗時はローカル維持（remoteで上書きしない＝確認済みを守る） */}
           return;
         }
-        // ★記録・訪問・todayMap・アカウント等のコレクションはunion-merge（ローカル固有エントリを消さない）
+        // ── 記録・訪問・todayMap・アカウント等: union-merge（ローカル固有エントリを消さない）──
         if(['ka_records','ka_visits','ka_leave_grants','ka_today','ka_accounts','ka_stores','ka_leave_requests'].indexOf(r.key)>=0){
           try{
             if(r.key==='ka_records')this._recRealRestored=false; // マージ前にリセット
@@ -1413,12 +1440,16 @@ const DB={
             const localVal=localRaw?JSON.parse(localRaw):null;
             const merged=kvMergeForPull(r.key,localVal,r.value);
             localStorage.setItem(LSK(r.key),JSON.stringify(merged));
-            // ★「本物の退勤を自動退勤/退勤なしから復元した」ときだけサーバへ再push。
-            //   （単なるローカル固有エントリの保持=union差分では再pushしない＝無駄な書き戻しを防ぐ）
+            // ★「本物の退勤を自動退勤/退勤なしから復元した」ときだけサーバへ再push（無駄な書き戻しを防ぐ）
             if(r.key==='ka_records'&&this._recRealRestored){this._push(r.key,merged);}
           }catch(e){localStorage.setItem(LSK(r.key),JSON.stringify(r.value));}
           return;
         }
+        // ── ここから下は「まるごと1値」キー（設定・GPS・ログイン記憶など）──
+        //   未同期/直近フラッシュはローカル優先で保護（衝突安全でないため）。
+        if(this._dirtyKeys.has(r.key))return;
+        const flushedAt=this._recentlyFlushed.get(r.key);
+        if(flushedAt&&(now-flushedAt)<10000)return;
         localStorage.setItem(LSK(r.key),JSON.stringify(r.value));
       });
       // 古い保護記録をクリア
@@ -1821,6 +1852,7 @@ function checkPendingAutoCheckout(){
   const today=todayKey();
   const curRole=curAcc()?.role;
   const curStore=curAcc()?.storeId;
+  sanitizeTodayMap(); // ★古い「勤務中」todayMapを records と整合させてから判定（誤自動退勤の防止）
   // 対象アカウント: 役員は全員、管理者は同じ店舗
   const allTargets=curRole==='executive'
     ?accounts:accounts.filter(a=>a.storeId===curStore);
@@ -1837,6 +1869,10 @@ function checkPendingAutoCheckout(){
     if(td.checkinDate){
       if(td.checkinDate<today&&td.checkoutTime){todayMap[e.id]={};return;}
       if(td.checkinTime&&!td.checkoutTime&&td.checkinDate<today){
+        // ★その日の記録に既に退勤があるなら自動退勤しない（本物の退勤の上書き＝消失を防ぐ）。
+        //   古いtodayMapが同期で復活したケースでも、recordsを真実として尊重し、残骸を消すだけにする。
+        const exRec=(records[e.id]||[]).find(r=>r.date===td.checkinDate);
+        if(exRec&&exRec.checkout){todayMap[e.id]={};S.set('ka_today',todayMap);return;}
         const autoTime=td.fullTimeFlag?settings.end:empEnd(e.id);
         td.checkoutTime=autoTime;td.autoCheckout=true;td.checkoutLoc=null;
         const origSession=session;
@@ -2852,7 +2888,7 @@ function renderRecords(){
     </div>`;
   }
   renderVSummary(month);
-  const list=document.getElementById('recordsList'),recs=(records[empId]||[]).filter(r=>r.date.startsWith(month));
+  const list=document.getElementById('recordsList'),recs=(records[empId]||[]).filter(r=>r.date.startsWith(month)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(!recs.length){list.innerHTML='<div class="empty">この月の記録がありません</div>';return;}
   // 全recordsでのインデックスを保持（削除時に使用）
   const allRecs=records[empId]||[];
@@ -2903,7 +2939,7 @@ function renderEditList(){
   if(lb)lb.innerHTML=isLocked?'<div class="lock-banner">🔒 この月は管理者によりロックされています（修正・削除できません）</div>':'';
   const list=document.getElementById('editList');
   const allRecs=records[empId]||[];
-  const monthRecs=allRecs.filter(r=>r.date.startsWith(month));
+  const monthRecs=allRecs.filter(r=>r.date.startsWith(month)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(!monthRecs.length){list.innerHTML='<div class="empty">この月の記録がありません</div>';renderAuditLog();return;}
   const dis=isLocked?' disabled':'';
   const eFeat=getAdminFeatures();
@@ -3731,6 +3767,19 @@ function alcMergeArrays(a,b){
   (a||[]).forEach(put);(b||[]).forEach(put);
   return[...byId.values()];
 }
+// merged が remote より「進んでいる」（件数が多い or どれかのrev/updatedAtが新しい）か。
+// pull後にこれが真なら、他確認者へ判定を届けるためサーバへ再pushして収束させる（無駄な再pushは避ける）。
+function _alcAhead(merged,remote){
+  const rm=new Map((remote||[]).map(c=>[c.id,c]));
+  if((merged||[]).length>rm.size)return true;
+  for(const c of (merged||[])){
+    const e=rm.get(c.id);
+    if(!e)return true;
+    if((c.rev||0)>(e.rev||0))return true;
+    if((c.rev||0)===(e.rev||0)&&(c.updatedAt||0)>(e.updatedAt||0))return true;
+  }
+  return false;
+}
 // ── クラウド同期: コレクションのunion-merge ──
 // pullで「ローカルにあってリモートに無いエントリ」を消さない（別端末の古いpushでの記録消失を防ぐ）。
 // 同一キーの衝突はリモート優先（管理者修正の伝播を維持＝従来挙動）、ローカル固有エントリは保持。
@@ -3780,7 +3829,12 @@ function _kvMergeByEmp(local,remote,keyFn,mergeFn){
 }
 function kvMergeForPull(key,localVal,remoteVal){
   try{
-    if(key==='ka_records'||key==='ka_visits')return _kvMergeByEmp(localVal,remoteVal,e=>e.date,_mergeRecLike);
+    if(key==='ka_records'||key==='ka_visits'){
+      const merged=_kvMergeByEmp(localVal,remoteVal,e=>e.date,_mergeRecLike);
+      // ★マージ後は必ず日付の降順に整列。順序が乱れて店舗サマリー等でバラバラに表示されるのを防ぐ。
+      Object.keys(merged).forEach(id=>{if(Array.isArray(merged[id]))merged[id].sort((a,b)=>(b.date||'').localeCompare(a.date||''));});
+      return merged;
+    }
     if(key==='ka_leave_grants')return _kvMergeByEmp(localVal,remoteVal,e=>e.grantDate||e.id||e.date);
     if(key==='ka_today')return Object.assign({},localVal||{},remoteVal||{}); // remote優先・local固有empIdは保持
     if(key==='ka_accounts'||key==='ka_stores'||key==='ka_leave_requests')return _kvMergeArr(localVal,remoteVal,e=>e.id);
@@ -4052,6 +4106,22 @@ async function alcNext(skip){
   openVisitConfirmModal();
 }
 function cancelAlcModal(){_pendingCheckout=null;closeAlcModal();}
+// ★todayMap（＝現在勤務中の状態）を records と突き合わせて整合させる。
+//   同期の naive マージ（remote優先/端末ごとの持ち回り）で、他端末が持っていた
+//   「退勤前(勤務中)の古いtodayMap」が復活してしまうと、その日の記録に既に退勤があるのに
+//   checkPendingAutoCheckout が誤って自動退勤（＝本物の退勤を上書き）してしまう。
+//   → その日の records に退勤が入っていれば、勤務中扱いの古い todayMap を消して不整合を断つ。
+function sanitizeTodayMap(){
+  let changed=false;
+  Object.keys(todayMap||{}).forEach(id=>{
+    const td=todayMap[id];
+    if(!td||!td.checkinDate)return;
+    const rec=(records[id]||[]).find(r=>r.date===td.checkinDate);
+    // その日の記録に退勤(checkout)が既にあるのに、todayMapが「退勤未了(勤務中)」→ 古い残骸なのでクリア
+    if(rec&&rec.checkout&&!td.checkoutTime){todayMap[id]={};changed=true;}
+  });
+  if(changed)S.set('ka_today',todayMap);
+}
 // ── 退勤フロー入口（モーダル経由で打刻） ──
 // ★当日の出勤状態は「records（確実に残る記録）」を真実とし、揮発的・同期で消えうる todayMap を記録から復元する。
 //   これにより、同期で当日状態が上書き消去されても「出勤済みなら退勤できる」状態を保証する（退勤ボタンが押せない不具合の根本対策）。
@@ -4286,6 +4356,9 @@ function closeAlcNg(){document.getElementById('alcNgModal').classList.remove('op
 function submitAlcNg(){
   if(!canConfirmAlc()){showToast('⚠ 酒気確認は運転管理者・副運転管理者のみ可能です');return;}
   const c=alcChecks.find(x=>x.id===_alcNgId);if(!c){closeAlcNg();return;}
+  // ★並行操作の保護: モーダルを開いている間に別の確認者が判定済みにした場合は、
+  //   ここで打刻を差し戻さない（＝既に承認された出勤/退勤記録を誤って消さない）。
+  if(c.status==='ok'||c.status==='ng'){closeAlcNg();renderAlcQueue();updateAlcBadge();showToast('ℹ 既に別の確認者が判定済みです');return;}
   const malf=document.getElementById('alcng-malfunction')?.checked;
   const extra=(document.getElementById('alcng-note')?.value||'').trim();
   c.confirmedBy=curAcc()?.name||'';
@@ -4451,12 +4524,17 @@ function autoSaveRecordA(td,dateOverride){
   const idx=records[empId].findIndex(r=>r.date===dk);
   if(idx>=0){
     const existing=records[empId][idx];
-    // ★ MERGE方式: 既存レコードに打刻データだけを上書き（手動修正済みフィールドを保護）
-    existing.checkin=rec.checkin;existing.checkout=rec.checkout;
-    existing.workMinutes=rec.workMinutes;existing.overtimeMinutes=rec.overtimeMinutes;
-    existing.autoCheckout=rec.autoCheckout;existing.fullTimeFlag=rec.fullTimeFlag;
-    if(rec.checkoutLoc)existing.checkoutLoc=rec.checkoutLoc;
-    if(rec.checkinLoc)existing.checkinLoc=rec.checkinLoc;
+    // ★自動退勤で、その日の記録に既に「本物の退勤(手動＝autoCheckout falsy)」がある場合は
+    //   退勤系フィールドを一切上書きしない（自動退勤が本物の退勤を消すのを防ぐ＝最重要保護）。
+    const autoOverwritingReal = (rec.autoCheckout===true) && existing.checkout && !existing.autoCheckout;
+    if(!autoOverwritingReal){
+      // ★ MERGE方式: 既存レコードに打刻データだけを上書き（手動修正済みフィールドを保護）
+      existing.checkin=rec.checkin;existing.checkout=rec.checkout;
+      existing.workMinutes=rec.workMinutes;existing.overtimeMinutes=rec.overtimeMinutes;
+      existing.autoCheckout=rec.autoCheckout;existing.fullTimeFlag=rec.fullTimeFlag;
+      if(rec.checkoutLoc)existing.checkoutLoc=rec.checkoutLoc;
+      if(rec.checkinLoc)existing.checkinLoc=rec.checkinLoc;
+    }
     // ★体調・出勤アルコールは「出勤時」の値。退勤保存では上書きしない（出勤時に保存済みの値を保持）。
     //   退勤アルコール(alcoholOut)・メモのみDOM値があれば更新。
     if(aoEl&&aoEl.value)existing.alcoholOut=rec.alcoholOut;
@@ -4674,7 +4752,7 @@ function renderRecordsA(){
     </div>`;
   }
   renderVSummaryA();
-  const allRecs=records[empId]||[];const recs=allRecs.filter(r=>r.date.startsWith(month));
+  const allRecs=records[empId]||[];const recs=allRecs.filter(r=>r.date.startsWith(month)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const list=document.getElementById('aRecordsList');if(!list)return;
   if(!recs.length){list.innerHTML='<div class="empty">この月の記録がありません</div>';return;}
   const rfeat=getAdminFeatures();
@@ -4719,7 +4797,7 @@ function renderEditListA(){
   const lb=document.getElementById('aEditLockBanner');
   if(lb)lb.innerHTML=isLocked?'<div class="lock-banner">🔒 この月は管理者によりロックされています（修正・削除できません）</div>':'';
   const list=document.getElementById('aEditList');if(!list)return;
-  const allRecs=records[empId]||[];const monthRecs=allRecs.filter(r=>r.date.startsWith(month));
+  const allRecs=records[empId]||[];const monthRecs=allRecs.filter(r=>r.date.startsWith(month)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(!monthRecs.length){list.innerHTML='<div class="empty">この月の記録がありません</div>';renderAuditLogA();return;}
   const feat=getAdminFeatures();
   const showKintai=feat.kintai!==false,showHealth=feat.health!==false,showOdo=feat.odo!==false;
@@ -5366,7 +5444,8 @@ function buildVisitDetail(empId, month){
 }
 
 function buildHealthDetail(empId, month){
-  const recs=(records[empId]||[]).filter(r=>r.date.startsWith(month)&&(r.health||r.alcohol||r.todayKm||r.checkin));
+  const recs=(records[empId]||[]).filter(r=>r.date.startsWith(month)&&(r.health||r.alcohol||r.todayKm||r.checkin))
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||'')); // ★常に日付降順（配列順の乱れに依存しない）
   if(!recs.length) return '<div class="empty" style="padding:12px">この月の記録がありません</div>';
   const hFeat=getAccFeatures(empId);
   const hShowK=hFeat.kintai!==false,hShowO=hFeat.odo!==false;
@@ -5649,6 +5728,7 @@ function loadStateFromLocal(){
   lockedMonths=S.get('ka_locked_months')||{};
   lockedEmpMonths=S.get('ka_locked_emp_months')||{};
   alcChecks=S.get('ka_alc_checks')||[];
+  sanitizeTodayMap(); // ★同期で復活しうる古い「勤務中」状態を records と整合（誤自動退勤の防止）
   pruneAlcChecks(); // 13ヶ月より古い確認記録を削除（1年保存義務+余裕分）
   autoApproveStaleAlcChecks(); // 4日経過の未承認を運転管理者名義で自動承認・写真削除
   // Migration: assign existing accounts to a default store if they have no storeId
