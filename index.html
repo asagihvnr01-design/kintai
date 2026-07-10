@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc25 (出退勤記録の消失を根治: 自動退勤が本物の打刻を上書きしない/古い勤務中状態を整合/並行の異常あり誤操作を防止/確認者間で判定が同期されバラバラを解消/記録を日付順に整列。alc21-24継承)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc26 (退勤の酒気確認がある＝退勤済みの証拠とし、確認者が当日未確認でも日付跨ぎで誤って退勤忘れ・写真消失にしないよう保護。alc21-25継承)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1211,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=25;
+const APP_BUILD=26;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1848,6 +1848,17 @@ function renderWorkHours(ci,co){
 }
 function setSt(txt,col){const e=document.getElementById('wkSt');e.textContent=txt;e.style.color=col;}
 
+// ★スタッフが実際に「退勤済み」である証拠があるか。
+//   ① その日の記録に退勤(checkout)がある、または
+//   ② 退勤側の酒気確認(co)が本人提出で存在する（＝退勤時にアルコールチェックを実施＝退勤した）。
+//   酒気確認(ka_alc_checks)は記録とは別キーで同期されるため、記録の退勤が未同期でも
+//   coの酒気確認だけ先に届くことがある。この場合に誤って「退勤忘れ・自動退勤」にして
+//   本物の退勤や写真を消してしまうのを防ぐ（＝退勤したのに退勤忘れにされるバグの根治）。
+function _hasCheckoutEvidence(empId,date){
+  const rec=(records[empId]||[]).find(r=>r.date===date);
+  if(rec&&rec.checkout)return true;
+  return (alcChecks||[]).some(c=>c.empId===empId&&c.date===date&&c.type==='co'&&!c.forgotCheckout);
+}
 function checkPendingAutoCheckout(){
   const today=todayKey();
   const curRole=curAcc()?.role;
@@ -1869,10 +1880,10 @@ function checkPendingAutoCheckout(){
     if(td.checkinDate){
       if(td.checkinDate<today&&td.checkoutTime){todayMap[e.id]={};return;}
       if(td.checkinTime&&!td.checkoutTime&&td.checkinDate<today){
-        // ★その日の記録に既に退勤があるなら自動退勤しない（本物の退勤の上書き＝消失を防ぐ）。
-        //   古いtodayMapが同期で復活したケースでも、recordsを真実として尊重し、残骸を消すだけにする。
-        const exRec=(records[e.id]||[]).find(r=>r.date===td.checkinDate);
-        if(exRec&&exRec.checkout){todayMap[e.id]={};S.set('ka_today',todayMap);return;}
+        // ★その日の記録に既に退勤がある／退勤の酒気確認がある(=退勤済みの証拠)なら自動退勤しない。
+        //   本物の退勤の上書き＝消失や、退勤したのに「退勤忘れ」にされる・写真が消える事故を防ぐ。
+        //   古いtodayMapが同期で復活したケースでも、実データを真実として尊重し、残骸を消すだけにする。
+        if(_hasCheckoutEvidence(e.id,td.checkinDate)){todayMap[e.id]={};S.set('ka_today',todayMap);return;}
         const autoTime=td.fullTimeFlag?settings.end:empEnd(e.id);
         td.checkoutTime=autoTime;td.autoCheckout=true;td.checkoutLoc=null;
         const origSession=session;
@@ -1889,6 +1900,9 @@ function checkPendingAutoCheckout(){
     const empRecs=records[e.id]||[];
     const pending=empRecs.find(r=>r.checkin&&!r.checkout&&r.date<today&&!r.autoCheckout);
     if(pending){
+      // ★退勤の酒気確認(co)がある＝退勤済みの証拠。記録の退勤が未同期なだけなので自動退勤しない
+      //   （退勤したのに「退勤忘れ」にされ、写真が消える事故を防ぐ）。
+      if(_hasCheckoutEvidence(e.id,pending.date))return;
       const autoTime=pending.fullTimeFlag?settings.end:empEnd(e.id);
       pending.checkout=autoTime;pending.autoCheckout=true;
       let _coM=toMins(autoTime),_ciM=toMins(pending.checkin);
@@ -5728,171 +5742,4 @@ function loadStateFromLocal(){
   lockedMonths=S.get('ka_locked_months')||{};
   lockedEmpMonths=S.get('ka_locked_emp_months')||{};
   alcChecks=S.get('ka_alc_checks')||[];
-  sanitizeTodayMap(); // ★同期で復活しうる古い「勤務中」状態を records と整合（誤自動退勤の防止）
-  pruneAlcChecks(); // 13ヶ月より古い確認記録を削除（1年保存義務+余裕分）
-  autoApproveStaleAlcChecks(); // 4日経過の未承認を運転管理者名義で自動承認・写真削除
-  // Migration: assign existing accounts to a default store if they have no storeId
-  migrateToMultiStore();
-}
-function migrateToMultiStore(){
-  const needsMigration=accounts.some(a=>a.role!=='executive'&&!a.storeId);
-  if(!needsMigration)return;
-  // Create default store if none exist
-  if(!stores.length){
-    stores=[{id:'store_default',name:'本店'}];
-    S.set('ka_stores',stores);
-  }
-  const defaultStoreId=stores[0].id;
-  // Upgrade old admin accounts: first admin becomes executive, rest stay admin with storeId
-  let hasExec=accounts.some(a=>a.role==='executive');
-  accounts.forEach(a=>{
-    if(a.role==='executive')return;
-    if(!a.storeId){
-      if(a.role==='admin'&&!hasExec){
-        a.role='executive';hasExec=true;
-      }else{
-        a.storeId=defaultStoreId;
-      }
-    }
-  });
-  S.set('ka_accounts',accounts);
-}
-
-function showLoading(msg){
-  const ov=document.getElementById('loadingOverlay');
-  const m=document.getElementById('loadingMsg');
-  if(ov)ov.style.display='flex';
-  if(m)m.textContent=msg||'同期中...';
-}
-function hideLoading(){
-  const ov=document.getElementById('loadingOverlay');
-  if(ov)ov.style.display='none';
-}
-
-async function saveSbConfig(){
-  const url=document.getElementById('sb-url').value.trim().replace(/\/$/,'');
-  const key=document.getElementById('sb-key').value.trim();
-  const err=document.getElementById('sb-err');
-  err.textContent='';
-  if(!url||!key){err.textContent='URLとキーを入力してください';return;}
-  err.textContent='接続確認中...';err.style.color='var(--ac)';
-  const ok=await DB.testConnection(url,key);
-  if(!ok){err.textContent='接続できませんでした。URL・キーを確認してください';err.style.color='var(--rd)';return;}
-  localStorage.setItem('sb_url',url);
-  localStorage.setItem('sb_key',key);
-  DB.init();
-  showToast('✅ Supabase接続成功！');
-  await syncAndEnter();
-}
-
-async function syncAndEnter(){
-  showLoading('Supabaseからデータを取得中...');
-  const pulled=await DB.pullAll();
-  loadStateFromLocal();
-  hideLoading();
-  if(!pulled&&!_currentToken){
-    // RLS enabled and no auth - show login
-    showScreen('login');restoreRemembered();return;
-  }
-  if(!accounts.length){showScreen('setup');}
-  else{
-    const saved=S.get('ka_session');
-    if(saved){const acc=accounts.find(a=>a.id===saved.id);if(acc){session=saved;enterApp(acc);}else{showScreen('login');restoreRemembered();}}
-    else{showScreen('login');restoreRemembered();}
-  }
-}
-
-// ページ離脱時に未同期データをフラッシュ（keepalive fetchで確実に送信）
-function _flushWithKeepalive(){
-  if(DB._dirtyKeys.size>0&&DB.configured()){
-    for(const k of DB._dirtyKeys){
-      const raw=localStorage.getItem(LSK(k));if(!raw)continue;
-      try{
-        const v=JSON.parse(raw);
-        fetch(DB._url+'/rest/v1/'+KV_TABLE,{
-          method:'POST',keepalive:true,
-          headers:DB._hdr(),
-          body:JSON.stringify({key:k,value:v})
-        }).catch(()=>{});
-      }catch(e){}
-    }
-  }
-}
-// beforeunload（デスクトップ向け）
-window.addEventListener('beforeunload',_flushWithKeepalive);
-// pagehide（モバイル向け — iOSやAndroidではbeforeunloadが発火しないことがある）
-window.addEventListener('pagehide',_flushWithKeepalive);
-
-// visibilitychange: hidden時にデータフラッシュ、visible時に同期
-let _lastSyncTime=0;
-document.addEventListener('visibilitychange',async()=>{
-  if(document.visibilityState==='hidden'){
-    // バックグラウンドに入る瞬間にkeepaliveで送信（モバイル対応の要）
-    _flushWithKeepalive();
-    return;
-  }
-  // visible: 復帰時の同期（ただし短時間の復帰では実行しない）
-  if(document.visibilityState==='visible'&&DB.configured()&&session){
-    const now=Date.now();
-    if(now-_lastSyncTime<3000)return; // 3秒以内の再表示はスキップ
-    _lastSyncTime=now;
-    // 未同期データがある場合は先にpushを待つ
-    if(DB._dirtyKeys.size>0){
-      await DB._flushDirty();
-    }
-    showLoading('データを同期中...');
-    const ok=await DB.pullAll();
-    if(ok){
-      loadStateFromLocal();
-      // Re-render current page
-      const activePg=document.querySelector('#sc-emp .page.active');
-      if(activePg){
-        const id=activePg.id.replace('pg-','');
-        if(id==='records')renderRecords();
-        if(id==='visits')renderVSummary();
-        if(id==='leave')renderLeaveTab();
-      }
-      const adminPg=document.querySelector('#sc-admin .page.active');
-      if(adminPg){
-        const id=adminPg.id.replace('pg-admin-','');
-        if(id==='summary')renderAdmin();
-        if(id==='leave')renderAdminLeave();
-        if(id==='alc')renderAlcQueue();
-      }
-      updateAlcBadge();renderAlcStatusSelf();
-      applyAdminNavVisibility();
-    }
-    hideLoading();
-  }
-});
-
-(async function init(){
-  // Supabase CDNの読み込みを最大5秒待機
-  for(let i=0;i<50&&typeof supabase==='undefined';i++)await new Promise(r=>setTimeout(r,100));
-  DB.init();
-  setInterval(updateClock,1000);
-  updateClock();
-  // ストレージ容量チェック (4MB超で警告)
-  try{const kb=S.sizeKB();if(kb>4096)console.warn('localStorage usage: '+kb+'KB / ~5MB limit');}catch(e){}
-
-  if(!DB.configured()){
-    showScreen('sbcfg');
-    return;
-  }
-
-  // Check for existing Supabase Auth session (auto-login)
-  const sess=await SB.getSession();
-  if(sess){
-    _currentToken=sess.access_token;
-    await syncAndEnter();
-  }else{
-    // No auth session - try to load data (works before RLS is enabled)
-    await DB.pullAll();
-    loadStateFromLocal();
-    if(!accounts.length){showScreen('setup');}
-    else{showScreen('login');restoreRemembered();}
-  }
-})();
-</script>
-</body>
-</html>
+  sanitizeTodayMap(); // ★同期で復活しうる
