@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc27 (緊急復旧: 直前版でファイル末尾が欠落し全員ログイン不可になった不具合を修正。alc26の保護と全機能を復元)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc28 (ログイン記憶ON時はスタッフも保存セッションで自動ログイン＝毎回/更新のたびにログイン画面に戻らない。alc27緊急復旧を継承)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1211,7 +1211,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=27;
+const APP_BUILD=28;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -5904,7 +5904,16 @@ document.addEventListener('visibilitychange',async()=>{
     await DB.pullAll();
     loadStateFromLocal();
     if(!accounts.length){showScreen('setup');}
-    else{showScreen('login');restoreRemembered();}
+    else{
+      // ★「ログイン情報を記憶する」がONの場合は、保存済みセッションで自動ログインする。
+      //   これまではスタッフは毎回・自動更新の再読込のたびにログイン画面へ戻され、
+      //   記憶が効かない（ログイン情報が消える）ように見えていた。記憶ONなら入り直し不要にする。
+      let _remembered=null;try{_remembered=JSON.parse(localStorage.getItem(LSK('ka_remember'))||'null');}catch(e){}
+      const _saved=S.get('ka_session');
+      const _acc=(_remembered&&_remembered.u&&_saved)?accounts.find(a=>a.id===_saved.id):null;
+      if(_acc){session=_saved;enterApp(_acc);}
+      else{showScreen('login');restoreRemembered();}
+    }
   }
 })();
 </script>
