@@ -409,7 +409,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc28 (ログイン記憶ON時はスタッフも保存セッションで自動ログイン＝毎回/更新のたびにログイン画面に戻らない。alc27緊急復旧を継承)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc29 (残業打刻に「実際の出退勤時刻」入力欄を追加＝押した時刻でなく入力時刻で打刻。alc28のログイン記憶自動ログインを継承)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1084,6 +1084,8 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       <div id="alc-m-dchk-hint" style="font-size:11px;color:var(--dim);margin-top:4px;padding-left:26px"></div>
     </div>
     <div class="fr" id="alc-m-ot-row" style="display:none">
+      <label class="fl" style="color:var(--yw)">⏰ 実際の<span id="alc-m-ot-typelbl">出勤</span>時刻　<span style="font-size:11px;font-weight:400;color:var(--dim)">押した時刻でよければ変更不要。実際の<span class="alc-m-ot-typelbl2">出勤</span>時刻に直すと、その時刻で打刻されます</span></label>
+      <input type="time" class="fi" id="alc-m-ot-time" style="margin-bottom:10px">
       <label class="fl" style="color:var(--yw)">📝 残業理由（必須）　<span style="font-size:11px;font-weight:400;color:var(--dim)">直行直帰のチェックを外した＝残業申請です。理由をご記入ください</span></label>
       <textarea class="fi" id="alc-m-ot" rows="2" placeholder="例：緊急のオンコール対応のため／担当者会議が長引いたため／記録・報告書作成の残務対応 など" style="width:100%;resize:vertical"></textarea>
     </div>
@@ -1211,7 +1213,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=28;
+const APP_BUILD=29;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -2163,6 +2165,10 @@ function visitBackToCheckout(){
     _alcCtx.blob=pc.blob;
     const valEl=document.getElementById('alc-m-val');if(valEl)valEl.value=pc.val;
     const dc=document.getElementById('alc-m-dchk');if(dc)dc.checked=pc.dchkChecked;
+    // 残業（直行直帰OFF）で入力済みの「実際の時刻」「残業理由」を復元
+    dchkHint();
+    const otR=document.getElementById('alc-m-ot');if(otR&&pc.otReason)otR.value=pc.otReason;
+    const otT=document.getElementById('alc-m-ot-time');if(otT&&pc.otTime)otT.value=pc.otTime;
     if(pc.blob){
       const pv=document.getElementById('alc-m-prev');if(pv){pv.src=URL.createObjectURL(pc.blob);pv.style.display='inline-block';}
       const st=document.getElementById('alc-m-stat');if(st){st.textContent='📷 撮影済み（撮り直す場合は再度撮影）';st.style.color='var(--gn)';}
@@ -3959,13 +3965,16 @@ function dchkTargetTime(type,ftFlag){
   if(type==='ci')return ftFlag?settings.start:empStart(session.id);
   return ftFlag?settings.end:empEnd(session.id);
 }
+let _lastStampManual=false; // 直近の打刻が「実際の時刻を手入力（残業）」だったか（トースト文言用）
 function consumeDchk(stampType){ // stampType: 'checkin'|'checkout'
   if(!_dchkOverride)return null;
   if((stampType==='checkin'&&_dchkOverride.type==='ci')||(stampType==='checkout'&&_dchkOverride.type==='co')){
-    const t=_dchkOverride.time;_dchkOverride=null;return t;
+    const t=_dchkOverride.time;_lastStampManual=!!_dchkOverride.manual;_dchkOverride=null;return t;
   }
   return null;
 }
+// 打刻確定トーストのラベル（直行直帰＝所定時刻 / 入力時刻＝残業の実時刻）
+function _stampTimeLabel(){return _lastStampManual?'入力時刻':'直行直帰';}
 function dchkHint(){
   const hint=document.getElementById('alc-m-dchk-hint');
   const cb=document.getElementById('alc-m-dchk');
@@ -3975,12 +3984,18 @@ function dchkHint(){
     hint.textContent=`チェック中: ${lbl}打刻は所定時刻 ${dchkTargetTime(_alcCtx.type,_alcCtx.ftFlag)} で記録されます`;
     hint.style.color='var(--ac)';
   }else{
-    hint.textContent=`チェックなし: ${lbl}打刻は実際の現在時刻で記録されます（＝残業申請）`;
+    hint.textContent=`チェックなし: ${lbl}打刻は下の「実際の${lbl}時刻」で記録されます（＝残業申請）`;
     hint.style.color='var(--yw)';
   }
-  // 直行直帰OFF（=残業申請）のときだけ残業理由欄を表示
+  // 直行直帰OFF（=残業申請）のときだけ「実際の時刻＋残業理由」欄を表示
   const otRow=document.getElementById('alc-m-ot-row');
   if(otRow)otRow.style.display=cb.checked?'none':'';
+  // 出勤/退勤のラベルを反映
+  const tl=document.getElementById('alc-m-ot-typelbl');if(tl)tl.textContent=lbl;
+  document.querySelectorAll('.alc-m-ot-typelbl2').forEach(el=>el.textContent=lbl);
+  // 実際の時刻欄は「現在時刻」を初期表示（未入力のときだけ。ユーザーが直した値は保持）
+  const ti=document.getElementById('alc-m-ot-time');
+  if(ti&&!cb.checked&&!ti.value)ti.value=alcNowTime();
 }
 // ── 打刻前モーダル ──
 let _alcCtx=null; // {dom:'emp'|'adm', type:'ci'|'co', cb, blob, ftFlag}
@@ -4016,6 +4031,7 @@ function openAlcModal(dom,type,cb,ftFlag,noAutoCam){
   const sk=document.getElementById('alc-m-skip');if(sk)sk.textContent=coVisit?'📵 写真なしで次へ（電話確認が必要）':'📵 写真を撮れない場合はこちら（電話確認が必要になります）';
   const dc=document.getElementById('alc-m-dchk');if(dc)dc.checked=_dchkDefault;
   const otI=document.getElementById('alc-m-ot');if(otI)otI.value='';
+  const otTi=document.getElementById('alc-m-ot-time');if(otTi)otTi.value=''; // dchkHintで現在時刻を初期表示
   document.getElementById('alcModal').classList.add('open');
   dchkHint();
   // 簡略化: モーダルを開いたら即カメラを起動（撮影ボタンのタップを省略）。戻る再表示時(noAutoCam)は写真を保持するため起動しない。
@@ -4044,7 +4060,10 @@ async function _alcCommit(pc){
   // ★最重要: 打刻(出勤/退勤の記録)を最優先で先に確定する。
   //   写真アップロードや住所取得の遅延・失敗・途中離脱に依存させない（記録の取りこぼし防止）。
   _dchkDefault=!!pc.dchkChecked;
-  _dchkOverride=pc.dchkChecked?{type:pc.type,time:dchkTargetTime(pc.type,pc.ftFlag)}:null;
+  // 打刻時刻の決定: ①直行直帰ON→所定時刻 ②残業(OFF)で実際の時刻を入力→その時刻 ③どちらでもない→現在時刻(null)
+  _dchkOverride=pc.dchkChecked
+    ?{type:pc.type,time:dchkTargetTime(pc.type,pc.ftFlag)}
+    :(pc.otTime?{type:pc.type,time:pc.otTime,manual:true}:null);
   const _otDate=pc.type==='ci'?todayKey():(todayMap[session.id]?.checkinDate||todayKey());
   try{ await pc.cb(); }catch(e){ console.warn('stamp failed:',e); }
   // 直行直帰OFF（=残業申請）のとき、残業理由を当日レコードへ保存（emp/admin/exec共通）
@@ -4078,9 +4097,11 @@ function _alcCtxToPC(skip){
   const h=document.getElementById('alc-m-health');
   const ot=document.getElementById('alc-m-ot');
   const dchkChecked=dc?dc.checked:true;
+  const otT=document.getElementById('alc-m-ot-time');
   return {dom:_alcCtx.dom,type:_alcCtx.type,cb:_alcCtx.cb,blob:skip?null:_alcCtx.blob,val:v,skip:!!skip,
     dchkChecked,ftFlag:_alcCtx.ftFlag,health:h?h.value:'良好',
-    otReason:(!dchkChecked&&ot)?ot.value.trim():''};
+    otReason:(!dchkChecked&&ot)?ot.value.trim():'',
+    otTime:(!dchkChecked&&otT&&otT.value)?otT.value:''}; // 残業時=実際の出退勤時刻（空なら現在時刻）
 }
 // 直行直帰OFF（残業申請）のとき残業理由が未入力なら送信をブロック
 function _otReasonGuard(){
@@ -4498,7 +4519,7 @@ async function _stampInner(type,fullTimeFlag){
       recalcOdoKm(session.id,dk0);
     }
     S.set('ka_records',records);
-    S.set('ka_today',todayMap);showToast(_dchkT?`✅ 出勤を打刻しました（直行直帰: ${_dchkT}）`:'✅ 出勤を打刻しました');
+    S.set('ka_today',todayMap);showToast(_dchkT?`✅ 出勤を打刻しました（${_stampTimeLabel()}: ${_dchkT}）`:'✅ 出勤を打刻しました');
       }else{
     if(!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
     td.checkoutTime=time;td.checkoutLoc=loc;
@@ -4509,7 +4530,7 @@ async function _stampInner(type,fullTimeFlag){
     S.set('ka_today',todayMap);
     // 出勤日(checkinDate)を基準に記録を保存（日付跨ぎ対応）
     autoSaveRecordA(td,td.checkinDate||todayKey());
-        showToast(_dchkT?`✅ 退勤・記録を自動保存しました（直行直帰: ${_dchkT}）`:'✅ 退勤・記録を自動保存しました');
+        showToast(_dchkT?`✅ 退勤・記録を自動保存しました（${_stampTimeLabel()}: ${_dchkT}）`:'✅ 退勤・記録を自動保存しました');
   }
 }
 
@@ -5071,7 +5092,7 @@ async function adminStamp(type,fullTimeFlag){
       recalcOdoKm(session.id,dk0a);
     }
     S.set('ka_records',records);
-    S.set('ka_today',todayMap);showToast(_dchkTA?`✅ 出勤を打刻しました（直行直帰: ${_dchkTA}）`:'✅ 出勤を打刻しました');
+    S.set('ka_today',todayMap);showToast(_dchkTA?`✅ 出勤を打刻しました（${_stampTimeLabel()}: ${_dchkTA}）`:'✅ 出勤を打刻しました');
       }else{
     if(!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
     td.checkoutTime=time;td.checkoutLoc=loc;
@@ -5088,7 +5109,7 @@ async function adminStamp(type,fullTimeFlag){
     }
     if(wh)wh.textContent=toHHMM(w);if(oh)oh.textContent=toHHMM(ot);
     S.set('ka_today',todayMap);
-    adminAutoSave(td);showToast(_dchkTA?`✅ 退勤・記録を自動保存しました（直行直帰: ${_dchkTA}）`:'✅ 退勤・記録を自動保存しました');
+    adminAutoSave(td);showToast(_dchkTA?`✅ 退勤・記録を自動保存しました（${_stampTimeLabel()}: ${_dchkTA}）`:'✅ 退勤・記録を自動保存しました');
   }
 }
 function adminAutoSave(td){
@@ -5236,7 +5257,7 @@ async function execStamp(type,fullTimeFlag){
       const oNum=oStr?parseFloat(oStr):null;
       if(oNum!=null){r0.odometer=oNum;r0.todayKm=null;records[session.id].sort((a,b)=>b.date.localeCompare(a.date));recalcOdoKm(session.id,dk0);}
       S.set('ka_records',records);S.set('ka_today',todayMap);
-      showToast(_dchkT?`✅ 出勤を打刻しました（直行直帰: ${_dchkT}）`:'✅ 出勤を打刻しました');
+      showToast(_dchkT?`✅ 出勤を打刻しました（${_stampTimeLabel()}: ${_dchkT}）`:'✅ 出勤を打刻しました');
     }else{
       if(!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
       td.checkoutTime=time;td.checkoutLoc=loc;
@@ -5245,7 +5266,7 @@ async function execStamp(type,fullTimeFlag){
       setStE('退勤済','var(--ac2)');renderWorkHoursE(toMins(td.checkinTime),toMins(time));
       S.set('ka_today',todayMap);
       execAutoSave(td);
-      showToast(_dchkT?`✅ 退勤・記録を自動保存しました（直行直帰: ${_dchkT}）`:'✅ 退勤・記録を自動保存しました');
+      showToast(_dchkT?`✅ 退勤・記録を自動保存しました（${_stampTimeLabel()}: ${_dchkT}）`:'✅ 退勤・記録を自動保存しました');
     }
   }finally{setTimeout(()=>_actionGuard.delete('execStamp'),1000);}
 }
