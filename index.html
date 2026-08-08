@@ -22,7 +22,8 @@
   --fn:'Noto Sans JP',sans-serif;--mo:'JetBrains Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh;padding-bottom:20px}
+html{scroll-padding-top:64px} /* ★入力欄へ自動スクロールした際、stickyヘッダーの下に隠れないように */
+body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh;padding-bottom:20px;overflow-x:hidden} /* ★横はみ出しによる画面ガタつき防止（横スクロールが必要な表は各自overflow-x:autoを持つ） */
 
 /* AUTH */
 .auth-sc{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -230,9 +231,9 @@ select.fi{appearance:none;cursor:pointer}
 .lcr-info{font-size:11px;color:var(--dim);line-height:1.8}
 
 /* MODAL */
-.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:flex-end}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:flex-end;overscroll-behavior:contain}
 .modal-ov.open{display:flex}
-.modal{background:var(--sf);border-radius:16px 16px 0 0;padding:20px 18px 40px;width:100%;border-top:1px solid var(--bd)}
+.modal{background:var(--sf);border-radius:16px 16px 0 0;padding:20px 18px 40px;width:100%;border-top:1px solid var(--bd);max-height:92vh;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .modal-title{font-size:15px;font-weight:700;margin-bottom:15px}
 .modal-close{float:right;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer}
 .t-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -409,7 +410,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc29 (残業打刻に「実際の出退勤時刻」入力欄を追加＝押した時刻でなく入力時刻で打刻。alc28のログイン記憶自動ログインを継承)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc30 (スマホ操作性修正: 縦長モーダルのスクロール不能/タブ切替後に上部メニューが見えない/iOSキーボード後のヘッダー消失を解消。表示のみの修正でデータ・機能は不変)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1213,7 +1214,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=29;
+const APP_BUILD=30;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -3453,6 +3454,7 @@ function showEmpPg(id,btn){
   document.querySelectorAll('#sc-emp .page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('#empNav .nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('pg-'+id).classList.add('active');btn.classList.add('active');
+  try{window.scrollTo(0,0);}catch(e){} // ★タブ切替時は必ず先頭へ（深いスクロール位置の引き継ぎでヘッダーが見えなくなるのを防止）
   if(id==='alc'){renderAlcQueue();updateAlcBadge();}
   if(id==='visits'){updateCare30Label();updateOncallVisibility();initVisitTab();renderVisitEdit();}
   if(id==='leave')renderLeaveTab();
@@ -3464,6 +3466,7 @@ function showAdminPg(id,btn){
   document.querySelectorAll('#sc-admin .page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('#adminNav .nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('pg-admin-'+id).classList.add('active');btn.classList.add('active');
+  try{window.scrollTo(0,0);}catch(e){} // ★タブ切替時は必ず先頭へ（深いスクロール位置の引き継ぎでヘッダーが見えなくなるのを防止）
   if(id==='today'){updateOdoHintA();updateCare30LabelA();renderAlcStatusSelf();}
   if(id==='alc'){renderAlcQueue();updateAlcBadge();}
   if(id==='visits'){updateCare30LabelA();updateOncallVisibilityA();initAVisitTab();renderVisitEditA();}
@@ -5857,6 +5860,19 @@ function _flushWithKeepalive(){
 window.addEventListener('beforeunload',_flushWithKeepalive);
 // pagehide（モバイル向け — iOSやAndroidではbeforeunloadが発火しないことがある）
 window.addEventListener('pagehide',_flushWithKeepalive);
+
+// ★iOS既知バグ対策: キーボードを閉じた後、stickyヘッダー(上部メニュー)が再描画されるまで
+//   画面外に残ることがある。入力欄からフォーカスが外れたら軽くスクロール位置を触って再描画を促す。
+//   （表示のみの修正。データ・機能への影響なし）
+document.addEventListener('focusout',()=>{
+  setTimeout(()=>{
+    try{
+      const ae=document.activeElement;
+      if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.tagName==='SELECT'))return; // 連続入力中は何もしない
+      window.scrollTo(window.pageXOffset,window.pageYOffset); // 同位置への再スクロールでsticky再計算を誘発
+    }catch(e){}
+  },120);
+});
 
 // visibilitychange: hidden時にデータフラッシュ、visible時に同期
 let _lastSyncTime=0;
