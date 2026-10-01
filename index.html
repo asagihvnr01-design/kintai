@@ -233,6 +233,7 @@ select.fi{appearance:none;cursor:pointer}
 /* MODAL */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:flex-end;overscroll-behavior:contain}
 .modal-ov.open{display:flex}
+/* ★スマホ対応: モーダルが画面より縦長でも必ずスクロールできるように（上部が切れて操作不能になるのを防止） */
 .modal{background:var(--sf);border-radius:16px 16px 0 0;padding:20px 18px 40px;width:100%;border-top:1px solid var(--bd);max-height:92vh;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .modal-title{font-size:15px;font-weight:700;margin-bottom:15px}
 .modal-close{float:right;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer}
@@ -266,11 +267,17 @@ select.fi{appearance:none;cursor:pointer}
 /* iPhone safe area対応 */
 body{padding-bottom:env(safe-area-inset-bottom,20px)}
 .hdr{padding-top:max(11px,env(safe-area-inset-top,11px))}
+/* alc32: iPad等タブレット（タッチ操作）は上端のウインドウ操作UI・ステータスバーと重ならないよう上余白を広めに確保 */
+@media(min-width:700px) and (pointer:coarse){.hdr{padding-top:max(28px,env(safe-area-inset-top,28px));padding-right:max(18px,env(safe-area-inset-right,18px))}}
+/* alc32: ヘッダーのボタンはタップしやすい高さを確保 */
+.hbtn{min-height:40px}
+/* alc32: 下部シート型モーダルはホームバー（safe-area下）に被らない */
+.modal{padding-bottom:max(40px,env(safe-area-inset-bottom,40px))}
 
 /* スマートフォン（幅430px以下） */
 @media(max-width:430px){
   body{font-size:14px;-webkit-text-size-adjust:100%}
-  .hdr{padding:8px 10px}
+  .hdr{padding:max(10px,env(safe-area-inset-top,10px)) 10px 8px} /* alc32: safe-area(ノッチ/ステータスバー)の上余白を維持 */
   .hdr-title{font-size:13px}
   .card{padding:12px 10px;margin-bottom:8px;border-radius:10px}
   .ct{font-size:13px}
@@ -362,6 +369,73 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   .smv{font-size:14px}
   .sbtn{font-size:14px;padding:14px 6px}
 }
+
+/* ── 管理者タブのグループ（alc33） ── */
+.grpbar{display:flex;background:var(--sf);border-bottom:1px solid var(--bd);padding:6px 8px 0;gap:6px}
+.grpbtn{flex:1;background:var(--sf2);border:1px solid var(--bd);border-bottom:none;color:var(--dim);border-radius:9px 9px 0 0;padding:10px 6px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fn);position:relative;min-height:42px}
+.grpbtn.active{background:var(--bg);color:var(--ac);border-color:var(--ac)}
+.grpbtn .badge-dot{position:absolute;top:6px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--rd);display:none}
+.grpbtn .badge-dot.show{display:block}
+.nb.grp-hide{display:none!important}
+html[data-theme="light"] .grpbar{background:#25406b;border-color:#1d3356}
+html[data-theme="light"] .grpbtn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#c7d2e6}
+html[data-theme="light"] .grpbtn.active{background:#fff;color:#25406b;border-color:#fff}
+@media(prefers-color-scheme:light){
+  html:not([data-theme="dark"]) .grpbar{background:#25406b;border-color:#1d3356}
+  html:not([data-theme="dark"]) .grpbtn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#c7d2e6}
+  html:not([data-theme="dark"]) .grpbtn.active{background:#fff;color:#25406b;border-color:#fff}
+}
+/* ── 視認性（alc33）: ライトテーマ（端末設定に自動追従／設定で固定可） ── */
+html[data-theme="light"]{--bg:#f2f4f8;--sf:#ffffff;--sf2:#eaeef5;--bd:#cfd6e2;--ac:#2158b8;--ac2:#c96a12;--gn:#177a4a;--rd:#c93434;--yw:#9a6f00;--pu:#6f3fc4;--tx:#1a2233;--dim:#5a6372}
+@media(prefers-color-scheme:light){html:not([data-theme="dark"]){--bg:#f2f4f8;--sf:#ffffff;--sf2:#eaeef5;--bd:#cfd6e2;--ac:#2158b8;--ac2:#c96a12;--gn:#177a4a;--rd:#c93434;--yw:#9a6f00;--pu:#6f3fc4;--tx:#1a2233;--dim:#5a6372}}
+/* ライト時はヘッダーを濃色にして、iPhoneホーム画面アプリのステータスバー（白文字）と重なっても読める */
+html[data-theme="light"] .hdr,html[data-theme="light"] .nav{background:#25406b;border-color:#1d3356}
+html[data-theme="light"] .hdr-title{color:#fff}html[data-theme="light"] .hdr-date{color:#c7d2e6}
+html[data-theme="light"] .hbtn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
+html[data-theme="light"] .nb{color:#c7d2e6}html[data-theme="light"] .nb.active{color:#fff;border-bottom-color:#fff}
+@media(prefers-color-scheme:light){
+  html:not([data-theme="dark"]) .hdr,html:not([data-theme="dark"]) .nav{background:#25406b;border-color:#1d3356}
+  html:not([data-theme="dark"]) .hdr-title{color:#fff}html:not([data-theme="dark"]) .hdr-date{color:#c7d2e6}
+  html:not([data-theme="dark"]) .hbtn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
+  html:not([data-theme="dark"]) .nb{color:#c7d2e6}html:not([data-theme="dark"]) .nb.active{color:#fff;border-bottom-color:#fff}
+}
+/* 文字を大きく（設定トグル・端末ごと） */
+html[data-bigtext="1"] body{zoom:1.15}
+/* 最小文字サイズの底上げ（10〜11px→12px） */
+.sl,.hdr-date,.vr-s,.sml,.asl,.leave-mini-l,.lg-t,.inc-s,.ot-l,.ot-s{font-size:12px}
+.rd,.mi-user,.req-detail,.pend-info,.lcr-info,.grant-exp,.vu,.odo-h{font-size:12px}
+.bdg{font-size:11px}
+/* 記録一覧の状態バッジ */
+.bdg-ot{background:rgba(247,147,79,.18);color:var(--ac2)}
+.bdg-late{background:rgba(247,211,79,.18);color:var(--yw)}
+.bdg-pend{background:rgba(247,211,79,.18);color:var(--yw)}
+.bdg-ok{background:rgba(61,214,140,.18);color:var(--gn)}
+.bdg-ng{background:rgba(247,95,95,.16);color:var(--rd)}
+
+/* ── 打刻ダイヤル（alc31） ── */
+.dial-wrap{display:flex;align-items:center;justify-content:center;gap:5px;padding:4px 0 2px;touch-action:none;-webkit-user-select:none;user-select:none}
+.dcol{display:flex;flex-direction:column;align-items:center;gap:5px}
+.darr{width:56px;height:40px;border-radius:9px;background:var(--sf2);border:1px solid var(--bd);color:var(--ac);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.darr:active{background:rgba(79,142,247,.22)}
+.dbox{width:56px;height:74px;border-radius:10px;background:var(--bg);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:var(--mo);font-size:38px;font-weight:700;touch-action:none;cursor:ns-resize}
+.dbox.hot{border-color:var(--ac)}
+.dsep{font-family:var(--mo);font-size:32px;font-weight:700;color:var(--dim);align-self:center;padding:0 2px}
+.dquick{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.dqb{background:var(--sf2);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:9px 12px;font-size:12px;cursor:pointer;font-family:var(--fn);min-height:40px}
+.dqb:active{background:rgba(79,142,247,.2)}
+.dqb.rst{border-color:var(--ac2);color:var(--ac2)}
+.dinfo{background:var(--sf2);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:12px;line-height:1.8;color:var(--dim)}
+.dinfo b{color:var(--tx);font-family:var(--mo)}
+.dwarn{background:rgba(247,95,95,.1);border:1px solid var(--rd);border-radius:9px;padding:10px 12px;margin-top:10px;font-size:12px;color:var(--rd);line-height:1.7;display:none}
+.otchk{display:grid;gap:7px;margin-bottom:10px}
+.otchk label{display:flex;align-items:center;gap:9px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:9px;padding:12px;font-size:13px;cursor:pointer;min-height:44px}
+.otchk label.on{border-color:var(--ac);background:rgba(79,142,247,.14)}
+.otchk input{width:18px;height:18px;accent-color:var(--ac);flex-shrink:0}
+.dcfm{background:var(--sf2);border-radius:10px;padding:13px;margin-bottom:10px}
+.dcfm-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:7px 0;border-bottom:1px solid var(--bd)}
+.dcfm-row:last-child{border-bottom:none}
+.dcfm-row .v{font-family:var(--mo);font-size:17px;font-weight:700}
+@media(max-width:375px){.dbox{width:50px;height:66px;font-size:32px}.darr{width:50px;height:36px}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
@@ -410,7 +484,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.07.05-alc30 (スマホ操作性修正: 縦長モーダルのスクロール不能/タブ切替後に上部メニューが見えない/iOSキーボード後のヘッダー消失を解消。表示のみの修正でデータ・機能は不変)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.09.26-alc33 (新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -444,13 +518,14 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 
   <!-- TODAY -->
   <div id="pg-today" class="page active">
+    <div class="card" id="todayStatusEmp" style="display:none"></div>
     <div class="card">
       <div class="clk-wrap">
         <div class="clk" id="clock">--:--:--</div>
         <div class="clk-d" id="clockDate"></div>
       </div>
       <div class="stamp-row">
-        <button class="sbtn ci" id="ciBtnEmp" onclick="openCheckinModal()"><span>🟢 出勤</span><span class="sub" id="ciTimeEmp">未打刻</span></button>
+        <button class="sbtn ci" id="ciBtnEmp" onclick="startCheckinDial('emp')"><span>🟢 出勤</span><span class="sub" id="ciTimeEmp">未打刻</span></button>
         <button class="sbtn co" id="coBtnEmp" onclick="empCheckoutFlow()"><span>🔴 退勤</span><span class="sub" id="coTimeEmp">未打刻</span></button>
       </div>
       <div class="sg">
@@ -460,6 +535,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       </div>
       <div class="loc-badge"><div class="loc-dot" id="locDot"></div><span id="locTxt">位置情報: 未取得</span></div>
       <div id="alcStatusEmp" style="margin-top:8px"></div>
+      <div id="otStatusEmp"></div>
     </div>
     <div class="card">
       <button class="btn-odo" onclick="openHolidayOdoModal()" style="width:100%">🚗 休日利用（走行距離・利用目的）</button>
@@ -469,7 +545,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
     <!-- データ保持用（非表示）: 体調・アルコール・ODOはモーダルで入力 -->
     <div style="display:none" aria-hidden="true">
       <select id="healthSt"><option>良好</option><option>普通</option><option>不調</option></select>
-      <input type="number" id="alcVal"><input type="number" id="alcValOut"><input type="number" id="odoNow">
+      <input type="number" inputmode="decimal" id="alcVal"><input type="number" inputmode="decimal" id="alcValOut"><input type="number" inputmode="decimal" id="odoNow">
     </div>
   </div>
 
@@ -497,24 +573,24 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
         <button class="hbtn" onclick="setVisitDateToday()" style="white-space:nowrap;flex-shrink:0">今日</button>
       </div>
       <div class="vsec">① 営業</div>
-      <div class="vrow"><div><div class="vr-l">営業件数</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-sales" min="0" step="1" value=""><span class="vu">件</span></div></div>
+      <div class="vrow"><div><div class="vr-l">営業件数</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-sales" min="0" step="1" value=""><span class="vu">件</span></div></div>
       <div class="vsec">② 介護保険</div>
-      <div class="vrow"><div><div class="vr-l" id="care-lbl">②-1 30分</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-c30" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">②-2 60分</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-c60" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">②-3 90分</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-c90" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l" id="care-lbl">②-1 30分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-c30" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">②-2 60分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-c60" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">②-3 90分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-c90" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec">③ 医療保険</div>
-      <div class="vrow"><div><div class="vr-l">医療保険</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-med" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">医療保険</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-med" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec">④〜⑦ 会議・契約・研修</div>
-      <div class="vrow"><div><div class="vr-l">④ 担当者会議</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-stf" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑤ 退院前カンファ</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-pre" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑥ 契約</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-con" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑦ 外部研修</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-trn" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">④ 担当者会議</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-stf" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑤ 退院前カンファ</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-pre" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑥ 契約</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-con" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑦ 外部研修</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-trn" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="otSection">⏰ 時間外訪問</div>
-      <div class="vrow" id="otRow"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位で入力可）</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
+      <div class="vrow" id="otRow"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位で入力可）</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="angelSection">😇 エンゼルケア</div>
-      <div class="vrow" id="angelRow"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
+      <div class="vrow" id="angelRow"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
       <div class="vsec" id="oncallSection">📞 オンコール</div>
-      <div class="vrow" id="oncallRow"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" class="vi" id="v-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow" id="oncallRow"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="v-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
     </div>
     <button class="sbv" onclick="saveVisits()">💾 訪問実績を保存</button>
     <div id="vSummary" style="margin-top:13px"></div>
@@ -545,7 +621,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
             <option value="hourly">時間休</option>
           </select>
         </div>
-        <div class="fr" id="lr-hours-row" style="display:none"><label class="fl">時間数</label><input type="number" class="fi" id="lr-hours" min="1" step="1" placeholder="例: 2"></div>
+        <div class="fr" id="lr-hours-row" style="display:none"><label class="fl">時間数</label><input type="number" inputmode="decimal" class="fi" id="lr-hours" min="1" step="1" placeholder="例: 2"></div>
         <div class="fr" id="lr-hours-hint" style="font-size:12px;color:var(--dim);margin-bottom:10px"></div>
         <div class="fr"><label class="fl">備考</label><input type="text" class="fi" id="lr-note" placeholder="理由など（任意）"></div>
         <button class="sbv" onclick="submitLeaveReq()">📤 申請する</button>
@@ -591,20 +667,12 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 
   <!-- SETTINGS -->
   <div id="pg-cfg" class="page">
-    <div class="card">
-      <div class="ct">勤務時間（個人設定）</div>
-      <p style="font-size:12px;color:var(--dim);margin-bottom:10px">未設定の場合は管理者の全体設定が適用されます</p>
-      <div class="t-row">
-        <div class="fr" style="margin-bottom:0"><label class="fl">始業時刻</label><input type="time" class="fi" id="emp-stg-start"></div>
-        <div class="fr" style="margin-bottom:0"><label class="fl">終業時刻</label><input type="time" class="fi" id="emp-stg-end"></div>
-      </div>
-      <div style="font-size:11px;color:var(--dim);margin-top:6px" id="emp-stg-hint"></div>
-      <button class="sbv" onclick="saveEmpWorkTime()" style="margin-top:10px">この設定を保存</button>
-    </div>
+    <!-- alc34: スタッフ側の「勤務時間（個人設定）」カードは廃止（所定時間は管理者が従業員管理で設定し、本人は「今日」画面の所定表示で確認） -->
     <div class="card" id="care21-setting-card" style="display:none">
       <div class="ct">介護保険②-1 訪問時間</div>
       <div style="padding:8px 0;font-size:13px;color:var(--dim)">職種設定により自動決定されます（看護師=30分 / リハビリ=40分）</div>
     </div>
+    <div class="card dispPrefs"></div>
     <div class="card">
       <div class="ct">📍 位置情報（GPS）</div>
       <div style="padding:8px 0;font-size:13px;color:var(--dim)">出退勤の打刻時にGPS位置情報を記録します</div>
@@ -644,20 +712,33 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       <button class="hbtn" id="adminLogoutBtn" onclick="doLogout()">ログアウト</button>
     </div>
   </div>
+  <!-- alc33: 管理者タブを3グループに整理（自分／店舗／管理） -->
+  <div class="grpbar" id="adminGrpBar">
+    <button class="grpbtn" data-grp="me" onclick="setAdminGroup('me')">👤 自分<span class="badge-dot" id="grpDotMe"></span></button>
+    <button class="grpbtn active" data-grp="store" onclick="setAdminGroup('store')">🏢 店舗<span class="badge-dot" id="grpDotStore"></span></button>
+    <button class="grpbtn" data-grp="mgmt" onclick="setAdminGroup('mgmt')">⚙ 管理</button>
+  </div>
   <div class="nav" id="adminNav">
-    <button class="nb" onclick="showAdminPg('today',this)">今日</button>
-    <button class="nb" id="adminAlcTab" style="display:none" onclick="showAdminPg('alc',this)">酒気確認<span class="badge-dot" id="alcBadge"></span></button>
-    <button class="nb" onclick="showAdminPg('visits',this)">訪問実績</button>
-    <button class="nb" onclick="showAdminPg('aleave',this)">有給台帳</button>
-    <button class="nb" onclick="showAdminPg('arecords',this)">月間サマリー</button>
-    <button class="nb" onclick="showAdminPg('aedit',this)">勤怠修正</button>
-    <button class="nb active" onclick="showAdminPg('summary',this)">店舗サマリー</button>
-    <button class="nb" onclick="showAdminPg('leave',this)">有給管理<span class="badge-dot" id="leaveBadge"></span></button>
-    <button class="nb" onclick="showAdminPg('acfg',this)">設定</button>
-    <button class="nb" onclick="showAdminPg('mgmt',this)">従業員管理</button>
+    <button class="nb" data-grp="me" onclick="showAdminPg('today',this)">今日</button>
+    <button class="nb" data-grp="me" onclick="showAdminPg('visits',this)">訪問実績</button>
+    <button class="nb" data-grp="me" onclick="showAdminPg('aleave',this)">自分の有給</button>
+    <button class="nb" data-grp="me" onclick="showAdminPg('arecords',this)">自分の月間</button>
+    <button class="nb" data-grp="me" onclick="showAdminPg('aedit',this)">勤怠修正</button>
+    <button class="nb active" data-grp="store" onclick="showAdminPg('summary',this)">店舗サマリー</button>
+    <button class="nb" data-grp="store" onclick="showAdminPg('close',this)">締めチェック<span class="badge-dot" id="closeBadge"></span></button>
+    <button class="nb" data-grp="store" id="adminAlcTab" style="display:none" onclick="showAdminPg('alc',this)">酒気確認<span class="badge-dot" id="alcBadge"></span></button>
+    <button class="nb" data-grp="store" onclick="showAdminPg('leave',this)">有給管理<span class="badge-dot" id="leaveBadge"></span></button>
+    <button class="nb" data-grp="mgmt" onclick="showAdminPg('mgmt',this)">従業員管理</button>
+    <button class="nb" data-grp="mgmt" onclick="showAdminPg('acfg',this)">設定</button>
   </div>
   <!-- ADMIN: 今日 -->
   <div id="pg-admin-today" class="page">
+    <div class="card" id="todayStatusAdm" style="display:none"></div>
+    <div class="card" id="otQueueCard" style="display:none">
+      <div class="ct">⏰ 残業申請の承認待ち</div>
+      <div id="otQueueList"></div>
+      <div style="font-size:11px;color:var(--dim);margin-top:8px;line-height:1.7">※ 残業31分以上は、承認をもって残業時間として集計されます。</div>
+    </div>
     <div class="card">
       <div class="clk-wrap">
         <div class="clk" id="clock2">--:--:--</div>
@@ -665,7 +746,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       </div>
       <div id="aStampArea">
         <div class="stamp-row">
-          <button class="sbtn ci" id="aCiBtn" onclick="openAdminCheckinModal()"><span>🟢 出勤</span><span class="sub" id="aCiTime">未打刻</span></button>
+          <button class="sbtn ci" id="aCiBtn" onclick="startCheckinDial('adm')"><span>🟢 出勤</span><span class="sub" id="aCiTime">未打刻</span></button>
           <button class="sbtn co" id="aCoBtn" onclick="adminCheckoutFlow()"><span>🔴 退勤</span><span class="sub" id="aCoTime">未打刻</span></button>
         </div>
         <div class="sg">
@@ -675,6 +756,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
         </div>
         <div class="loc-badge"><div class="loc-dot" id="aLocDot"></div><span id="aLocTxt">位置情報: 未取得</span></div>
         <div id="alcStatusAdm" style="margin-top:8px"></div>
+        <div id="otStatusAdm"></div>
       </div>
     </div>
     <div class="card">
@@ -685,7 +767,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
     <!-- データ保持用（非表示）: 体調・アルコール・ODOはモーダルで入力 -->
     <div style="display:none" aria-hidden="true">
       <select id="aHealthSt"><option>良好</option><option>普通</option><option>不調</option></select>
-      <input type="number" id="aAlcVal"><input type="number" id="aAlcValOut"><input type="number" id="aOdoNow">
+      <input type="number" inputmode="decimal" id="aAlcVal"><input type="number" inputmode="decimal" id="aAlcValOut"><input type="number" inputmode="decimal" id="aOdoNow">
     </div>
   </div>
 
@@ -713,24 +795,24 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
         <button class="hbtn" onclick="setAVisitDateToday()" style="white-space:nowrap;flex-shrink:0">今日</button>
       </div>
       <div class="vsec">① 営業</div>
-      <div class="vrow"><div><div class="vr-l">営業件数</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-sales" min="0" step="1" value=""><span class="vu">件</span></div></div>
+      <div class="vrow"><div><div class="vr-l">営業件数</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-sales" min="0" step="1" value=""><span class="vu">件</span></div></div>
       <div class="vsec">② 介護保険</div>
-      <div class="vrow"><div><div class="vr-l" id="aCare30Lbl">②-1 30分</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-c30" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">②-2 60分</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-c60" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">②-3 90分</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-c90" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l" id="aCare30Lbl">②-1 30分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-c30" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">②-2 60分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-c60" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">②-3 90分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-c90" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec">③ 医療保険</div>
-      <div class="vrow"><div><div class="vr-l">医療保険</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-med" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">医療保険</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-med" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec">④〜⑦ 会議・契約・研修</div>
-      <div class="vrow"><div><div class="vr-l">④ 担当者会議</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-stf" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑤ 退院前カンファ</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-pre" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑥ 契約</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-con" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑦ 外部研修</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-trn" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">④ 担当者会議</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-stf" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑤ 退院前カンファ</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-pre" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑥ 契約</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-con" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑦ 外部研修</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-trn" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="aOtSection">⏰ 時間外訪問</div>
-      <div class="vrow" id="aOtRow"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位）</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
+      <div class="vrow" id="aOtRow"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位）</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="aAngelSection">😇 エンゼルケア</div>
-      <div class="vrow" id="aAngelRow"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
+      <div class="vrow" id="aAngelRow"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
       <div class="vsec" id="aOncallSection">📞 オンコール</div>
-      <div class="vrow" id="aOncallRow"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" class="vi" id="av-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow" id="aOncallRow"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="av-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
     </div>
     <button class="sbv" onclick="aSaveVisits()">💾 訪問実績を保存</button>
     <div id="aVSummary" style="margin-top:13px"></div>
@@ -756,7 +838,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
             <option value="full">全日休</option><option value="half">半日休</option><option value="hourly">時間休</option>
           </select>
         </div>
-        <div class="fr" id="alr-hours-row" style="display:none"><label class="fl">時間数</label><input type="number" class="fi" id="alr-hours" min="1" step="1" placeholder="例: 2"></div>
+        <div class="fr" id="alr-hours-row" style="display:none"><label class="fl">時間数</label><input type="number" inputmode="decimal" class="fi" id="alr-hours" min="1" step="1" placeholder="例: 2"></div>
         <div class="fr" id="alr-hours-hint" style="font-size:12px;color:var(--dim);margin-bottom:10px"></div>
         <div class="fr"><label class="fl">備考</label><input type="text" class="fi" id="alr-note" placeholder="理由など（任意）"></div>
         <button class="sbv" onclick="aSubmitLeave()">📤 申請する</button>
@@ -824,6 +906,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       <div style="font-size:11px;color:var(--dim);margin-top:6px" id="adm-stg-hint"></div>
       <button class="sbv" onclick="saveAdmWorkTime()" style="margin-top:10px">保存する</button>
     </div>
+    <div class="card dispPrefs"></div>
     <div class="card">
       <div class="ct">📍 位置情報（GPS）</div>
       <div style="padding:8px 0;font-size:13px;color:var(--dim)">出退勤の打刻時にGPS位置情報を記録します</div>
@@ -854,6 +937,19 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
     <button class="danger-btn" onclick="doLogout()">🚪 ログアウト</button>
   </div>
 
+  <!-- ADMIN: 締めチェック（alc33） -->
+  <div id="pg-admin-close" class="page">
+    <div class="card">
+      <div class="ct">🔒 月次の締めチェック</div>
+      <div style="font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:10px">締め前に処理が必要な項目を1画面に集めました。すべて0件になると「締め準備OK」と表示され、CSVを出力できます。</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <input type="month" class="fi" id="closeMonth" style="flex:1" onchange="renderCloseCheck()">
+        <button class="mb mb-b" style="min-height:40px" onclick="renderCloseCheck()">再確認</button>
+      </div>
+      <div id="closeSummary"></div>
+    </div>
+    <div id="closeSections"></div>
+  </div>
   <div id="pg-admin-mgmt" class="page">
     <div class="add-card">
       <div class="add-title">＋ 従業員アカウントを追加</div>
@@ -885,6 +981,8 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
     </div>
   </div>
   <div style="padding:13px">
+    <div class="card" id="todayStatusExec" style="display:none"></div>
+    <div class="card dispPrefs" style="display:none"></div>
     <div class="card">
       <div class="ct">🕐 今日（自分の打刻）</div>
       <div class="clk-wrap">
@@ -892,7 +990,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
         <div class="clk-d" id="clockDate3"></div>
       </div>
       <div class="stamp-row">
-        <button class="sbtn ci" id="eCiBtn" onclick="execCheckinFlow()"><span>🟢 出勤</span><span class="sub" id="eCiTime">未打刻</span></button>
+        <button class="sbtn ci" id="eCiBtn" onclick="startCheckinDial('exec')"><span>🟢 出勤</span><span class="sub" id="eCiTime">未打刻</span></button>
         <button class="sbtn co" id="eCoBtn" onclick="execCheckoutFlow()"><span>🔴 退勤</span><span class="sub" id="eCoTime">未打刻</span></button>
       </div>
       <div class="sg">
@@ -902,11 +1000,12 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       </div>
       <div class="loc-badge"><div class="loc-dot" id="eLocDot"></div><span id="eLocTxt">位置情報: 未取得</span></div>
       <div id="alcStatusExec" style="margin-top:8px"></div>
+      <div id="otStatusExec"></div>
       <button class="btn-odo" onclick="openHolidayOdoModal()" style="width:100%;margin-top:10px">🚗 休日利用（走行距離・利用目的）</button>
       <!-- データ保持用（非表示） -->
       <div style="display:none" aria-hidden="true">
         <select id="eHealthSt"><option>良好</option><option>普通</option><option>不調</option></select>
-        <input type="number" id="eAlcVal"><input type="number" id="eAlcValOut"><input type="number" id="eOdoNow">
+        <input type="number" inputmode="decimal" id="eAlcVal"><input type="number" inputmode="decimal" id="eAlcValOut"><input type="number" inputmode="decimal" id="eOdoNow">
       </div>
     </div>
     <div class="card" id="execAlcCard" style="display:none">
@@ -939,78 +1038,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
   </div>
 </div>
 
-<!-- Checkin Modal -->
-<div class="modal-ov" id="ciModal">
-  <div class="modal">
-    <div class="modal-title">🟢 出勤する</div>
-    <div style="font-family:var(--mo);font-size:34px;text-align:center;color:var(--gn);margin-bottom:14px" id="ciModalTime">--:--</div>
-    <div style="background:var(--sf2);border:2px solid var(--gn);border-radius:12px;padding:14px;margin-bottom:10px">
-      <label class="fl" style="font-size:14px;font-weight:700;text-align:center;display:block;margin-bottom:8px">🚗 オドメーター総距離 (km) <span style="color:var(--rd)">必須</span></label>
-      <input type="number" class="fi" id="ci-odo" placeholder="例: 12450" min="0" step="0.1" oninput="ciOdoHint()" style="font-size:24px;text-align:center;font-family:var(--mo);height:auto;padding:12px">
-      <div class="odo-h" id="ci-odo-h" style="text-align:center;margin-top:6px"></div>
-    </div>
-    <div id="ci-ft-wrap" style="display:none;margin:8px 0;padding:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-        <input type="checkbox" id="ci-fulltime" style="width:18px;height:18px;accent-color:var(--ac)">
-        <span>📋 常勤時間で出勤する</span>
-      </label>
-      <div style="font-size:11px;color:var(--dim);margin-top:4px;padding-left:26px" id="ci-ft-hint"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-      <button class="sbv" onclick="closeCheckinModal()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
-      <button class="sbv" onclick="confirmCheckin()" style="background:var(--gn)">出勤する</button>
-    </div>
-  </div>
-</div>
-
-<!-- Admin Checkin Modal -->
-<div class="modal-ov" id="aciModal">
-  <div class="modal">
-    <div class="modal-title">🟢 出勤する（管理者）</div>
-    <div style="font-family:var(--mo);font-size:34px;text-align:center;color:var(--gn);margin-bottom:14px" id="aciModalTime">--:--</div>
-    <div style="background:var(--sf2);border:2px solid var(--gn);border-radius:12px;padding:14px;margin-bottom:10px">
-      <label class="fl" style="font-size:14px;font-weight:700;text-align:center;display:block;margin-bottom:8px">🚗 オドメーター総距離 (km) <span style="color:var(--rd)">必須</span></label>
-      <input type="number" class="fi" id="aci-odo" placeholder="例: 12450" min="0" step="0.1" oninput="aciOdoHint()" style="font-size:24px;text-align:center;font-family:var(--mo);height:auto;padding:12px">
-      <div class="odo-h" id="aci-odo-h" style="text-align:center;margin-top:6px"></div>
-    </div>
-    <div id="aci-ft-wrap" style="display:none;margin:8px 0;padding:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-        <input type="checkbox" id="aci-fulltime" style="width:18px;height:18px;accent-color:var(--ac)">
-        <span>📋 常勤時間で出勤する</span>
-      </label>
-      <div style="font-size:11px;color:var(--dim);margin-top:4px;padding-left:26px" id="aci-ft-hint"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-      <button class="sbv" onclick="closeAdminCheckinModal()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
-      <button class="sbv" onclick="confirmAdminCheckin()" style="background:var(--gn)">出勤する</button>
-    </div>
-  </div>
-</div>
-
-<!-- Executive Checkin Modal -->
-<div class="modal-ov" id="eciModal">
-  <div class="modal">
-    <div class="modal-title">🟢 出勤する（役員）</div>
-    <div style="font-family:var(--mo);font-size:34px;text-align:center;color:var(--gn);margin-bottom:14px" id="eciModalTime">--:--</div>
-    <div style="background:var(--sf2);border:2px solid var(--gn);border-radius:12px;padding:14px;margin-bottom:10px">
-      <label class="fl" style="font-size:14px;font-weight:700;text-align:center;display:block;margin-bottom:8px">🚗 オドメーター総距離 (km) <span style="color:var(--rd)">必須</span></label>
-      <input type="number" class="fi" id="eci-odo" placeholder="例: 12450" min="0" step="0.1" oninput="eciOdoHint()" style="font-size:24px;text-align:center;font-family:var(--mo);height:auto;padding:12px">
-      <div class="odo-h" id="eci-odo-h" style="text-align:center;margin-top:6px"></div>
-    </div>
-    <div id="eci-ft-wrap" style="display:none;margin:8px 0;padding:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-        <input type="checkbox" id="eci-fulltime" style="width:18px;height:18px;accent-color:var(--ac)">
-        <span>📋 常勤時間で出勤する</span>
-      </label>
-      <div style="font-size:11px;color:var(--dim);margin-top:4px;padding-left:26px" id="eci-ft-hint"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-      <button class="sbv" onclick="closeExecCheckinModal()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
-      <button class="sbv" onclick="confirmExecCheckin()" style="background:var(--gn)">出勤する</button>
-    </div>
-  </div>
-</div>
-
+<!-- 出勤のオドメーター入力は打刻ダイヤル（#dialModal）に統合済み（alc33） -->
 <!-- Holiday (ODO only) Modal -->
 <div class="modal-ov" id="holidayOdoModal">
   <div class="modal">
@@ -1018,7 +1046,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
     <p style="font-size:12px;color:var(--dim);margin-bottom:10px">出勤せず車両のみ使用した日の記録です。オドメーター総距離と利用目的を入力してください（写真・アルコールチェックは不要）。</p>
     <div style="background:var(--sf2);border:2px solid var(--yw);border-radius:12px;padding:14px;margin-bottom:10px">
       <label class="fl" style="font-size:14px;font-weight:700;text-align:center;display:block;margin-bottom:8px">🚗 オドメーター総距離 (km) <span style="color:var(--rd)">必須</span></label>
-      <input type="number" class="fi" id="hol-odo" placeholder="例: 12450" min="0" step="0.1" oninput="holOdoHint()" style="font-size:24px;text-align:center;font-family:var(--mo);height:auto;padding:12px">
+      <input type="number" inputmode="decimal" class="fi" id="hol-odo" placeholder="例: 12450" min="0" step="0.1" oninput="holOdoHint()" style="font-size:24px;text-align:center;font-family:var(--mo);height:auto;padding:12px">
       <div class="odo-h" id="hol-odo-h" style="text-align:center;margin-top:6px"></div>
     </div>
     <div class="fr">
@@ -1035,60 +1063,143 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 <!-- 退勤後: 訪問実績の確認モーダル -->
 <div class="modal-ov" id="visitConfirmModal">
   <div class="modal" style="max-height:88vh;overflow-y:auto">
-    <div class="modal-title">📋 入力忘れはないですか？</div>
-    <p style="font-size:12px;color:var(--dim);margin-bottom:10px">以下の本日の訪問実績で問題ないですか？その場で修正もできます。確定すると本日の訪問実績として保存されます。</p>
-    <div class="vbox">
+    <div class="modal-title" id="vc-title">📋 本日のまとめ（退勤前の最終確認）</div>
+    <div id="vc-time"></div>
+    <p id="vc-visit-desc" style="font-size:12px;color:var(--dim);margin:8px 0 10px">下の<b>本日の訪問実績</b>に入力忘れがないか確認してください。その場で修正できます。「送信」で退勤・写真・訪問実績がまとめて保存されます。</p>
+    <div class="vbox" id="vc-visit-box">
       <div class="vsec">① 営業</div>
-      <div class="vrow"><div><div class="vr-l">営業件数</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-sales" min="0" step="1" value=""><span class="vu">件</span></div></div>
+      <div class="vrow"><div><div class="vr-l">営業件数</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-sales" min="0" step="1" value=""><span class="vu">件</span></div></div>
       <div class="vsec">② 介護保険</div>
-      <div class="vrow"><div><div class="vr-l" id="vc-care-lbl">②-1 30分</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-c30" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">②-2 60分</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-c60" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">②-3 90分</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-c90" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l" id="vc-care-lbl">②-1 30分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-c30" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">②-2 60分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-c60" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">②-3 90分</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-c90" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec">③ 医療保険</div>
-      <div class="vrow"><div><div class="vr-l">医療保険</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-med" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">医療保険</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-med" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec">④〜⑦ 会議・契約・研修</div>
-      <div class="vrow"><div><div class="vr-l">④ 担当者会議</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-stf" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑤ 退院前カンファ</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-pre" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑥ 契約</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-con" min="0" step="1" value=""><span class="vu">回</span></div></div>
-      <div class="vrow"><div><div class="vr-l">⑦ 外部研修</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-trn" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">④ 担当者会議</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-stf" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑤ 退院前カンファ</div><div class="vr-s">1回 = 0.5時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-pre" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑥ 契約</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-con" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow"><div><div class="vr-l">⑦ 外部研修</div><div class="vr-s">1回 = 1時間</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-trn" min="0" step="1" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="vc-ot-section">⏰ 時間外訪問</div>
-      <div class="vrow" id="vc-ot-row"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位で入力可）</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
+      <div class="vrow" id="vc-ot-row"><div><div class="vr-l">時間外訪問</div><div class="vr-s">1回 = ¥4,000（0.5回単位で入力可）</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-ov" min="0" step="0.5" value=""><span class="vu">回</span></div></div>
       <div class="vsec" id="vc-angel-section">😇 エンゼルケア</div>
-      <div class="vrow" id="vc-angel-row"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
+      <div class="vrow" id="vc-angel-row"><div><div class="vr-l">エンゼルケア</div><div class="vr-s">1回 = ¥5,000（要・ご家族の料金同意）</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-angel" min="0" step="1" value="" onchange="angelConsent(this)"><span class="vu">回</span></div></div>
       <div class="vsec" id="vc-oncall-row">📞 オンコール</div>
-      <div class="vrow" id="vc-oncall-input-row"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" class="vi" id="vc-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
+      <div class="vrow" id="vc-oncall-input-row"><div><div class="vr-l">オンコール</div><div class="vr-s">待機回数</div></div><div class="vi-wrap"><input type="number" inputmode="decimal" class="vi" id="vc-oncall" min="0" step="1" value=""><span class="vu">回</span></div></div>
     </div>
-    <button class="sbv" onclick="submitVisitConfirm()" style="background:var(--gn);width:100%;font-size:16px;font-weight:700;padding:14px;margin-top:8px">✅ 送信（退勤・写真・訪問実績をまとめて送信）</button>
+    <button class="sbv" id="vc-submit-btn" onclick="submitVisitConfirm()" style="background:var(--gn);width:100%;font-size:16px;font-weight:700;padding:14px;margin-top:8px">✅ 送信（退勤・写真・訪問実績をまとめて送信）</button>
     <button class="sbv" onclick="visitBackToCheckout()" style="background:var(--sf2);border:1px solid var(--yw);color:var(--yw);width:100%;margin-top:8px">↩ 退勤入力（写真）に戻る</button>
-    <button class="sbv" onclick="skipVisitConfirm()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim);width:100%;margin-top:8px">あとで入力する（退勤のみ送信）</button>
+    <button class="sbv" id="vc-skip-btn" onclick="skipVisitConfirm()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim);width:100%;margin-top:8px">あとで入力する（退勤のみ送信）</button>
   </div>
 </div>
 
 <!-- Alcohol Visual Check Modal -->
+<!-- ═══ 打刻ダイヤル（alc31） ═══ -->
+<div class="modal-ov" id="dialModal">
+  <div class="modal">
+    <div class="modal-title" id="dial-title">出勤時刻を確定</div>
+    <div style="font-size:11px;color:var(--dim);line-height:1.7;margin:-8px 0 12px" id="dial-sub"></div>
+    <div class="dial-wrap" id="dial-wrap"></div>
+    <div class="dquick">
+      <button class="dqb" onclick="dialAdd(-15)">−15分</button>
+      <button class="dqb" onclick="dialAdd(15)">＋15分</button>
+      <button class="dqb" onclick="dialAdd(30)">＋30分</button>
+      <button class="dqb" onclick="dialAdd(60)">＋1時間</button>
+      <button class="dqb rst" onclick="dialReset()">初期値に戻す</button>
+    </div>
+    <div class="dinfo" id="dial-info"></div>
+    <div class="dwarn" id="dial-warn"></div>
+    <div id="dial-odo" style="display:none;background:var(--sf2);border:2px solid var(--gn);border-radius:12px;padding:12px;margin-top:12px">
+      <label class="fl" style="font-size:14px;font-weight:700;text-align:center;display:block;margin-bottom:8px">🚗 オドメーター総距離 (km) <span style="color:var(--rd)">必須</span></label>
+      <input type="number" inputmode="decimal" class="fi" id="dial-odo-in" placeholder="例: 12450" min="0" step="0.1" oninput="dialOdoHint()" style="font-size:24px;text-align:center;font-family:var(--mo);height:auto;padding:12px">
+      <div class="odo-h" id="dial-odo-h" style="text-align:center;margin-top:6px"></div>
+    </div>
+    <div class="t-row" style="margin-top:14px">
+      <button class="sbv" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)" onclick="dialBack()">← 戻る</button>
+      <button class="sbv" onclick="dialNext()">次へ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 本日の勤務時間 確認（alc31） ═══ -->
+<div class="modal-ov" id="dayCfmModal">
+  <div class="modal">
+    <div class="modal-title">本日の勤務時間はこれで確定しますか？</div>
+    <div style="font-size:11px;color:var(--dim);line-height:1.7;margin:-8px 0 12px">確定前に出勤・退勤時刻を修正できます。</div>
+    <div class="dcfm" id="dayCfmBox"></div>
+    <div class="dwarn" id="dayCfmWarn"></div>
+    <button class="sbv" onclick="dayCfmOk()">この内容で確定</button>
+    <button class="sbv" onclick="dayCfmLater()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim);margin-top:8px">あとで申請する（閉じる）</button>
+  </div>
+</div>
+
+<!-- ═══ 残業申請（alc31） ═══ -->
+<div class="modal-ov" id="otApplyModal">
+  <div class="modal">
+    <div class="modal-title">残業申請</div>
+    <div style="font-size:11px;color:var(--dim);line-height:1.7;margin:-8px 0 12px" id="otApplySub"></div>
+    <label class="fl">業務ジャンル（複数選択可・必須）</label>
+    <div class="otchk" id="otGenreWrap"></div>
+    <label class="fl">具体的な残業理由（必須）</label>
+    <textarea class="fi" id="otCommentInput" rows="3" placeholder="例：月末の報告書を3件作成したため" style="width:100%;resize:vertical;font-family:var(--fn);font-size:14px"></textarea>
+    <button class="sbv" style="margin-top:12px" onclick="otApplySubmit()">この内容で申請する</button>
+    <button class="sbv" onclick="otApplyBack()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim);margin-top:8px">← 戻る</button>
+    <div style="font-size:11px;color:var(--dim);margin-top:9px;line-height:1.7">※ 管理者の承認をもって残業時間として集計されます。</div>
+  </div>
+</div>
+
+<!-- alc34: 退勤忘れの翌日お知らせ（本人向け・温かみのある注意） -->
+<div class="modal-ov" id="forgotNoticeModal">
+  <div class="modal">
+    <div class="modal-title">☕ おつかれさまです</div>
+    <div id="forgotNoticeBody" style="font-size:13px;line-height:1.9"></div>
+    <button class="sbv" style="margin-top:14px" onclick="forgotNoticeOk()">確認しました（今日は忘れずに打刻します）</button>
+    <div style="font-size:11px;color:var(--dim);margin-top:9px;line-height:1.7">※ 実際の退勤時刻と違う場合は、管理者へ申し出てください（勤怠修正で直せます）。申し出は翌出勤日までにお願いします。</div>
+  </div>
+</div>
+
+<!-- alc34: 始業5分超前の出勤打刻の注意（ルール提示） -->
+<div class="modal-ov" id="earlyNoticeModal">
+  <div class="modal">
+    <div class="modal-title">⚠ 始業より早い時刻の打刻です</div>
+    <div id="earlyNoticeSub" style="font-size:12px;color:var(--dim);line-height:1.7;margin:-8px 0 10px"></div>
+    <div class="dwarn" style="display:block;background:rgba(247,211,79,.08);border-color:var(--yw);color:var(--tx);font-size:12px;line-height:1.8">
+      <div style="font-weight:700;color:var(--yw);margin-bottom:4px">打刻のルール（ご確認ください）</div>
+      ・打刻する時刻は<b>「業務を開始する予定の時刻」</b>です。<br>
+      ・<b>通勤・移動の時間は労働時間に含まれません。</b>早めに家を出る日も、打刻は業務開始予定の時刻（例：8:30）で行ってください。<br>
+      ・始業<b>5分前まで</b>の打刻は誤差の範囲として早出には数えません。<br>
+      ・それより前の<b>早出は原則禁止</b>です。やむを得ない場合は事前に管理者へ相談・申請し、<b>承認された分だけ</b>残業に加算されます。<br>
+      ・始業前の電話は原則OC担当者が出ます。朝のブリーフィングは始業後に閲覧してください。
+    </div>
+    <button class="sbv" style="margin-top:12px" onclick="earlyNoticeBack()">← ダイヤルに戻って時刻を直す</button>
+    <button class="sbv" onclick="earlyNoticeProceed()" style="background:var(--sf2);border:1px solid var(--yw);color:var(--yw);margin-top:8px">業務上必要な早出なので申請する →</button>
+  </div>
+</div>
+
+<!-- alc34: 早出の申請（退勤時の残業申請とは別。コメントのみ） -->
+<div class="modal-ov" id="earlyApplyModal">
+  <div class="modal">
+    <div class="modal-title">🌅 早出の申請</div>
+    <div style="font-size:11px;color:var(--dim);line-height:1.7;margin:-8px 0 12px" id="earlyApplySub"></div>
+    <label class="fl">早出の理由・事前に相談した相手（必須）</label>
+    <textarea class="fi" id="earlyCommentInput" rows="3" placeholder="例：8:00からの緊急訪問のため。前日に管理者へ相談済み" style="width:100%;resize:vertical;font-family:var(--fn);font-size:14px"></textarea>
+    <button class="sbv" style="margin-top:12px" onclick="earlyApplySubmit()">この内容で申請する</button>
+    <button class="sbv" id="earlyLaterBtn" onclick="earlyApplyLater()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim);margin-top:8px">あとで申請する（閉じる）</button>
+    <div style="font-size:11px;color:var(--dim);margin-top:9px;line-height:1.7">※ 早出は原則禁止・事前申請制です。管理者が承認すると始業前の時間が残業に加算されます。申請がない・承認されない場合は所定始業からの計算になります。</div>
+  </div>
+</div>
+
 <div class="modal-ov" id="alcModal">
   <div class="modal">
     <div class="modal-title" id="alcModalTitle">🍃 アルコールチェック</div>
     <p style="font-size:12px;color:var(--dim);margin-bottom:10px">検知器で測定し、検知器と自分の顔が一緒に写るように<b style="color:var(--rd);font-size:13px">測定中の様子を</b>撮影してください。管理者が写真を確認します。</p>
     <div class="fr">
       <label class="fl" id="alc-m-val-lbl">検知器の測定値 (mg/L)　<span style="color:var(--dim);font-size:11px;font-weight:400">数値が出た場合のみ変更（既定 0.00）</span></label>
-      <input type="number" class="fi" id="alc-m-val" placeholder="0.00" step="0.01" min="0" max="0.99">
+      <input type="number" inputmode="decimal" class="fi" id="alc-m-val" placeholder="0.00" step="0.01" min="0" max="0.99">
     </div>
     <div class="fr" id="alc-m-health-row">
       <label class="fl">😊 体調　<span style="color:var(--dim);font-size:11px;font-weight:400">変更なければ「良好」のままでOK</span></label>
       <select class="fi" id="alc-m-health"><option>良好</option><option>普通</option><option>不調</option></select>
-    </div>
-    <div style="margin:2px 0 8px;padding:9px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-        <input type="checkbox" id="alc-m-dchk" checked onchange="dchkHint()" style="width:18px;height:18px;accent-color:var(--ac)">
-        <span>🚗 直行直帰（打刻を所定時刻に揃える）</span>
-      </label>
-      <div id="alc-m-dchk-hint" style="font-size:11px;color:var(--dim);margin-top:4px;padding-left:26px"></div>
-    </div>
-    <div class="fr" id="alc-m-ot-row" style="display:none">
-      <label class="fl" style="color:var(--yw)">⏰ 実際の<span id="alc-m-ot-typelbl">出勤</span>時刻　<span style="font-size:11px;font-weight:400;color:var(--dim)">押した時刻でよければ変更不要。実際の<span class="alc-m-ot-typelbl2">出勤</span>時刻に直すと、その時刻で打刻されます</span></label>
-      <input type="time" class="fi" id="alc-m-ot-time" style="margin-bottom:10px">
-      <label class="fl" style="color:var(--yw)">📝 残業理由（必須）　<span style="font-size:11px;font-weight:400;color:var(--dim)">直行直帰のチェックを外した＝残業申請です。理由をご記入ください</span></label>
-      <textarea class="fi" id="alc-m-ot" rows="2" placeholder="例：緊急のオンコール対応のため／担当者会議が長引いたため／記録・報告書作成の残務対応 など" style="width:100%;resize:vertical"></textarea>
     </div>
     <input type="file" id="alc-m-file" accept="image/*" capture="user" style="display:none" onchange="alcFileChosen(this)">
     <div style="text-align:center;margin:4px 0 10px">
@@ -1097,7 +1208,10 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
       <button class="sbv" onclick="alcPickPhoto()" style="background:var(--sf2);border:1px solid var(--bd)">📷 検知器と顔を撮影する</button>
     </div>
     <button class="sbv" id="alc-m-go" onclick="alcPrimary()" style="background:var(--gn);width:100%;font-size:18px;font-weight:700;padding:16px;margin-top:4px">✅ 送信して打刻</button>
-    <button class="sbv" onclick="cancelAlcModal()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim);width:100%;margin-top:8px">キャンセル</button>
+    <div class="t-row" style="margin-top:8px">
+      <button class="sbv" onclick="alcBackToDial()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">← 時刻に戻る</button>
+      <button class="sbv" onclick="cancelAlcModal()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">中止する</button>
+    </div>
     <button id="alc-m-skip" onclick="alcSkip()" style="display:block;width:100%;margin-top:10px;background:none;border:none;color:var(--yw);font-size:12px;text-decoration:underline;cursor:pointer">📵 写真を撮れない場合はこちら（電話確認が必要になります）</button>
   </div>
 </div>
@@ -1142,8 +1256,13 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
     <button class="modal-close" onclick="closeSettings()">✕</button>
     <div class="modal-title">⚙ 勤務時間設定</div>
     <div class="t-row">
-      <div class="fr" style="margin-bottom:0"><label class="fl">始業時刻</label><input type="time" class="fi" id="stgStart"></div>
-      <div class="fr" style="margin-bottom:0"><label class="fl">終業時刻</label><input type="time" class="fi" id="stgEnd"></div>
+      <div class="fr" style="margin-bottom:0"><label class="fl">始業時刻</label><input type="time" class="fi" id="stgStart" oninput="renderBreakHint('stgStart','stgEnd','stgBreakHint')"></div>
+      <div class="fr" style="margin-bottom:0"><label class="fl">終業時刻</label><input type="time" class="fi" id="stgEnd" oninput="renderBreakHint('stgStart','stgEnd','stgBreakHint')"></div>
+    </div>
+    <div id="stgBreakHint" style="margin-top:8px"></div>
+    <div class="fr" style="margin-top:14px;margin-bottom:0"><label class="fl">36協定の起算月（年間360時間の集計開始月）</label>
+      <select class="fi" id="stgOtYearStart"><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">労基署に届け出た協定の対象期間の開始月を選んでください。</div>
     </div>
     <button class="sbv" onclick="saveSettings()" style="margin-top:14px">保存する</button>
   </div>
@@ -1156,12 +1275,12 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
     <div class="modal-title">有給設定: <span id="lcm-name"></span></div>
     <div class="fr"><label class="fl">初回付与日</label><input type="date" class="fi" id="lcm-date"></div>
     <div class="t-row">
-      <div class="fr" style="margin-bottom:0"><label class="fl">付与日数（年間）</label><input type="number" class="fi" id="lcm-days" min="1" max="40" value="10"></div>
-      <div class="fr" style="margin-bottom:0"><label class="fl">実働時間/日</label><input type="number" class="fi" id="lcm-hpd" min="1" max="24" step="0.5" value="8"></div>
+      <div class="fr" style="margin-bottom:0"><label class="fl">付与日数（年間）</label><input type="number" inputmode="decimal" class="fi" id="lcm-days" min="1" max="40" value="10"></div>
+      <div class="fr" style="margin-bottom:0"><label class="fl">実働時間/日</label><input type="number" inputmode="decimal" class="fi" id="lcm-hpd" min="1" max="24" step="0.5" value="8"></div>
     </div>
     <div class="fr" style="margin-top:10px;margin-bottom:0">
       <label class="fl">時間給付与時間（年間）<span style="font-size:11px;color:var(--dim);font-weight:400;margin-left:6px">日数プールとは別枠で付与</span></label>
-      <input type="number" class="fi" id="lcm-hourly" min="0" max="40" step="1" value="0" placeholder="例: 5">
+      <input type="number" inputmode="decimal" class="fi" id="lcm-hourly" min="0" max="40" step="1" value="0" placeholder="例: 5">
       <div style="font-size:11px;color:var(--dim);margin-top:4px">1時間単位で申請・消化できる専用プールです（0の場合は日数プールから消化）</div>
     </div>
     <button class="sbv" onclick="saveLCConfig()" style="margin-top:14px">設定を保存</button>
@@ -1214,7 +1333,7 @@ body{padding-bottom:env(safe-area-inset-bottom,20px)}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=30;
+const APP_BUILD=34;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1343,6 +1462,7 @@ const DB={
           this._dirtyKeys.delete(k);
           this._recentlyFlushed.set(k,Date.now());
           this._saveDirtyKeys();
+          try{renderSyncPill();}catch(e){} // alc34: 送信完了を即時に表示へ反映
         }else{
           console.warn('Supabase push failed:',k,'status:',res.status);
         }
@@ -1616,6 +1736,7 @@ function enterApp(acc){
   initGpsForAccount(); // 後方互換用（現在は空関数）
   checkPendingAutoCheckout();
   reconcileTodayMap(); // 同期等でtodayMapが消えていても、記録から当日状態を復元（未出勤誤表示・退勤不可の防止）
+  setTimeout(function(){try{showForgotNotice();}catch(e){}},600); // alc34: 前日以前の退勤忘れを本人へ1回だけお知らせ
   if(acc.role==='executive'){
     showScreen('exec');renderExecScreen();execRefreshStampUI();renderAlcStatusSelf();renderExecDriveRole();
     const eb=document.getElementById('execBadge');if(eb)eb.textContent='👔 '+acc.name;
@@ -1663,6 +1784,7 @@ function enterAdminView(acc){
   if(!acc)acc=curAcc();
   reconcileTodayMap(); // 記録から当日状態を復元（退勤不可の防止）
   showScreen('admin');renderAdmin();updateLeaveBadge();updateAlcBadge();renderAlcStatusSelf();applyAdminNavVisibility();applyAlcTabVisibility();
+  try{const act=document.querySelector('#adminNav .nb.active');setAdminGroup((act&&act.getAttribute('data-grp'))||'store',true);}catch(e){} // alc33: 現在タブのグループを表示
   const ab=document.getElementById('adminBadge');if(ab)ab.textContent='🔑 '+acc.name;
   const sl=document.getElementById('adminStoreLabel');
   if(sl)sl.textContent=currentStoreName()?currentStoreName()+' — ':'';
@@ -1842,7 +1964,7 @@ function renderWorkHours(ci,co){
   const td=todayMap[id]||{};
   let ot;
   if(td.fullTimeFlag){
-    ot=Math.max(0,toMins(empStart(id))-ci)+Math.max(0,co-toMins(empEnd(id)));
+    ot=Math.max(0,co-toMins(empEnd(id)));
   }else{
     ot=Math.max(0,co-toMins(empEnd(id)));
   }
@@ -1912,7 +2034,7 @@ function checkPendingAutoCheckout(){
       if(_coM<_ciM)_coM+=1440;
       pending.workMinutes=_coM-_ciM;
       if(pending.fullTimeFlag){
-        pending.overtimeMinutes=Math.max(0,toMins(empStart(e.id))-_ciM)+Math.max(0,_coM-toMins(empEnd(e.id)));
+        pending.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(e.id))); // alc31: 前残業は計上しない
       }else{
         pending.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(e.id)));
       }
@@ -1942,7 +2064,7 @@ function _updateAutoCheckoutUI(role,checkinTime,autoTime){
     let ot;
     if(session){
       const ft=records[session.id]?.find(r=>r.checkin===checkinTime)?.fullTimeFlag;
-      if(ft){ot=Math.max(0,toMins(empStart(session.id))-toMins(checkinTime))+Math.max(0,toMins(autoTime)-toMins(empEnd(session.id)));}
+      if(ft){ot=Math.max(0,toMins(autoTime)-toMins(empEnd(session.id)));} // alc31: 前残業は計上しない
       else{ot=Math.max(0,toMins(autoTime)-toMins(empEnd(session.id)));}
     }else{ot=0;}
     if(wh)wh.textContent=toHHMM(w);if(oh)oh.textContent=toHHMM(ot);
@@ -2024,7 +2146,7 @@ async function confirmCheckin(){
   closeCheckinModal();
   document.getElementById('odoNow').value=odoVal;
   // アルコール視認チェック（写真+体調+測定値送信）を経て打刻
-  openAlcModal('emp','ci',()=>stamp('checkin',ftFlag),ftFlag);
+  openStampDial('ci',ftFlag,function(){openAlcModal('emp','ci',()=>stamp('checkin',ftFlag),ftFlag);},null,function(){document.getElementById('ciModal').classList.add('open');});
 }
 // 出退勤モーダルのODO入力ヒント（必須化）
 function _odoHintHtml(v){
@@ -2140,7 +2262,11 @@ function _saveVisitsInner(){
 // ── 退勤後: 訪問実績の確認モーダル ──
 function openVisitConfirmModal(){
   if(!session)return;
-  if(getAdminFeatures().visits===false)return; // 訪問実績が非表示の人には出さない
+  const hasVisit=getAdminFeatures().visits!==false; // alc34: 訪問実績が非表示の人には「勤務時間の確認」だけを出す
+  const showV=(id,on)=>{const e=document.getElementById(id);if(e)e.style.display=on?'':'none';};
+  showV('vc-visit-desc',hasVisit);showV('vc-visit-box',hasVisit);showV('vc-skip-btn',hasVisit);
+  const tt=document.getElementById('vc-title');if(tt)tt.textContent=hasVisit?'📋 本日のまとめ（退勤前の最終確認）':'📋 本日の勤務時間の確認（送信前）';
+  const sb=document.getElementById('vc-submit-btn');if(sb)sb.textContent=hasVisit?'✅ 送信（退勤・写真・訪問実績を確定）':'✅ 送信して打刻（退勤・写真を確定）';
   const dk=todayKey();
   const v=(visits[session.id]||[]).find(r=>r.date===dk)||{};
   const set=(id,val)=>{const e=document.getElementById(id);if(e)e.value=(val&&val!==0)?val:'';};
@@ -2153,9 +2279,101 @@ function openVisitConfirmModal(){
   vis(['vc-oncall-row','vc-oncall-input-row'], a.oncallVisible!==false);
   vis(['vc-ot-section','vc-ot-row'], a.overtimeVisible===true);
   vis(['vc-angel-section','vc-angel-row'], a.angelVisible===true);
+  try{renderVcTime();}catch(e){}
   document.getElementById('visitConfirmModal').classList.add('open');
 }
 function closeVisitConfirmModal(){document.getElementById('visitConfirmModal').classList.remove('open');}
+// alc33: 本日のまとめ上部「勤務時間」ブロック（退勤時刻は送信前に変更できる＝最終打刻前の編集）
+/* ── alc34: 送信前の申請ブロック（残業31分以上＝ジャンル＋理由／早出5分超＝理由）。まとめ画面に埋め込み、送信時に必須検証 ── */
+function _applyBlocksHtml(ot,em,rec,draft){
+  draft=draft||{};
+  let h='';
+  if(ot>OT_THRESHOLD){
+    const sel=draft.otGenres||(rec&&Array.isArray(rec.otGenres)?rec.otGenres:[]);
+    h+=`<div class="dwarn" style="display:block;margin-top:8px;background:rgba(247,211,79,.08);border-color:var(--yw);color:var(--tx)">
+      <div style="font-weight:700;color:var(--yw);margin-bottom:6px">⏰ 残業申請（${toHHMM(ot)}・31分以上のため<b>送信前に必須</b>）</div>
+      <label class="fl">業務ジャンル（複数選択可）</label>
+      <div class="otchk" id="vca-otg-wrap">${OT_GENRES.map((g,i)=>`<label id="vca-otg_l${i}" class="${sel.indexOf(g)>=0?'on':''}"><input type="checkbox" id="vca-otg${i}" ${sel.indexOf(g)>=0?'checked':''} onchange="document.getElementById('vca-otg_l${i}').classList.toggle('on',this.checked)"><span>${esc(g)}</span></label>`).join('')}</div>
+      <label class="fl" style="margin-top:6px">具体的な残業理由</label>
+      <textarea class="fi" id="vca-otc" rows="2" placeholder="例：月末の報告書を3件作成したため" style="width:100%;resize:vertical;font-family:var(--fn);font-size:14px">${esc(draft.otComment!=null?draft.otComment:(rec&&rec.otComment)||'')}</textarea>
+    </div>`;
+  }
+  if(em>0&&!(rec&&(rec.earlyStatus||rec.earlyApproved||rec.earlyDismissed))){
+    h+=`<div class="dwarn" style="display:block;margin-top:8px;background:rgba(247,211,79,.08);border-color:var(--yw);color:var(--tx)">
+      <div style="font-weight:700;color:var(--yw);margin-bottom:6px">🌅 早出の申請（${toHHMM(em)}・<b>送信前に必須</b>）</div>
+      <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:4px">早出は原則禁止・事前申請制です。事前に相談した相手と理由を書いてください。管理者が承認すると始業前の時間が残業に加算されます。</div>
+      <textarea class="fi" id="vca-ec" rows="2" placeholder="例：8:00からの緊急訪問のため。前日に管理者へ相談済み" style="width:100%;resize:vertical;font-family:var(--fn);font-size:14px">${esc(draft.earlyComment!=null?draft.earlyComment:(rec&&rec.earlyComment)||'')}</textarea>
+    </div>`;
+  }
+  return h;
+}
+function _readApplyDraft(){
+  const d={};
+  const w=document.getElementById('vca-otg-wrap');
+  if(w){d.otGenres=OT_GENRES.filter((g,i)=>{const cb=document.getElementById('vca-otg'+i);return cb&&cb.checked;});}
+  const oc=document.getElementById('vca-otc');if(oc)d.otComment=oc.value;
+  const ec=document.getElementById('vca-ec');if(ec)d.earlyComment=ec.value;
+  return d;
+}
+// 送信時の検証。ブロックが表示されていない（＝不要）なら ok。表示中なら必須
+function _collectApplyInputs(){
+  const out={ok:true,msg:'',otApply:null,earlyApply:null};
+  const w=document.getElementById('vca-otg-wrap');
+  if(w){
+    const gs=OT_GENRES.filter((g,i)=>{const cb=document.getElementById('vca-otg'+i);return cb&&cb.checked;});
+    const cm=((document.getElementById('vca-otc')||{}).value||'').trim();
+    if(!gs.length){out.ok=false;out.msg='⚠ 残業申請：業務ジャンルを1つ以上選択してください';return out;}
+    if(!cm){out.ok=false;out.msg='⚠ 残業申請：具体的な残業理由を入力してください';return out;}
+    out.otApply={genres:gs,comment:cm};
+  }
+  const ec=document.getElementById('vca-ec');
+  if(ec){
+    const cm=(ec.value||'').trim();
+    if(!cm){out.ok=false;out.msg='⚠ 早出の申請：理由（事前に相談した相手）を入力してください';return out;}
+    out.earlyApply={comment:cm};
+  }
+  return out;
+}
+function renderVcTime(){
+  const el=document.getElementById('vc-time');if(!el||!session)return;
+  const td=todayMap[session.id]||{};
+  const ci=td.checkinTime||null, co=_dialTime||td.checkoutTime||null;
+  if(!co){el.innerHTML='';return;}
+  const sh=effShift(session.id);
+  let ot=0; if(ci){let c=toMins(co),i=toMins(ci);if(c<i)c+=1440;ot=Math.max(0,c-toMins(sh.end));}
+  const need=ot>OT_THRESHOLD;
+  // alc34: 早出（所定始業より5分超前）の表示。承認されるまで残業には入らない
+  const rr=(records[session.id]||[]).find(x=>x.date===todayKey());
+  const em=ci?recEarly({checkin:ci,fullTimeFlag:(todayMap[session.id]||{}).fullTimeFlag},session.id):0;
+  const emLine=em>0?`<div class="dcfm-row"><span>早出</span><span class="v" style="color:var(--yw)">${toHHMM(em)}（${rr?earlyStatusLabel(rr):'未申請'}）</span></div>`:'';
+  const draft=_readApplyDraft(); // 再描画（時刻変更後）でも入力中の申請内容を保持
+  el.innerHTML=`<div style="font-size:13px;font-weight:700;margin:2px 0 6px">本日の勤務時間はこれで確定しますか？</div>
+    <div class="dcfm" style="margin-bottom:6px">
+    <div class="dcfm-row"><span>出勤</span><span><span class="v">${esc(ci||'--:--')}</span> <button class="mb mb-b" style="margin-left:8px" onclick="vcEditTime('ci')">時刻を変更</button></span></div>
+    <div class="dcfm-row"><span>退勤</span><span><span class="v" style="color:var(--ac2)">${esc(co)}</span> <button class="mb mb-b" style="margin-left:8px" onclick="vcEditTime('co')">時刻を変更</button></span></div>${emLine}
+    <div class="dcfm-row"><span>所定</span><span>${esc(sh.start)}〜${esc(sh.end)}</span></div>
+    <div class="dcfm-row"><span>残業</span><span class="v" style="color:${need?'var(--yw)':'var(--tx)'}">${toHHMM(ot)}${need?'（31分以上→送信後に申請）':(ot>0?'（申請不要）':'')}</span></div>
+  </div>`+_applyBlocksHtml(ot,em,rr,draft);
+}
+function vcEditTime(type){
+  type=type||'co';
+  closeVisitConfirmModal();
+  const id=session?.id,td=todayMap[id]||{},ft=td.fullTimeFlag||false;
+  if(type==='ci'){
+    // alc34: 出勤時刻の修正（既に打刻済みなので記録と当日状態を即時更新）。
+    //   ダイヤルは「次へ」で _dialTime を上書きするため、保留中の退勤時刻を退避して戻す。
+    const keepCo=_dialTime;
+    const r=(records[id]||[]).find(x=>x.date===todayKey());
+    openStampDial('ci',ft,function(t){
+      if(r){r.checkin=t;if(r.checkout)_recalcRec(r,id);S.set('ka_records',records);}
+      td.checkinTime=t;todayMap[id]=td;S.set('ka_today',todayMap);
+      _dialTime=keepCo;
+      openVisitConfirmModal();
+    },td.checkinTime||(r&&r.checkin)||null,function(){_dialTime=keepCo;openVisitConfirmModal();});
+    return;
+  }
+  openStampDial('co',ft,function(){openVisitConfirmModal();},_dialTime||null,function(){openVisitConfirmModal();});
+}
 // 送信前に戻る：まだ何もコミットしていないので、保持中の写真・入力値のまま退勤アルコールチェックを再表示（取り直し不要）
 function visitBackToCheckout(){
   const pc=_pendingCheckout;
@@ -2182,7 +2400,9 @@ async function submitVisitConfirm(){
   if(!session)return;
   if(_actionGuard.has('visitSubmit'))return;_actionGuard.add('visitSubmit');
   try{
-    if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;await _alcCommit(pc);}
+    const ap=_collectApplyInputs(); if(!ap.ok){showToast(ap.msg);return;} // alc34: 残業・早出の申請は送信前に必須
+    if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;pc.viaVisit=true;pc.otApply=ap.otApply;pc.earlyApply=ap.earlyApply;await _alcCommit(pc);}
+    if(getAdminFeatures().visits===false){closeVisitConfirmModal();showToast('✅ 送信しました（退勤・写真）');return;}
     const dk=todayKey();
     const g=id=>Math.max(0,parseFloat(document.getElementById(id)?.value)||0);
     const rec={date:dk,sales:g('vc-sales'),c30:g('vc-c30'),c60:g('vc-c60'),c90:g('vc-c90'),medical:g('vc-med'),staff:g('vc-stf'),pre:g('vc-pre'),contract:g('vc-con'),training:g('vc-trn'),overtime:g('vc-ov'),oncall:g('vc-oncall'),angel:g('vc-angel')};
@@ -2201,7 +2421,8 @@ async function submitVisitConfirm(){
 async function skipVisitConfirm(){
   if(_actionGuard.has('visitSubmit'))return;_actionGuard.add('visitSubmit');
   try{
-    if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;await _alcCommit(pc);}
+    const ap=_collectApplyInputs(); if(!ap.ok){showToast(ap.msg);return;} // alc34: 訪問を後回しにしても申請は必須
+    if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;pc.viaVisit=true;pc.otApply=ap.otApply;pc.earlyApply=ap.earlyApply;await _alcCommit(pc);}
     closeVisitConfirmModal();
     showToast('✅ 退勤を送信しました（訪問実績は後で入力できます）');
   }finally{setTimeout(()=>_actionGuard.delete('visitSubmit'),1000);}
@@ -2234,7 +2455,7 @@ function buildAttendanceCsv(month,targetStoreId){
   // ヘッダー行（30分と40分を分離）
   const headers=['店舗','氏名','役職','職種','②-1時間','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','残業理由','走行距離(km)','体調','アルコール','アルコール(退勤)','酒気確認(出勤)','酒気確認(退勤)','酒気確認指示事項','メモ・利用目的','自動退勤',
     '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール','エンゼルケア','年末年始手当',
-    '有給種別','有給時間(h)'];
+    '有給種別','有給時間(h)','残業承認状態','支給残業(分)【30分以内は全額＋31分以上は承認済みのみ】'];
   const rows=[headers];
   targetAccs.forEach(emp=>{
     const stName=stores.find(s=>s.id===emp.storeId)?.name||'';
@@ -2280,7 +2501,8 @@ function buildAttendanceCsv(month,targetStoreId){
         vis?.medical||'', vis?.staff||'', vis?.pre||'', vis?.contract||'',
         vis?.training||'', vis?.overtime||'', vis?.oncall||'', vis?.angel||'',
         isNY?'¥10,000':'',
-        dayLeave?leaveTypeMap[dayLeave.type]||'':'', dayLeave?dayLeave.hours:''
+        dayLeave?leaveTypeMap[dayLeave.type]||'':'', dayLeave?dayLeave.hours:'',
+        recOdoOnly?'':(rec?otStatusLabel(rec):''), recOdoOnly?'':(rec?countedOT(rec,emp.id):'')
       ]);
     }
     // 月次集計行
@@ -2310,7 +2532,30 @@ function buildAttendanceCsv(month,targetStoreId){
       vc.sales,vc.c30*(empShortMin===30?1:0),vc.c30*(empShortMin===40?1:0),vc.c60,vc.c90,
       vc.medical,vc.staff,vc.pre,vc.contract,vc.training,vc.overtime,vc.oncall,vc.angel,
       nyc.amount>0?`${nyc.count}日 ¥${nyc.amount.toLocaleString()}`:'',
-      lvSummary?`${lvSummary}（${lvBalStr}）`:'',lvTotalH||'']);
+      lvSummary?`${lvSummary}（${lvBalStr}）`:'',lvTotalH||'',
+      '',mRecs.reduce((s,r)=>s+countedOT(r,emp.id),0)]);
+    // alc34: 36協定の年度累計（年360時間の管理用）
+    rows.push([stName,emp.name,'【年度計】',empProf,empShortMin+'分','',
+      '',otYearLabel(month),'','',yearOT(emp.id,month),`年360時間の上限に対し${(yearOT(emp.id,month)/OT_YEAR_LIMIT*100).toFixed(0)}%`]);
+  });
+  // ── 有給サマリー（alc31: CSV末尾に付与） ──
+  rows.push([]);
+  rows.push([`【有給サマリー】${y}年${parseInt(m)}月`]);
+  rows.push(['店舗','氏名','有給残(日数)','時間休 残(h)','直近付与日','直近付与日数','有効な付与(付与日:日数)','今月 申請中','今月 承認済','今月 却下','全期間 申請中']);
+  targetAccs.forEach(emp=>{
+    const stName2=stores.find(s=>s.id===emp.storeId)?.name||'';
+    const bal2=emp.leaveConfig?.grantDate?getLeaveBal(emp.id):null;
+    const reqs=(leaveRequests||[]).filter(r=>r.empId===emp.id);
+    const mReqs=reqs.filter(r=>String(r.targetDate||'').startsWith(month));
+    const cntBy=(arr,st)=>arr.filter(r=>r.status===st).length;
+    const grants=(leaveGrants[emp.id]||[]).slice().sort((a,b)=>String(a.grantDate).localeCompare(String(b.grantDate)));
+    const lastG=grants.length?grants[grants.length-1]:null;
+    const activeStr=bal2?(bal2.active||[]).map(g=>`${g.grantDate}:${g.days}日`).join(' / '):'';
+    rows.push([stName2,emp.name,
+      bal2?bal2.remDays:'', (bal2&&bal2.hasHourlyPool)?bal2.remHourlyH:'',
+      lastG?lastG.grantDate:'', lastG?lastG.days:'', activeStr,
+      cntBy(mReqs,'pending'),cntBy(mReqs,'approved'),cntBy(mReqs,'rejected'),
+      cntBy(reqs,'pending')]);
   });
   // BOM + CSV生成
   const csvContent='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\n');
@@ -2924,7 +3169,7 @@ function renderRecords(){
     const missOdo=sOdo&&r.checkin&&r.odometer==null&&!isOdoOnly;
     return`<div class="ri"${isHolidayVehicle?' style="border-left:3px solid var(--ac);opacity:.85"':''}${(missCO||missCI)?' style="border-left:3px solid var(--rd);background:rgba(247,95,95,.06)"':''}>
       <div style="flex:1">
-        <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${autoCoBadge(r)}</div>
+        <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${autoCoBadge(r)}${recBadges(r,session.id)}</div>
         ${isHolidayVehicle
           ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}${r.memo?' ／ 目的: '+esc(r.memo):''}</div>`
           :isOdoOnly&&!sKintai
@@ -2980,17 +3225,17 @@ function renderEditList(){
         <div class="ef"><label>退勤時刻</label><input type="time" class="einp" id="e_co_${i}" value="${r.checkout||''}"${dis}></div>
       </div>
       <div class="er">
-        <div class="ef"><label>オドメーター(km)</label><input type="number" class="einp" id="e_od_${i}" value="${r.odometer!=null?r.odometer:''}" step="0.1"${dis}></div>
+        <div class="ef"><label>オドメーター(km)</label><input type="number" inputmode="decimal" class="einp" id="e_od_${i}" value="${r.odometer!=null?r.odometer:''}" step="0.1"${dis}></div>
         <div class="ef"><label>体調</label><select class="einp" id="e_hl_${i}"${dis}>${['良好','普通','不調'].map(v=>`<option${r.health===v?' selected':''}>${v}</option>`).join('')}</select></div>
       </div>
       <div class="er">
-        <div class="ef"><label>アルコール出勤(mg/L)</label><input type="number" class="einp" id="e_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div>
-        <div class="ef"><label>アルコール退勤(mg/L)</label><input type="number" class="einp" id="e_ao_${i}" value="${r.alcoholOut||''}" step="0.01"${dis}></div>
+        <div class="ef"><label>アルコール出勤(mg/L)</label><input type="number" inputmode="decimal" class="einp" id="e_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div>
+        <div class="ef"><label>アルコール退勤(mg/L)</label><input type="number" inputmode="decimal" class="einp" id="e_ao_${i}" value="${r.alcoholOut||''}" step="0.01"${dis}></div>
       </div>
       <div class="er">
         <div class="ef"><label>メモ</label><input type="text" class="einp" id="e_me_${i}" value="${esc(r.memo||'')}"${dis}></div>
       </div>
-      ${(()=>{const ea=accounts.find(a=>a.id===empId);return ea&&ea.workStart&&ea.workEnd&&(ea.workStart!==settings.start||ea.workEnd!==settings.end)?`<div class="er"><div class="ef"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="e_ft_${i}" ${r.fullTimeFlag?'checked':''}${dis} style="width:16px;height:16px;accent-color:var(--ac)"> 常勤時間出勤</label></div></div>`:`<input type="hidden" id="e_ft_${i}">`})()}
+      <input type="hidden" id="e_ft_${i}">
       ${isLocked?'':'<div style="display:flex;gap:6px"><button class="esbtn" onclick="saveEdit('+i+')">✏ 修正する</button><button class="esbtn" style="background:rgba(247,95,95,.1);border-color:var(--rd);color:var(--rd)" onclick="deleteEditRecord('+i+')">🗑 削除</button></div>'}
     </div>`;
   }).join('');
@@ -3013,7 +3258,7 @@ function saveEdit(i){
   if(newAo!==(r.alcoholOut||''))ch.push(`アルコール退勤:${r.alcoholOut||'-'}→${newAo||'-'}`);
   if(newMe!==(r.memo||''))ch.push(`メモ:「${r.memo||''}」→「${newMe}」`);
   const ftEl=document.getElementById(`e_ft_${i}`);
-  const newFt=ftEl?.type==='checkbox'?ftEl.checked:false;
+  const newFt=ftEl?.type==='checkbox'?ftEl.checked:(r.fullTimeFlag||false); // alc32: チェック廃止後も過去データのフラグを維持
   if(newFt!==(r.fullTimeFlag||false))ch.push(`常勤出勤:${r.fullTimeFlag?'ON':'OFF'}→${newFt?'ON':'OFF'}`);
   if(!ch.length){showToast('変更はありませんでした');return;}
   const _coChanged=(newCo!==r.checkout); // 退勤時刻が手動で変更されたか
@@ -3037,7 +3282,7 @@ function saveEdit(i){
     if(_eCoM<_eCiM)_eCoM+=1440;
     r.workMinutes=_eCoM-_eCiM;
     if(r.fullTimeFlag){
-      r.overtimeMinutes=Math.max(0,toMins(empStart(session.id))-_eCiM)+Math.max(0,_eCoM-toMins(empEnd(session.id)));
+      r.overtimeMinutes=Math.max(0,_eCoM-toMins(empEnd(session.id))); // alc31: 前残業は計上しない
     }else{
       r.overtimeMinutes=Math.max(0,_eCoM-toMins(empEnd(session.id)));
     }
@@ -3206,12 +3451,13 @@ function renderEmpMgmt(){
       </div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px">
         <span style="font-size:11px;color:var(--dim);flex-shrink:0">勤務時間:</span>
-        <input type="time" class="fi" style="flex:1;padding:5px 8px;font-size:12px" id="wts_${e.id}" value="${e.workStart||settings.start}">
+        <input type="time" class="fi" style="flex:1;padding:5px 8px;font-size:12px" id="wts_${e.id}" value="${e.workStart||settings.start}" oninput="renderBreakHint('wts_${e.id}','wte_${e.id}','wth_${e.id}')">
         <span style="font-size:11px;color:var(--dim)">〜</span>
-        <input type="time" class="fi" style="flex:1;padding:5px 8px;font-size:12px" id="wte_${e.id}" value="${e.workEnd||settings.end}">
+        <input type="time" class="fi" style="flex:1;padding:5px 8px;font-size:12px" id="wte_${e.id}" value="${e.workEnd||settings.end}" oninput="renderBreakHint('wts_${e.id}','wte_${e.id}','wth_${e.id}')">
         <button class="mb mb-b" onclick="adminSetEmpWorkTime('${e.id}')" style="flex-shrink:0">設定</button>
         ${e.workStart?`<button class="mb" style="background:none;border:1px solid var(--dim);color:var(--dim)" onclick="adminClearEmpWorkTime('${e.id}')">解除</button>`:''}
       </div>
+      <div id="wth_${e.id}" style="padding:0 10px 4px">${breakHintHtml(e.workStart||settings.start,e.workEnd||settings.end)}</div>
       <div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px">
         <span style="font-size:11px;color:var(--dim);flex-shrink:0">職種:</span>
         <button class="mb" id="empProf_nurse_${e.id}" style="padding:5px 12px;${(e.profession||'nurse')==='nurse'?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpProfession('${e.id}','nurse')">看護師</button>
@@ -3340,9 +3586,19 @@ function deleteEmp(id){
 // ═══════════════════════════════════
 // SETTINGS
 // ═══════════════════════════════════
-function openSettings(){document.getElementById('stgStart').value=settings.start;document.getElementById('stgEnd').value=settings.end;document.getElementById('settingsModal').classList.add('open');}
+function openSettings(){
+  document.getElementById('stgStart').value=settings.start;document.getElementById('stgEnd').value=settings.end;
+  const ys=document.getElementById('stgOtYearStart');if(ys)ys.value=String(otYearStart()); // alc34
+  try{renderBreakHint('stgStart','stgEnd','stgBreakHint');}catch(e){}
+  document.getElementById('settingsModal').classList.add('open');
+}
 function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
-function saveSettings(){settings.start=document.getElementById('stgStart').value;settings.end=document.getElementById('stgEnd').value;S.set('ka_settings',settings);closeSettings();showToast('✅ 勤務時間を保存しました');}
+function saveSettings(){
+  settings.start=document.getElementById('stgStart').value;settings.end=document.getElementById('stgEnd').value;
+  const ys=document.getElementById('stgOtYearStart');if(ys){const v=parseInt(ys.value,10);if(v>=1&&v<=12)settings.otYearStart=v;} // alc34
+  S.set('ka_settings',settings);closeSettings();showToast('✅ 勤務時間を保存しました');
+  try{renderTodayStatus();}catch(e){}
+}
 
 // ═══════════════════════════════════
 // DATA MANAGEMENT / ARCHIVE
@@ -3462,12 +3718,32 @@ function showEmpPg(id,btn){
   if(id==='edit')renderEditList();
   if(id==='cfg'){updateShortToggle();loadEmpWorkTime();updateGpsToggleUI();}
 }
+/* alc33: 管理者タブのグループ切替（自分／店舗／管理） */
+function setAdminGroup(g,keepActive){
+  document.querySelectorAll('#adminGrpBar .grpbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-grp')===g));
+  const tabs=Array.from(document.querySelectorAll('#adminNav .nb'));
+  tabs.forEach(b=>b.classList.toggle('grp-hide',b.getAttribute('data-grp')!==g));
+  if(keepActive)return;
+  // グループ内の先頭タブ（表示中のもの）を開く
+  const first=tabs.find(b=>b.getAttribute('data-grp')===g&&b.style.display!=='none');
+  if(first){const m=(first.getAttribute('onclick')||'').match(/showAdminPg\('([a-z]+)'/);if(m)showAdminPg(m[1],first);}
+}
+function updateAdminGroupBadges(){
+  try{
+    const anyShow=ids=>ids.some(id=>{const e=document.getElementById(id);return e&&e.classList.contains('show');});
+    const me=document.getElementById('grpDotMe'),st=document.getElementById('grpDotStore');
+    if(st)st.classList.toggle('show',anyShow(['alcBadge','closeBadge','leaveBadge']));
+    if(me)me.classList.remove('show');
+  }catch(e){}
+}
 function showAdminPg(id,btn){
   document.querySelectorAll('#sc-admin .page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('#adminNav .nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('pg-admin-'+id).classList.add('active');btn.classList.add('active');
+  try{const g=btn.getAttribute('data-grp');if(g)setAdminGroup(g,true);}catch(e){}
   try{window.scrollTo(0,0);}catch(e){} // ★タブ切替時は必ず先頭へ（深いスクロール位置の引き継ぎでヘッダーが見えなくなるのを防止）
-  if(id==='today'){updateOdoHintA();updateCare30LabelA();renderAlcStatusSelf();}
+  if(id==='today'){updateOdoHintA();updateCare30LabelA();renderAlcStatusSelf();try{renderOtQueue();}catch(e){}}
+  if(id==='close'){try{renderCloseCheck();}catch(e){}}
   if(id==='alc'){renderAlcQueue();updateAlcBadge();}
   if(id==='visits'){updateCare30LabelA();updateOncallVisibilityA();initAVisitTab();renderVisitEditA();}
   if(id==='aleave')renderLeaveTabA();
@@ -3563,8 +3839,10 @@ function saveEmpWorkTime(){
   const acc=curAcc();if(!acc)return;
   // スタッフは勤務時間を変更できない（管理者・役員のみ）
   if(acc.role==='employee'||acc.role==='staff'){showToast('⚠ 勤務時間の変更は管理者にお問い合わせください');return;}
-  const s=document.getElementById('emp-stg-start').value;
-  const e=document.getElementById('emp-stg-end').value;
+  const sEl=document.getElementById('emp-stg-start'),eEl=document.getElementById('emp-stg-end');
+  if(!sEl||!eEl)return; // alc34: スタッフ側カードは廃止済み（UIなし）
+  const s=sEl.value;
+  const e=eEl.value;
   if(s&&e&&toMins(s)>=toMins(e)){showToast('⚠ 終業時刻は始業時刻より後にしてください');return;}
   acc.workStart=s||null;acc.workEnd=e||null;
   S.set('ka_accounts',accounts);
@@ -3740,7 +4018,7 @@ function renderWorkHoursA(ci,co){
   const td=todayMap[id]||{};
   let ot;
   if(td.fullTimeFlag){
-    ot=Math.max(0,toMins(empStart(id))-ci)+Math.max(0,co-toMins(empEnd(id)));
+    ot=Math.max(0,co-toMins(empEnd(id)));
   }else{
     ot=Math.max(0,co-toMins(empEnd(id)));
   }
@@ -3992,7 +4270,7 @@ function dchkHint(){
   }
   // 直行直帰OFF（=残業申請）のときだけ「実際の時刻＋残業理由」欄を表示
   const otRow=document.getElementById('alc-m-ot-row');
-  if(otRow)otRow.style.display=cb.checked?'none':'';
+  if(otRow)otRow.style.display='none'; // alc31: 打刻時刻はダイヤルで確定するため常に非表示
   // 出勤/退勤のラベルを反映
   const tl=document.getElementById('alc-m-ot-typelbl');if(tl)tl.textContent=lbl;
   document.querySelectorAll('.alc-m-ot-typelbl2').forEach(el=>el.textContent=lbl);
@@ -4000,6 +4278,795 @@ function dchkHint(){
   const ti=document.getElementById('alc-m-ot-time');
   if(ti&&!cb.checked&&!ti.value)ti.value=alcNowTime();
 }
+/* ═══════════ alc31: ダイヤル打刻・残業申請 ═══════════ */
+const OT_THRESHOLD=30;   // これを「超える」＝31分以上で残業申請が必要
+const EARLY_LIMIT=5;     // 始業のこの分数以上前の打刻は原則禁止（警告）
+const OT_GENRES=['月末書類作成業務（報告書・計画書・情報提供書）','契約・担当者会議および事後処理業務','訪問延長・急変対応','カンファレンス・研修','教育・相談','その他'];
+let _dialTime=null;
+let _dialEarly=null; // alc34: 出勤ダイヤルで入力した早出の申請 {comment,min}      // ダイヤルで確定した打刻時刻（'HH:MM'）
+let _dialSt={d:[0,0,0,0],base:'08:30',type:'ci',ftFlag:false,next:null};
+
+// その日の所定（スタッフ個人の勤務時間設定と連動。未設定なら全体設定）
+function effShift(empId){const id=empId||session?.id;return{start:empStart(id),end:empEnd(id)};}
+function _m2t(m){m=Math.max(0,Math.min(1439,Math.round(m)));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
+// 残業＝後残業のみ（前残業は計上しない／alc31）。alc34: 事前申請して承認された早出だけ例外的に加算
+function recEarly(r,empId){ // 所定始業より前に出勤した分（分）。承認されるまで残業には入れない
+  if(!r||!r.checkin)return 0;
+  const id=empId||session?.id;
+  const st=toMins(r.fullTimeFlag?settings.start:empStart(id));
+  const early=st-toMins(r.checkin);
+  // alc34: 始業EARLY_LIMIT分前までは誤差の範囲として早出扱いにしない（承認対象にも残業にもしない）
+  return early>EARLY_LIMIT?early:0;
+}
+function recOT(r,empId){
+  if(!r||!r.checkin||!r.checkout)return 0;
+  const id=empId||session?.id;
+  let co=toMins(r.checkout),ci=toMins(r.checkin);
+  if(co<ci)co+=1440;
+  let ot=Math.max(0,co-toMins(r.fullTimeFlag?settings.end:empEnd(id))); // 常勤時間で出勤した日は所定終業も全体設定（recEarly と対称）
+  if(r.earlyApproved)ot+=recEarly(r,id); // 承認済みの早出のみ加算（フラグなし＝従来どおり）
+  return ot;
+}
+function _recalcRec(r,empId){
+  let co=toMins(r.checkout),ci=toMins(r.checkin);
+  if(co<ci)co+=1440;
+  r.workMinutes=co-ci;
+  r.overtimeMinutes=recOT(r,empId);
+  if(r.overtimeMinutes<=OT_THRESHOLD){r.otStatus='none';r.otGenres=[];r.otComment='';}
+}
+// ダイヤル既定値: 出勤=始業5分前/実時刻/始業、退勤=実時刻
+function dialDefault(type,empId){
+  const sh=effShift(empId),now=toMins(alcNowTime());
+  // alc34: 出勤の初期値は常に所定始業。そのまま打刻すれば早出0分（不要な早出承認が発生しない）
+  if(type==='ci')return _m2t(toMins(sh.start));
+  return _m2t(now); // 退勤は操作した時刻（＝現在時刻）を初期値にし、業務終了時刻へ合わせてもらう
+}
+let _dialBack0=null; // フロー開始時の「戻る先」（明示的にnullを渡すとリセット、省略時は維持）
+function openStampDial(type,ftFlag,next,initTime,back){
+  const def=initTime||dialDefault(type);
+  if(back!==undefined)_dialBack0=back;
+  _dialSt={d:[0,0,0,0],base:def,type,ftFlag:!!ftFlag,next,back:_dialBack0};
+  _dialSetTime(def);
+  // テスト用フック: 回帰テストではダイヤルを飛ばして従来ロジックを検証（本番では未定義＝無効）
+  if(typeof globalThis!=='undefined'&&globalThis.__SKIP_DIAL){if(typeof next==='function')next(def);return;}
+  const lbl=type==='ci'?'出勤':'退勤',sh=effShift();
+  const od=document.getElementById('dial-odo');if(od)od.style.display=(type==='ci'&&_dialOdo)?'':'none';
+  const tt=document.getElementById('dial-title');if(tt)tt.textContent=(type==='ci'&&_dialOdo)?'出勤（時刻とオドメーター）':lbl+'時刻を確定';
+  const ss=document.getElementById('dial-sub');if(ss)ss.innerHTML=`所定 ${esc(sh.start)}〜${esc(sh.end)}（あなたの勤務時間設定）<br>各桁は<b>▲▼</b>タップ、または<b>上下スワイプ</b>で変更できます。`;
+  _dialBuild();
+  const mo=document.getElementById('dialModal');if(mo)mo.classList.add('open');
+}
+function closeDial(){document.getElementById('dialModal').classList.remove('open');}
+/* ── 出勤: 時刻ダイヤル＋オドメーター入力を1画面に（旧ODOモーダルは廃止） ── */
+let _dialOdo=null; // {carrier:'odoNow'|'aOdoNow'|'eOdoNow'}
+function startCheckinDial(role){
+  if(!session)return;
+  const map={emp:{carrier:'odoNow',dom:'emp',cb:function(){return stamp('checkin',false);}},
+             adm:{carrier:'aOdoNow',dom:'adm',cb:function(){return adminStamp('checkin',false);}},
+             exec:{carrier:'eOdoNow',dom:'exec',cb:function(){return execStamp('checkin',false);}}};
+  const c=map[role]||map.emp;
+  _dialOdo={carrier:c.carrier};
+  const inp=document.getElementById('dial-odo-in');if(inp)inp.value='';
+  openStampDial('ci',false,function(){openAlcModal(c.dom,'ci',c.cb,false);},null,null);
+  dialOdoHint();
+}
+function dialOdoHint(){const h=document.getElementById('dial-odo-h');const i=document.getElementById('dial-odo-in');if(h&&i)h.innerHTML=_odoHintHtml(i.value);}
+// ダイヤル「次へ」時のオドメーター検証（出勤のみ）。OKなら役職別のキャリアに値を渡す
+function _dialOdoCommit(){
+  if(!_dialOdo)return true;
+  const i=document.getElementById('dial-odo-in');const v=i?i.value:'';
+  if(!v||isNaN(parseFloat(v))||parseFloat(v)<0){
+    const h=document.getElementById('dial-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を正しく入力してください（0以上）</span>';
+    if(i)i.focus();return false;
+  }
+  const car=document.getElementById(_dialOdo.carrier);if(car)car.value=v;
+  return true;
+}
+// 「← 戻る」: 前のステップ（出勤ならオドメーター入力）へ。前段が無ければ閉じるだけ
+function dialBack(){closeDial();const bk=_dialSt.back;if(typeof bk==='function')bk();}
+// 酒気確認画面から「← 時刻に戻る」: 選んだ時刻を保持したままダイヤルへ戻る（写真は保持）
+function alcBackToDial(){
+  if(!_alcCtx)return;const c=_alcCtx;
+  document.getElementById('alcModal').classList.remove('open');
+  openStampDial(c.type,c.ftFlag,function(){openAlcModal(c.dom,c.type,c.cb,c.ftFlag,true);},_dialTime||null); // 戻る先はフロー開始時のまま
+}
+function _dialSetTime(t){const m=toMins(t),h=Math.floor(m/60),mi=m%60;_dialSt.d=[Math.floor(h/10),h%10,Math.floor(mi/10),mi%10];}
+function _dialTimeVal(){let h=_dialSt.d[0]*10+_dialSt.d[1],m=_dialSt.d[2]*10+_dialSt.d[3];if(h>23)h=23;if(m>59)m=59;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
+function _dialMax(i){if(i===0)return 2;if(i===1)return _dialSt.d[0]===2?3:9;if(i===2)return 5;return 9;}
+function _dialStep(i,dir){const mx=_dialMax(i);let v=_dialSt.d[i]+dir;if(v>mx)v=0;if(v<0)v=mx;_dialSt.d[i]=v;if(_dialSt.d[0]===2&&_dialSt.d[1]>3)_dialSt.d[1]=3;_dialPaint();}
+function _dialBuild(){
+  const w=document.getElementById('dial-wrap');if(!w)return;
+  w.innerHTML='';
+  for(let i=0;i<4;i++){
+    if(i===2){const sp=document.createElement('div');sp.className='dsep';sp.textContent=':';w.appendChild(sp);}
+    const col=document.createElement('div');col.className='dcol';
+    const up=document.createElement('button');up.className='darr';up.type='button';up.textContent='▲';up.onclick=function(){_dialStep(i,1);};
+    const bx=document.createElement('div');bx.className='dbox';bx.id='dbox'+i;
+    const dn=document.createElement('button');dn.className='darr';dn.type='button';dn.textContent='▼';dn.onclick=function(){_dialStep(i,-1);};
+    col.appendChild(up);col.appendChild(bx);col.appendChild(dn);w.appendChild(col);
+    _dialSwipe(bx,i);
+  }
+  _dialPaint();
+}
+function _dialSwipe(el,i){
+  let sy=0,on=false;
+  el.addEventListener('touchstart',function(e){sy=e.touches[0].clientY;on=true;el.classList.add('hot');},{passive:true});
+  el.addEventListener('touchmove',function(e){if(!on)return;e.preventDefault();const dy=e.touches[0].clientY-sy;if(Math.abs(dy)>22){_dialStep(i,dy<0?1:-1);sy=e.touches[0].clientY;}},{passive:false});
+  el.addEventListener('touchend',function(){on=false;el.classList.remove('hot');},{passive:true});
+  el.addEventListener('wheel',function(e){e.preventDefault();_dialStep(i,e.deltaY<0?1:-1);},{passive:false});
+}
+function _dialPaint(){
+  for(let i=0;i<4;i++){const b=document.getElementById('dbox'+i);if(b)b.textContent=_dialSt.d[i];}
+  const t=_dialTimeVal(),sh=effShift(),m=toMins(t);
+  const info=document.getElementById('dial-info'),warn=document.getElementById('dial-warn');
+  if(_dialSt.type==='ci'){
+    const st=toMins(sh.start),early=st-m;
+    if(info)info.innerHTML=`打刻する出勤時刻：<b>${t}</b><br>所定始業：<b>${esc(sh.start)}</b>`;
+    if(warn){
+      if(early>EARLY_LIMIT){warn.style.display='';warn.innerHTML=`⚠ 始業の<b>${early}分前</b>です。始業${EARLY_LIMIT}分以上前の打刻は原則禁止されています。`;}
+      else warn.style.display='none';
+    }
+  }else{
+    const en=toMins(sh.end),post=Math.max(0,m-en);
+    if(info)info.innerHTML=`打刻する退勤時刻：<b>${t}</b><br>所定終業：<b>${esc(sh.end)}</b><br>残業：<b>${toHHMM(post)}</b>${post>OT_THRESHOLD?'　→ 残業申請が必要':'　→ 申請不要'}`;
+    if(warn){
+      if(m<en){warn.style.display='';warn.innerHTML=`⚠ 所定終業（${esc(sh.end)}）より<b>${en-m}分早い</b>退勤です。`;}
+      else warn.style.display='none';
+    }
+  }
+}
+function dialAdd(n){_dialSetTime(_m2t(toMins(_dialTimeVal())+n));_dialPaint();}
+function dialReset(){_dialSetTime(_dialSt.base);_dialPaint();}
+function dialNext(){
+  if(_actionGuard.has('dialNext'))return;_actionGuard.add('dialNext');setTimeout(()=>_actionGuard.delete('dialNext'),700); // 連打ガード
+  const t=_dialTimeVal(),sh=effShift(),m=toMins(t);
+  if(_dialSt.type==='ci'&&!_dialOdoCommit())return; // オドメーター未入力なら進まない
+  if(_dialSt.type==='ci'){
+    const early=toMins(sh.start)-m;
+    if(early>EARLY_LIMIT){
+      // alc34: 早出は送信前に理由を入力（申請）してから進む。「戻る」でダイヤルへ
+      const nx0=_dialSt.next,t0=t;
+      closeDial();
+      const backToDial=function(){const mo=document.getElementById('dialModal');if(mo)mo.classList.add('open');};
+      // ①ルール提示（通勤時間は含めない等）→ ②業務上必要なら理由入力（申請）→ 酒気確認へ
+      openEarlyNotice(early,t0,backToDial,function(){
+        openEarlyApplyPre(early,t0,function(cm){_dialEarly={comment:cm,min:early};_dialTime=t0;if(typeof nx0==='function')nx0(t0);},backToDial);
+      });
+      return;
+    }
+  }else{
+    const en=toMins(sh.end);
+    if(m<en&&!confirm(`所定終業（${sh.end}）より${en-m}分早い退勤です。\nこの時刻で打刻しますか？`))return;
+  }
+  closeDial();
+  _dialTime=t;
+  const nx=_dialSt.next;
+  if(typeof nx==='function')nx(t); // ※_dialOdoは酒気確認から「時刻に戻る」で再編集できるよう、打刻確定時（_alcCommit）に消す
+}
+
+/* ── 本日の勤務時間 確認（退勤後） ── */
+let _dayCfm={empId:null,date:null};
+function openDayConfirm(empId,date){
+  const id=empId||session?.id;if(!id)return;
+  const dk=date||todayKey();
+  const r=(records[id]||[]).find(x=>x.date===dk);
+  if(!r||!r.checkin||!r.checkout)return;
+  _dayCfm={empId:id,date:dk};
+  _renderDayCfm();
+  document.getElementById('dayCfmModal').classList.add('open');
+}
+function _renderDayCfm(){
+  const empId=_dayCfm.empId,date=_dayCfm.date;
+  const r=(records[empId]||[]).find(x=>x.date===date);if(!r)return;
+  const sh=effShift(empId),ot=recOT(r,empId);
+  document.getElementById('dayCfmBox').innerHTML=
+     `<div class="dcfm-row"><span>日付</span><span>${esc(date)}</span></div>`
+    +`<div class="dcfm-row"><span>出勤</span><span><span class="v">${esc(r.checkin||'--:--')}</span> <button class="mb mb-b" style="margin-left:8px" onclick="dayCfmEdit('ci')">修正</button></span></div>`
+    +`<div class="dcfm-row"><span>退勤</span><span><span class="v">${esc(r.checkout||'--:--')}</span> <button class="mb mb-b" style="margin-left:8px" onclick="dayCfmEdit('co')">修正</button></span></div>`
+    +`<div class="dcfm-row"><span>所定</span><span>${esc(sh.start)}〜${esc(sh.end)}</span></div>`
+    +`<div class="dcfm-row"><span>勤務時間</span><span class="v">${toHHMM(r.workMinutes||0)}</span></div>`
+    +`<div class="dcfm-row"><span>残業</span><span class="v" style="color:var(--ac2)">${toHHMM(ot)}</span></div>`;
+  const w=document.getElementById('dayCfmWarn');
+  if(w){
+    if(ot>OT_THRESHOLD){w.style.display='';w.style.background='rgba(247,211,79,.1)';w.style.borderColor='var(--yw)';w.style.color='var(--yw)';
+      w.innerHTML=`残業が<b>${toHHMM(ot)}</b>（31分以上）のため、確定後に<b>残業申請</b>が必要です。`;}
+    else w.style.display='none';
+  }
+}
+function dayCfmEdit(type){
+  const empId=_dayCfm.empId,date=_dayCfm.date;
+  const r=(records[empId]||[]).find(x=>x.date===date);if(!r)return;
+  document.getElementById('dayCfmModal').classList.remove('open');
+  openStampDial(type,r.fullTimeFlag||false,function(t){
+    if(type==='ci')r.checkin=t;else r.checkout=t;
+    _recalcRec(r,empId);
+    S.set('ka_records',records);
+    const td=todayMap[empId];
+    if(td&&date===todayKey()){if(type==='ci')td.checkinTime=t;else td.checkoutTime=t;S.set('ka_today',todayMap);}
+    document.getElementById('dayCfmModal').classList.add('open');
+    _renderDayCfm();
+  },(type==='ci'?r.checkin:r.checkout),function(){document.getElementById('dayCfmModal').classList.add('open');});
+}
+function dayCfmOk(){
+  const empId=_dayCfm.empId,date=_dayCfm.date;
+  const r=(records[empId]||[]).find(x=>x.date===date);
+  document.getElementById('dayCfmModal').classList.remove('open');
+  if(r&&recOT(r,empId)>OT_THRESHOLD)openOtApply(empId,date);
+  else if(!_maybeEarlyApply(empId,date))showToast('✅ 本日の勤務時間を確定しました');
+  try{renderOtStatusSelf();}catch(e){}
+}
+function dayCfmLater(){
+  document.getElementById('dayCfmModal').classList.remove('open');
+  showToast('残業申請は「今日」画面の「残業申請をする」からいつでも行えます');
+  try{renderOtStatusSelf();}catch(e){}
+}
+function otApplyBack(){
+  document.getElementById('otApplyModal').classList.remove('open');
+  if(_dayCfm.empId)openDayConfirm(_dayCfm.empId,_dayCfm.date);
+}
+// 「今日」画面: 本日の残業状況と申請導線（日次確認を閉じた後や却下後の再申請にも使う）
+function renderOtStatusSelf(){
+  if(!session)return;
+  const dk=todayKey(),id=session.id;
+  const r=(records[id]||[]).find(x=>x.date===dk);
+  let html='';
+  if(r&&r.checkin&&r.checkout){
+    const ot=recOT(r,id);
+    if(ot>OT_THRESHOLD){
+      const st=r.otStatus||'none';
+      const btn=`<button class="mb mb-b" style="margin-left:8px" onclick="openOtApply('${esc(id)}','${dk}')">${st==='rejected'?'再申請する':'残業申請をする'}</button>`;
+      const lbl=st==='pending'?'<span style="color:var(--yw)">⏳ 申請中（管理者の承認待ち）</span>'
+              :st==='approved'?'<span style="color:var(--gn)">✅ 承認済み</span>'
+              :st==='rejected'?'<span style="color:var(--rd)">❌ 却下</span>'+btn
+              :'<span style="color:var(--yw)">未申請</span>'+btn;
+      html=`<div style="font-size:12px;line-height:1.9;margin-top:8px;padding:8px 10px;background:var(--sf2);border-radius:8px">⏰ 本日の残業 <b>${toHHMM(ot)}</b>（31分以上）：${lbl}</div>`;
+    }else if(ot>0){
+      html=`<div style="font-size:12px;line-height:1.9;margin-top:8px;padding:8px 10px;background:var(--sf2);border-radius:8px">⏰ 本日の残業 <b>${toHHMM(ot)}</b>（30分以下のため申請不要・そのまま計上）</div>`;
+    }
+  }
+  ['otStatusEmp','otStatusAdm','otStatusExec'].forEach(function(x){const e=document.getElementById(x);if(e)e.innerHTML=html;});
+  try{renderTodayStatus();}catch(e){}
+}
+
+/* ── alc33: 記録一覧の状態バッジ（残業/申請状態/遅刻） ── */
+function recBadges(r,empId){
+  if(!r||(!r.checkin&&!r.checkout))return '';
+  let h='';
+  const ot=r.overtimeMinutes||0;
+  if(ot>OT_THRESHOLD){
+    const st=r.otStatus||'none';
+    const cls=st==='approved'?'bdg-ok':st==='rejected'?'bdg-ng':'bdg-pend';
+    const lbl=st==='approved'?'承認済':st==='rejected'?'却下':st==='pending'?'申請中':'未申請';
+    h+=`<span class="bdg bdg-ot">残業 ${toHHMM(ot)}</span><span class="bdg ${cls}">${lbl}</span>`;
+  }else if(ot>0){h+=`<span class="bdg bdg-ot">残業 ${toHHMM(ot)}</span>`;}
+  try{ if(r.checkin&&empId){const late=toMins(r.checkin)-toMins(empStart(empId)); if(late>0)h+=`<span class="bdg bdg-late">遅刻 ${late}分</span>`; } }catch(e){}
+  return h;
+}
+/* ── alc33: 表示設定（テーマ／文字サイズ）— 端末ごとの見え方の設定。サーバー同期しない ── */
+function applyDisplayPrefs(){
+  try{
+    const th=localStorage.getItem('ka_theme')||'auto';
+    if(th==='light'||th==='dark')document.documentElement.setAttribute('data-theme',th);else document.documentElement.removeAttribute('data-theme');
+    const bt=localStorage.getItem('ka_bigtext')==='1';
+    if(bt)document.documentElement.setAttribute('data-bigtext','1');else document.documentElement.removeAttribute('data-bigtext');
+  }catch(e){}
+}
+function setTheme(v){try{localStorage.setItem('ka_theme',v);}catch(e){}applyDisplayPrefs();renderDisplayPrefs();}
+function toggleBigText(){try{const cur=localStorage.getItem('ka_bigtext')==='1';localStorage.setItem('ka_bigtext',cur?'0':'1');}catch(e){}applyDisplayPrefs();renderDisplayPrefs();}
+function renderDisplayPrefs(){
+  let th='auto',bt=false;try{th=localStorage.getItem('ka_theme')||'auto';bt=localStorage.getItem('ka_bigtext')==='1';}catch(e){}
+  const seg=(v,l)=>`<button class="tbtn ${th===v?'active':''}" onclick="setTheme('${v}')">${l}</button>`;
+  const html=`<div class="ct">🎨 見え方（この端末のみ）</div>
+    <div style="font-size:12px;color:var(--dim);margin-bottom:4px">配色</div>
+    <div class="trow">${seg('auto','自動（端末に合わせる）')}${seg('light','明るい')}${seg('dark','暗い')}</div>
+    <div style="font-size:12px;color:var(--dim);margin:10px 0 4px">文字サイズ</div>
+    <div class="trow"><button class="tbtn ${bt?'active':''}" onclick="toggleBigText()">${bt?'✔ 大きい文字（ON）':'大きい文字にする'}</button></div>`;
+  document.querySelectorAll('.dispPrefs').forEach(e=>{e.innerHTML=html;e.style.display='';});
+}
+try{applyDisplayPrefs();}catch(e){}
+
+/* ── alc33: 通信の信頼性（未送信の可視化／自動再送／写真の再送／連打ガード） ──
+   ※ 打刻データは S.set で必ず先に端末（localStorage）へ保存され、未送信キーは DB._dirtyKeys に保持されます。
+      ここでは「見える化」と「自動再送のタイミング追加」だけを行い、保存・マージのロジックには触れません。 */
+const _photoRetryQ=[]; // [{blob,path,alcId,tries}]
+function renderSyncPill(){
+  try{
+    const dirty=(typeof DB!=='undefined'&&DB._dirtyKeys)?DB._dirtyKeys.size:0;
+    const photos=_photoRetryQ.length;
+    const online=(typeof navigator!=='undefined'&&'onLine' in navigator)?navigator.onLine:true;
+    let txt,col,bg;
+    if(!online){txt='📴 オフライン — 打刻は端末に保存済み。電波が戻ると自動送信します';col='var(--rd)';bg='rgba(247,95,95,.12)';}
+    else if(dirty||photos){txt=`⏳ 未送信 ${dirty+photos}件 — 自動再送中（そのままで大丈夫です）`;col='var(--yw)';bg='rgba(247,211,79,.12)';}
+    else{txt='☁ サーバーと同期済み';col='var(--dim)';bg='transparent';}
+    document.querySelectorAll('.syncpill').forEach(e=>{e.textContent=txt;e.style.color=col;e.style.background=bg;e.style.display='';});
+  }catch(e){}
+}
+async function retryPhotoQueue(){
+  if(!_photoRetryQ.length||!(navigator.onLine!==false))return;
+  for(const it of _photoRetryQ.slice()){
+    try{
+      await Promise.race([alcUpload(it.blob,it.path),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),20000))]);
+      const c=alcChecks.find(x=>x.id===it.alcId);
+      if(c&&c.status==='nophoto'){c.photo=it.path;c.status='pending';c.rev=(c.rev||0)+1;c.updatedAt=Date.now();saveAlcChecks();try{renderAlcStatusSelf();updateAlcBadge();}catch(e){}}
+      _photoRetryQ.splice(_photoRetryQ.indexOf(it),1);
+      showToast('📷 写真の送信が完了しました');
+    }catch(e){ it.tries=(it.tries||0)+1; if(it.tries>=30)_photoRetryQ.splice(_photoRetryQ.indexOf(it),1); }
+  }
+  renderSyncPill();
+}
+async function autoResync(){
+  try{
+    if(typeof DB==='undefined'||!DB.configured())return;
+    if(navigator.onLine===false)return;
+    if(DB._dirtyKeys&&DB._dirtyKeys.size)await DB._flushDirty();
+    await retryPhotoQueue();
+  }catch(e){}
+  renderSyncPill();
+}
+try{
+  window.addEventListener('online',()=>{renderSyncPill();setTimeout(autoResync,800);});
+  window.addEventListener('offline',renderSyncPill);
+  setInterval(autoResync,30000);
+  setInterval(renderSyncPill,5000);
+}catch(e){}
+
+/* ── alc33: データ保全 — 読み取り専用の整合性チェック＋縮小ガード ──
+   ・型が想定と違う／件数が前回より大きく減った、を検知して console と管理者向けトーストで知らせるだけ。
+   ・データ自体は絶対に書き換えない。件数が大きく減った場合は直前の状態を ka_guard_snapshot に退避（復旧用）。 */
+let _lastCounts=null,_prevState=null;
+function dataCounts(){
+  const cnt=o=>{let n=0;try{Object.values(o||{}).forEach(a=>{n+=Array.isArray(a)?a.length:0;});}catch(e){}return n;};
+  return {accounts:Array.isArray(accounts)?accounts.length:-1,stores:Array.isArray(stores)?stores.length:-1,
+    records:cnt(records),visits:cnt(visits),alc:Array.isArray(alcChecks)?alcChecks.length:-1,
+    leaveReq:Array.isArray(leaveRequests)?leaveRequests.length:-1,audit:Array.isArray(auditLog)?auditLog.length:-1};
+}
+function dataIntegrityCheck(){
+  const problems=[];
+  const isObj=v=>v&&typeof v==='object'&&!Array.isArray(v);
+  if(!Array.isArray(accounts))problems.push('accounts が配列ではありません');
+  if(!Array.isArray(stores))problems.push('stores が配列ではありません');
+  if(!isObj(records))problems.push('records がオブジェクトではありません');
+  if(!isObj(visits))problems.push('visits がオブジェクトではありません');
+  if(!Array.isArray(alcChecks))problems.push('alcChecks が配列ではありません');
+  if(!isObj(todayMap))problems.push('todayMap がオブジェクトではありません');
+  if(!Array.isArray(leaveRequests))problems.push('leaveRequests が配列ではありません');
+  if(isObj(records)){
+    let bad=0;
+    Object.entries(records).forEach(([id,arr])=>{ if(!Array.isArray(arr)){bad++;return;} arr.forEach(r=>{ if(!r||typeof r.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(r.date))bad++; }); });
+    if(bad)problems.push('勤怠レコードに形式不明の行が '+bad+' 件あります');
+  }
+  const now=dataCounts();
+  if(_lastCounts){
+    ['records','visits','alc','accounts'].forEach(k=>{
+      const before=_lastCounts[k],after=now[k];
+      if(before>=20&&after>=0&&after<before*0.8){
+        problems.push(k+' の件数が '+before+'→'+after+' に減少');
+        try{ // 直前状態を退避（読み取り専用の復旧用コピー・1世代のみ。容量超過時は静かに諦める）
+          const snap={at:new Date().toISOString(),reason:k+' '+before+'→'+after,counts:_lastCounts,data:_prevState||{}};
+          localStorage.setItem(LSK('ka_guard_snapshot'),JSON.stringify(snap));
+        }catch(e){console.warn('snapshot skipped',e);}
+      }
+    });
+  }
+  _lastCounts=now;
+  console.log('[integrity]',JSON.stringify(now));
+  if(problems.length){
+    console.warn('[integrity] 問題を検知:',problems);
+    try{ if(session&&(session.role==='admin'||session.role==='executive'))showToast('⚠ データ整合性の警告: '+problems[0]+'（データは変更していません。管理者に共有してください）'); }catch(e){}
+    try{ window.__integrityProblems=problems; }catch(e){}
+  }
+  return problems;
+}
+/* ── alc33: 今日ステータスカード（次にやること／酒気確認／残業／今月の残業累計） ── */
+const OT_MONTH_WARN=35*60, OT_MONTH_LIMIT=45*60; // 36協定の目安（分）
+function monthOT(empId,month){ // その月の残業実績（実労働ベース・承認有無を問わない＝法定管理用）
+  return (records[empId]||[]).filter(r=>String(r.date||'').startsWith(month)).reduce((s,r)=>s+(r.overtimeMinutes||0),0);
+}
+function monthOTBadge(empId,month){
+  const m=monthOT(empId,month);
+  const col=m>=OT_MONTH_LIMIT?'var(--rd)':m>=OT_MONTH_WARN?'var(--yw)':'var(--dim)';
+  const note=m>=OT_MONTH_LIMIT?'　⚠ 月45時間の上限に達しています':m>=OT_MONTH_WARN?'　⚠ 月45時間に近づいています':'';
+  return `<span style="color:${col};font-weight:${m>=OT_MONTH_WARN?'700':'400'}">${toHHMM(m)}${note}</span>`;
+}
+
+/* ── alc34: 36協定の年間上限（360時間）の可視化。起算月は設定可（既定11月） ── */
+const OT_YEAR_WARN=300*60, OT_YEAR_LIMIT=360*60;
+function otYearStart(){const v=parseInt(settings&&settings.otYearStart,10);return (v>=1&&v<=12)?v:11;}
+function otYearOf(month){ // 'YYYY-MM' が属する協定年度の開始（年・月）
+  const y=parseInt(String(month||'').slice(0,4),10),m=parseInt(String(month||'').slice(5,7),10),s=otYearStart();
+  if(!y||!m)return{startY:0,startM:s};
+  return {startY:(m>=s?y:y-1),startM:s};
+}
+function inOtYear(date,month){
+  const {startY,startM}=otYearOf(month);if(!startY)return false;
+  const d=String(date||'');if(d.length<7)return false;
+  const idx=parseInt(d.slice(0,4),10)*12+parseInt(d.slice(5,7),10), s=startY*12+startM;
+  return idx>=s&&idx<s+12;
+}
+function otYearLabel(month){
+  const {startY,startM}=otYearOf(month);if(!startY)return '';
+  const t=startM-1+11, ey=startY+Math.floor(t/12), em=(t%12)+1;
+  return `${startY}年${startM}月〜${ey}年${em}月`;
+}
+function yearOT(empId,month){
+  return (records[empId]||[]).filter(r=>inOtYear(r.date,month)).reduce((s,r)=>s+(r.overtimeMinutes||0),0);
+}
+function yearOTBadge(empId,month){
+  const m=yearOT(empId,month);
+  const col=m>=OT_YEAR_LIMIT?'var(--rd)':m>=OT_YEAR_WARN?'var(--yw)':'var(--dim)';
+  const note=m>=OT_YEAR_LIMIT?'　⚠ 年360時間の上限に達しています':m>=OT_YEAR_WARN?'　⚠ 年360時間に近づいています':'';
+  return `<span style="color:${col};font-weight:${m>=OT_YEAR_WARN?'700':'400'}">${toHHMM(m)}${note}</span>`;
+}
+
+/* ── alc34: 法定休憩の過不足チェック（勤務時間を設定するときの警告表示のみ。控除ルール自体は変更しない） ── */
+function breakDeductMin(span){return span>360?60:0;} // 現行ルール：拘束6時間超の日は60分控除
+function legalBreakMin(net){return net>480?60:(net>360?45:0);} // 労基法34条：実働6h超45分・8h超60分
+function breakCheck(startT,endT){
+  const rx=/^\d{1,2}:\d{2}$/;
+  if(!rx.test(String(startT||''))||!rx.test(String(endT||'')))return null; // 未入力・不正形式は判定しない
+  const s=toMins(startT);let e=toMins(endT);
+  if(e<s)e+=1440;
+  const span=e-s, ded=breakDeductMin(span), net=span-ded, need=legalBreakMin(net);
+  let status='ok',msg=`休憩${ded}分＝法定（${need}分）と一致しています。`;
+  if(ded>need)status='over',msg=`休憩控除${ded}分は法定（${need}分）より${ded-need}分多いです。実際に${ded}分休憩していれば適正ですが、${need}分しか休めない日は${ded-need}分が控除超過になります。`;
+  else if(ded<need)status='short',msg=`実働${toHHMM(net)}には休憩${need}分が必要です。控除は${ded}分のため${need-ded}分不足しています。`;
+  return {span,ded,net,need,status,msg};
+}
+function breakHintHtml(startT,endT){
+  const c=breakCheck(startT,endT);if(!c)return '';
+  const col=c.status==='short'?'var(--rd)':c.status==='over'?'var(--yw)':'var(--gn)';
+  const ic=c.status==='short'?'⚠':c.status==='over'?'⚠':'✔';
+  return `<div style="font-size:11px;line-height:1.7;color:${col}">${ic} 拘束 ${toHHMM(c.span)} ／ 休憩控除 ${c.ded}分 ／ 実働 ${toHHMM(c.net)}<br>${c.msg}</div>`;
+}
+function renderBreakHint(sId,eId,hId){
+  const s=document.getElementById(sId),e=document.getElementById(eId),h=document.getElementById(hId);
+  if(!s||!e||!h)return;
+  h.innerHTML=(s.value&&e.value)?breakHintHtml(s.value,e.value):'';
+}
+function renderTodayStatus(){
+  if(!session)return;
+  const id=session.id,dk=todayKey(),td=todayMap[id]||{};
+  const r=(records[id]||[]).find(x=>x.date===dk);
+  const ci=td.checkinTime||(r&&r.checkin)||null, co=td.checkoutTime||(r&&r.checkout)||null;
+  const sh=effShift(id);
+  // 次にやること
+  let next,nextCol;
+  if(!ci){next='🟢 まず「出勤」を押してください';nextCol='var(--gn)';}
+  else if(!co){next=`🔴 勤務中 — 終わったら「退勤」を押してください（所定終業 ${esc(sh.end)}）`;nextCol='var(--ac2)';}
+  else{next='✅ 本日の打刻は完了しています';nextCol='var(--gn)';}
+  // 酒気確認
+  const a1=alcLatest(id,dk,'ci'),a2=alcLatest(id,dk,'co');
+  const alcLine=(ci||co)?`🍃 酒気確認　出勤: ${alcStatusLabel(a1)}　退勤: ${co?alcStatusLabel(a2):'<span style="color:var(--dim)">退勤時に実施</span>'}`:'';
+  // 残業（本日）
+  let otLine='';
+  if(r&&r.checkin&&r.checkout){
+    const ot=recOT(r,id);
+    if(ot>OT_THRESHOLD){
+      const st=r.otStatus||'none';
+      const btn=`<button class="mb mb-b" style="margin-left:6px" onclick="openOtApply('${esc(id)}','${dk}')">${st==='rejected'?'再申請する':'残業申請をする'}</button>`;
+      otLine='⏰ 本日の残業 <b>'+toHHMM(ot)+'</b>：'+(st==='pending'?'<span style="color:var(--yw)">⏳ 申請中（承認待ち）</span>':st==='approved'?'<span style="color:var(--gn)">✅ 承認済み</span>':st==='rejected'?'<span style="color:var(--rd)">❌ 却下</span>'+btn:'<span style="color:var(--yw)">未申請（申請して承認されると残業代の対象になります）</span>'+btn);
+    }else if(ot>0){otLine='⏰ 本日の残業 <b>'+toHHMM(ot)+'</b>（30分以内・申請不要でそのまま計上）';}
+  }
+  // alc34: 所定始業より前の出勤（早出）。承認されるまで残業には入らないことを明示
+  let earlyLine='';
+  if(r&&r.checkin){
+    const em=recEarly(r,id);
+    if(em>0){
+      const ebtn=`<button class="mb mb-b" style="margin-left:6px" onclick="openEarlyApply('${esc(id)}','${dk}')">${r.earlyDismissed?'再申請する':'早出申請をする'}</button>`;
+      earlyLine='🌅 早出 <b>'+toHHMM(em)+'</b>：'+(r.earlyApproved?'<span style="color:var(--gn)">✅ 承認済み（残業に加算）</span>'
+        :r.earlyDismissed?'<span style="color:var(--dim)">対象外（残業に加算されません）</span>'+ebtn
+        :r.earlyStatus==='pending'?'<span style="color:var(--yw)">⏳ 申請中（管理者の承認待ち）</span>'
+        :'<span style="color:var(--yw)">未申請（申請して承認されると残業に加算されます）</span>'+ebtn);
+    }
+  }
+  const html=`<div class="ct">📌 今日のステータス</div>
+    <div style="font-size:14px;font-weight:700;color:${nextCol};line-height:1.6">${next}</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:6px;line-height:1.9">
+      出勤 <b style="color:var(--tx);font-family:var(--mo)">${esc(ci||'--:--')}</b>　退勤 <b style="color:var(--tx);font-family:var(--mo)">${esc(co||'--:--')}</b>　所定 ${esc(sh.start)}〜${esc(sh.end)}
+      ${alcLine?'<br>'+alcLine:''}${earlyLine?'<br>'+earlyLine:''}${otLine?'<br>'+otLine:''}
+      <br>📅 今月の残業累計：${monthOTBadge(id,thisMonth())}<span style="color:var(--dim)">（上限 45時間）</span>
+      <br>🗓 今年度の残業累計：${yearOTBadge(id,thisMonth())}<span style="color:var(--dim)">（上限 360時間／${esc(otYearLabel(thisMonth()))}）</span>
+    </div>
+    <div class="syncpill" style="margin-top:8px;font-size:11px;padding:4px 8px;border-radius:8px;line-height:1.5"></div>`;
+  ['todayStatusEmp','todayStatusAdm','todayStatusExec'].forEach(function(x){const e=document.getElementById(x);if(e){e.innerHTML=html;e.style.display='';}});
+  try{renderDisplayPrefs();}catch(e){}
+  try{renderSyncPill();}catch(e){}
+  // 旧・分散表示は統合カードに集約（重複を避ける）
+  ['alcStatusEmp','alcStatusAdm','alcStatusExec','otStatusEmp','otStatusAdm','otStatusExec'].forEach(function(x){const e=document.getElementById(x);if(e)e.innerHTML='';});
+}
+
+/* ── 残業申請（31分以上） ── */
+function openOtApply(empId,date){
+  const r=(records[empId]||[]).find(x=>x.date===date);if(!r)return;
+  _dayCfm={empId:empId,date:date};
+  const ot=recOT(r,empId);
+  document.getElementById('otApplySub').innerHTML=`本日の残業は <b style="color:var(--yw)">${toHHMM(ot)}</b> です（31分以上のため申請が必要）。`;
+  const sel=Array.isArray(r.otGenres)?r.otGenres:[];
+  document.getElementById('otGenreWrap').innerHTML=OT_GENRES.map(function(g,i){
+    const on=sel.indexOf(g)>=0;
+    return `<label id="otg_l${i}" class="${on?'on':''}"><input type="checkbox" id="otg${i}" ${on?'checked':''} onchange="otGenreTog(${i})"><span>${esc(g)}</span></label>`;
+  }).join('');
+  document.getElementById('otCommentInput').value=r.otComment||'';
+  document.getElementById('otApplyModal').classList.add('open');
+}
+function otGenreTog(i){const cb=document.getElementById('otg'+i),l=document.getElementById('otg_l'+i);if(l&&cb)l.classList.toggle('on',cb.checked);}
+
+/* ── alc34: 退勤忘れ（自動退勤）の翌日、本人に温かみのある注意を1回だけ表示 ── */
+const FORGOT_NOTICE_DAYS=14; // これより古い自動退勤は通知しない（過去データの一斉表示を防ぐ）
+const FORGOT_NOTICE_SINCE=(typeof globalThis!=='undefined'&&globalThis.__FORGOT_SINCE)||'2026-10-01'; // この日以降の退勤忘れのみ通知（本番切替前の分は対象外。__FORGOT_SINCE はテスト用フック）
+function _jpDate(dk){try{const d=new Date(dk+'T00:00:00');const w=['日','月','火','水','木','金','土'][d.getDay()];return `${d.getMonth()+1}月${d.getDate()}日（${w}）`;}catch(e){return dk;}}
+function forgotNoticeTargets(empId){
+  const id=empId||session?.id;if(!id)return [];
+  const today=todayKey();
+  const lim=new Date();lim.setDate(lim.getDate()-FORGOT_NOTICE_DAYS);
+  const limKey=[lim.getFullYear(),String(lim.getMonth()+1).padStart(2,'0'),String(lim.getDate()).padStart(2,'0')].join('-');
+  return (records[id]||[]).filter(r=>r&&r.autoCheckout&&!r.forgotNoticedAt&&r.date&&r.date<today&&r.date>=limKey&&r.date>=FORGOT_NOTICE_SINCE).sort((a,b)=>a.date<b.date?-1:1);
+}
+function showForgotNotice(){
+  if(!session)return false;
+  const list=forgotNoticeTargets(session.id);if(!list.length)return false;
+  const acc=curAcc()||{};
+  const one=list.length===1;
+  const days=list.map(r=>`<b>${_jpDate(r.date)}</b>（${esc(r.checkout||'--:--')} で自動記録）`).join('<br>');
+  const body=document.getElementById('forgotNoticeBody');
+  if(body)body.innerHTML=
+    `${esc(acc.name||'')}さん、${one?'昨日までの勤務':'いつも'}おつかれさまです。<br><br>`
+   +`${one?'下の日':'次の日'}は<b>退勤の打刻がなかった</b>ため、所定の終業時刻で退勤を記録しました。<br>`
+   +`<div style="margin:8px 0;padding:8px 10px;background:var(--sf2);border-radius:8px">${days}</div>`
+   +`帰る前の一手間ですが、退勤の打刻があると残業時間が正しく残り、給与にもきちんと反映されます。<br>`
+   +`<b>今日は退勤の打刻を忘れずに</b>お願いしますね 😊`;
+  const mo=document.getElementById('forgotNoticeModal');if(mo)mo.classList.add('open');
+  return true;
+}
+function forgotNoticeOk(){
+  const list=forgotNoticeTargets(session?.id);
+  list.forEach(r=>{r.forgotNoticedAt=Date.now();});
+  if(list.length)S.set('ka_records',records);
+  const mo=document.getElementById('forgotNoticeModal');if(mo)mo.classList.remove('open');
+}
+
+/* ── alc34: 始業5分超前の打刻 → ルール提示ポップアップ → 直す／申請する ── */
+let _earlyNotice=null; // {onBack,onProceed}
+function openEarlyNotice(min,time,onBack,onProceed){
+  _earlyNotice={onBack,onProceed};
+  const sh=effShift();
+  const sub=document.getElementById('earlyNoticeSub');
+  if(sub)sub.innerHTML=`ダイヤルの時刻 <b>${esc(time)}</b> は、あなたの所定始業 <b>${esc(sh.start)}</b> の <b style="color:var(--yw)">${min}分前</b> です。`;
+  const mo=document.getElementById('earlyNoticeModal');if(mo)mo.classList.add('open');
+}
+function earlyNoticeBack(){const n=_earlyNotice;_earlyNotice=null;const mo=document.getElementById('earlyNoticeModal');if(mo)mo.classList.remove('open');if(n&&typeof n.onBack==='function')n.onBack();}
+function earlyNoticeProceed(){const n=_earlyNotice;_earlyNotice=null;const mo=document.getElementById('earlyNoticeModal');if(mo)mo.classList.remove('open');if(n&&typeof n.onProceed==='function')n.onProceed();}
+
+/* ── alc34: 早出の申請（コメントのみ）。earlyStatus: 'pending'|'approved'|'rejected'／未申請は未設定 ── */
+let _earlyApply={empId:null,date:null,pre:null};
+// 出勤ダイヤル直後の事前申請モード（記録はまだ無い）。onOk(comment)／onBack()
+function openEarlyApplyPre(min,time,onOk,onBack){
+  _earlyApply={empId:null,date:null,pre:{min,onOk,onBack}};
+  const st=effShift().start;
+  const sub=document.getElementById('earlyApplySub');
+  if(sub)sub.innerHTML=`出勤 <b>${esc(time)}</b>（所定始業 ${esc(st)}）→ 早出 <b style="color:var(--yw)">${toHHMM(min)}</b><br><span style="color:var(--rd)">始業${EARLY_LIMIT}分以上前の打刻は原則禁止です。</span>事前に相談した相手と理由を入力してください（入力しないと次へ進めません）。`;
+  const ta=document.getElementById('earlyCommentInput');if(ta)ta.value=(_dialEarly&&_dialEarly.comment)||'';
+  const lb=document.getElementById('earlyLaterBtn');if(lb)lb.textContent='← ダイヤルに戻る（時刻を直す）';
+  const mo=document.getElementById('earlyApplyModal');if(mo)mo.classList.add('open');
+}
+function earlyStatusLabel(r){
+  if(!r)return '';
+  if(r.earlyApproved)return '承認済み';
+  if(r.earlyDismissed)return '対象外';
+  if(r.earlyStatus==='pending')return '申請中';
+  return '未申請';
+}
+function openEarlyApply(empId,date){
+  const id=empId||session?.id;if(!id)return;
+  const lb=document.getElementById('earlyLaterBtn');if(lb)lb.textContent='あとで申請する（閉じる）';
+  const dk=date||todayKey();
+  const r=(records[id]||[]).find(x=>x.date===dk);if(!r||!r.checkin)return;
+  const em=recEarly(r,id);if(em<=0)return;
+  _earlyApply={empId:id,date:dk,pre:null};
+  const st=r.fullTimeFlag?settings.start:empStart(id);
+  const sub=document.getElementById('earlyApplySub');
+  if(sub)sub.innerHTML=`${esc(dk)}　出勤 <b>${esc(r.checkin)}</b>（所定始業 ${esc(st)}）→ 早出 <b style="color:var(--yw)">${toHHMM(em)}</b>`;
+  const ta=document.getElementById('earlyCommentInput');if(ta)ta.value=r.earlyComment||'';
+  const mo=document.getElementById('earlyApplyModal');if(mo)mo.classList.add('open');
+}
+function earlyApplySubmit(){
+  if(_actionGuard.has('earlyApply'))return;_actionGuard.add('earlyApply');setTimeout(()=>_actionGuard.delete('earlyApply'),1000);
+  if(_earlyApply.pre){ // 事前モード: コメントを保持して次へ（記録への書き込みは送信時）
+    const cm=((document.getElementById('earlyCommentInput')||{}).value||'').trim();
+    if(!cm){showToast('⚠ 早出の理由を入力してください');return;}
+    const pre=_earlyApply.pre;_earlyApply={empId:null,date:null,pre:null};
+    const mo=document.getElementById('earlyApplyModal');if(mo)mo.classList.remove('open');
+    if(typeof pre.onOk==='function')pre.onOk(cm);
+    return;
+  }
+  const {empId,date}=_earlyApply;
+  const r=(records[empId]||[]).find(x=>x.date===date);if(!r)return;
+  const cm=((document.getElementById('earlyCommentInput')||{}).value||'').trim();
+  if(!cm){showToast('⚠ 早出の理由を入力してください');return;}
+  r.earlyComment=cm;r.earlyStatus='pending';r.earlyDismissed=false;r.earlyApproved=false;
+  r.earlyAppliedAt=Date.now();
+  S.set('ka_records',records);
+  const mo=document.getElementById('earlyApplyModal');if(mo)mo.classList.remove('open');
+  showToast('✅ 早出の申請を送信しました（管理者の承認待ち）');
+  try{renderTodayStatus();}catch(e){}
+  try{updateCloseBadge();}catch(e){}
+}
+// 未申請の早出があればその場で申請画面を出す（退勤時に出勤時刻を早めた場合などのフォロー）
+function _maybeEarlyApply(empId,date){
+  try{
+    const id=empId||session?.id,dk=date||todayKey();
+    const r=(records[id]||[]).find(x=>x.date===dk);
+    if(r&&recEarly(r,id)>0&&!r.earlyStatus&&!r.earlyApproved&&!r.earlyDismissed){openEarlyApply(id,dk);return true;}
+  }catch(e){}
+  return false;
+}
+function earlyApplyLater(){
+  const mo=document.getElementById('earlyApplyModal');if(mo)mo.classList.remove('open');
+  if(_earlyApply.pre){const pre=_earlyApply.pre;_earlyApply={empId:null,date:null,pre:null};if(typeof pre.onBack==='function')pre.onBack();return;}
+  showToast('早出の申請は「今日」画面の「早出申請をする」からいつでも行えます');
+  try{renderTodayStatus();}catch(e){}
+}
+function otApplySubmit(){
+  if(_actionGuard.has('otApply'))return;_actionGuard.add('otApply');setTimeout(()=>_actionGuard.delete('otApply'),1000); // 連打ガード
+  const empId=_dayCfm.empId,date=_dayCfm.date;
+  const r=(records[empId]||[]).find(x=>x.date===date);if(!r)return;
+  const gs=OT_GENRES.filter(function(g,i){const cb=document.getElementById('otg'+i);return cb&&cb.checked;});
+  const cm=(document.getElementById('otCommentInput').value||'').trim();
+  if(!gs.length){showToast('⚠ 業務ジャンルを1つ以上選択してください');return;}
+  if(!cm){showToast('⚠ 具体的な残業理由を入力してください');return;}
+  r.otGenres=gs;r.otComment=cm;r.otStatus='pending';
+  S.set('ka_records',records);
+  document.getElementById('otApplyModal').classList.remove('open');
+  showToast('✅ 残業申請を送信しました（管理者の承認待ち）');
+  try{updateOtBadge();}catch(e){}
+  try{renderOtStatusSelf();}catch(e){}
+}
+// 集計対象の残業（31分以上は承認済みのみ計上）
+/* 支給残業（給与計算用／2026-09-29 方針確定）。
+   ＝「残業30分以内の日」は申請不要で全額 ＋「31分以上の日」は申請して承認（受理）されたもののみ全額。
+   未申請・申請中・却下の日は0（＝支給対象外）。運用は「基本受理」。
+   CSVの「残業(分)」は打刻ベースの実績（36協定の上限管理・参考用）で、支給には「支給残業(分)」を使う。 */
+function countedOT(r,empId){
+  const ot=(r&&r.overtimeMinutes!=null)?r.overtimeMinutes:recOT(r,empId);
+  if(ot<=OT_THRESHOLD)return ot;
+  return r&&r.otStatus==='approved'?ot:0;
+}
+function otStatusLabel(r){
+  const ot=(r&&r.overtimeMinutes)||0;
+  if(ot<=OT_THRESHOLD)return '申請不要';
+  if(!r.otStatus||r.otStatus==='none')return '未申請';
+  return{pending:'申請中',approved:'承認済み',rejected:'却下'}[r.otStatus]||'未申請';
+}
+
+/* ── 残業申請の承認（管理者） ── */
+function _otScopeIds(){
+  const acc=curAcc();const ids=new Set();
+  if(!acc)return ids;
+  accounts.forEach(function(a){if(a.storeId===acc.storeId)ids.add(a.id);});
+  return ids;
+}
+function otPendingList(){
+  const ids=_otScopeIds(),out=[];
+  Object.keys(records||{}).forEach(function(empId){
+    if(!ids.has(empId))return;
+    (records[empId]||[]).forEach(function(r){
+      if((r.overtimeMinutes||0)>OT_THRESHOLD&&r.otStatus==='pending')out.push({empId:empId,r:r});
+    });
+  });
+  out.sort(function(a,b){return String(b.r.date||'').localeCompare(String(a.r.date||''));});
+  return out;
+}
+function _otRowHtml(empId,r,nameById){
+  const mon=String(r.date||'').slice(0,7);
+  return '<div class="pend-req"><div class="pend-top"><div class="pend-name">'+esc(nameById[empId]||'')+'</div>'
+    +'<div style="font-family:var(--mo);font-size:13px;color:var(--ac2);font-weight:700">'+toHHMM(r.overtimeMinutes||0)+'</div></div>'
+    +'<div class="pend-info">'+esc(r.date)+'　'+esc(r.checkin||'--:--')+'〜'+esc(r.checkout||'--:--')+'<br>'
+    +'区分: '+esc((r.otGenres||[]).join('・')||'-')+'<br>理由: '+esc(r.otComment||'-')
+    +'<br>今月の残業累計（この人）: '+monthOTBadge(empId,mon)+'</div>'
+    +'<div class="pend-btns"><button class="app-btn ok" onclick="otDecide(\''+esc(empId)+'\',\''+esc(r.date)+'\',1)">承認</button>'
+    +'<button class="app-btn ng" onclick="otDecide(\''+esc(empId)+'\',\''+esc(r.date)+'\',0)">却下</button></div></div>';
+}
+function renderOtQueue(){
+  const card=document.getElementById('otQueueCard');if(!card)return;
+  const list=otPendingList();
+  card.style.display=list.length?'':'none';
+  const nameById={};accounts.forEach(function(a){nameById[a.id]=a.name;});
+  const el=document.getElementById('otQueueList');if(!el)return;
+  el.innerHTML=list.map(function(x){return _otRowHtml(x.empId,x.r,nameById);}).join('');
+}
+function otDecide(empId,date,ok){
+  const r=(records[empId]||[]).find(function(x){return x.date===date;});if(!r)return;
+  r.otStatus=ok?'approved':'rejected';
+  r.otReviewedBy=(curAcc()||{}).name||'';
+  r.otReviewedAt=new Date().toISOString();
+  S.set('ka_records',records);
+  showToast(ok?'✅ 残業を承認しました':'❌ 残業申請を却下しました');
+  renderOtQueue();
+  try{if(document.getElementById('pg-admin-close')?.classList.contains('active'))renderCloseCheck();else updateCloseBadge();}catch(e){}
+}
+function otApproveAll(month){
+  const list=otPendingList().filter(x=>String(x.r.date||'').startsWith(month));
+  if(!list.length)return;
+  if(!confirm(`${month} の残業申請 ${list.length}件 をすべて承認します。よろしいですか？`))return;
+  const me=(curAcc()||{}).name||'',now=new Date().toISOString();
+  list.forEach(x=>{x.r.otStatus='approved';x.r.otReviewedBy=me;x.r.otReviewedAt=now;});
+  S.set('ka_records',records);
+  showToast(`✅ ${list.length}件の残業を承認しました`);
+  renderOtQueue();try{renderCloseCheck();}catch(e){}
+}
+function updateOtBadge(){try{renderOtQueue();}catch(e){}}
+
+/* ── alc33: 月次の締めチェック（管理者） ── */
+function _closeMonth(){const i=document.getElementById('closeMonth');return (i&&i.value)||selectedMonth||thisMonth();}
+function closeCheckData(month){
+  const ids=Array.from(_otScopeIds());
+  const nameById={};accounts.forEach(a=>nameById[a.id]=a.name);
+  const otPend=[],otUnapplied=[],autoCo=[],early=[];
+  ids.forEach(id=>(records[id]||[]).forEach(r=>{
+    if(!String(r.date||'').startsWith(month))return;
+    const ot=r.overtimeMinutes||0;
+    if(ot>OT_THRESHOLD){if(r.otStatus==='pending')otPend.push({id,r});else if(!r.otStatus||r.otStatus==='none')otUnapplied.push({id,r});}
+    if(r.autoCheckout&&!r.forgotAcked)autoCo.push({id,r});
+    if(!r.earlyApproved&&!r.earlyDismissed&&recEarly(r,id)>0)early.push({id,r,min:recEarly(r,id)}); // alc34: 早出の未処理
+  }));
+  let alcPend=[];try{const aids=alcScopeIds();alcPend=alcChecks.filter(c=>(c.status==='pending'||c.status==='nophoto')&&aids.has(c.empId)&&String(c.date||'').startsWith(month));}catch(e){}
+  const lvPend=(leaveRequests||[]).filter(q=>q.status==='pending'&&ids.indexOf(q.empId)>=0);
+  return {ids,nameById,otPend,otUnapplied,autoCo,early,alcPend,lvPend,total:otPend.length+otUnapplied.length+autoCo.length+early.length+alcPend.length+lvPend.length};
+}
+function showAdminPgById(id){
+  const btns=Array.from(document.querySelectorAll('#adminNav .nb'));
+  const b=btns.find(x=>(x.getAttribute('onclick')||'').indexOf("'"+id+"'")>=0)||btns[0];
+  showAdminPg(id,b);
+}
+function renderCloseCheck(){
+  const mi=document.getElementById('closeMonth');if(mi&&!mi.value)mi.value=selectedMonth||thisMonth();
+  const month=_closeMonth(),d=closeCheckData(month);
+  const sum=document.getElementById('closeSummary'),sec=document.getElementById('closeSections');if(!sum||!sec)return;
+  const item=(n,label)=>`<div class="dcfm-row"><span>${label}</span><span class="v" style="color:${n?'var(--rd)':'var(--gn)'}">${n?n+'件':'✔ 0件'}</span></div>`;
+  const storeId=currentStoreId||(curAcc()||{}).storeId||'';
+  sum.innerHTML=`<div class="dcfm">${item(d.otPend.length,'⏰ 残業 承認待ち')}${item(d.otUnapplied.length,'📝 残業31分以上で未申請')}${item(d.alcPend.length,'🍃 酒気確認 未確認')}${item(d.autoCo.length,'⏰ 打刻忘れ（自動退勤）未確認')}${item(d.lvPend.length,'🏖 有給 申請中')}</div>`
+   +(d.total?`<div class="dwarn" style="display:block;background:rgba(247,211,79,.1);border-color:var(--yw);color:var(--yw)">⚠ 未処理が <b>${d.total}件</b> あります。下の各項目を処理してください。</div>`
+            :`<div class="dwarn" style="display:block;background:rgba(61,214,140,.1);border-color:var(--gn);color:var(--gn)">✅ 締め準備OK — この月の未処理はありません。</div><button class="sbv" style="margin-top:10px" onclick="exportCSV('${month}','${esc(storeId)}')">📥 ${month.replace('-','年')}月のCSVを出力</button>`);
+  let h='';
+  if(d.otPend.length){h+=`<div class="card"><div class="ct">⏰ 残業 承認待ち（${d.otPend.length}件）</div><button class="sbv" style="margin-bottom:10px" onclick="otApproveAll('${month}')">✅ すべて承認する（${d.otPend.length}件）</button>`+d.otPend.map(x=>_otRowHtml(x.id,x.r,d.nameById)).join('')+'</div>';}
+  if(d.otUnapplied.length){h+=`<div class="card"><div class="ct">📝 残業31分以上で未申請（${d.otUnapplied.length}件）</div><div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.7">本人に「今日」画面から申請するよう依頼してください。<b style="color:var(--rd)">未申請のままでは残業代の支給対象になりません</b>（31分以上は申請して承認されたものだけが支給残業になります）。</div>`+d.otUnapplied.map(x=>`<div class="pend-req"><div class="pend-top"><div class="pend-name">${esc(d.nameById[x.id]||'')}</div><div style="font-family:var(--mo);color:var(--ac2);font-weight:700">${toHHMM(x.r.overtimeMinutes||0)}</div></div><div class="pend-info">${esc(x.r.date)}　${esc(x.r.checkin||'')}〜${esc(x.r.checkout||'')}</div></div>`).join('')+'</div>';}
+  if(d.alcPend.length){h+=`<div class="card"><div class="ct">🍃 酒気確認 未確認（${d.alcPend.length}件）</div><button class="sbv" onclick="showAdminPgById('alc')">酒気確認タブで確認する</button></div>`;}
+  if(d.autoCo.length){h+=`<div class="card"><div class="ct">⏰ 打刻忘れ（自動退勤）未確認（${d.autoCo.length}件）</div>${_forgotListHtml(d.ids,month)}</div>`;}
+  if(d.early.length){h+=`<div class="card"><div class="ct">🌅 早出あり（未処理 ${d.early.length}件）</div><div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.7">所定始業より前に出勤した記録です。早出は原則禁止で事前申請が必要なため、<b>事前に申請・許可した早出のみ「承認」</b>してください。承認すると始業前の時間が残業に加算されます。許可していない場合は「対象外」にしてください（残業には加算されません）。</div>${d.early.map(x=>_earlyRowHtml(x,d.nameById)).join('')}</div>`;}
+  if(d.lvPend.length){h+=`<div class="card"><div class="ct">🏖 有給 申請中（${d.lvPend.length}件）</div><button class="sbv" onclick="showAdminPgById('leave')">有給管理タブで承認する</button></div>`;}
+  sec.innerHTML=h;
+  updateCloseBadge();
+}
+/* ── alc34: 早出の承認／対象外 ── */
+function _earlyRowHtml(x,nameById){
+  const sh=effShift(x.id);
+  return `<div class="dcfm" style="margin-bottom:8px">
+    <div class="dcfm-row"><span>${esc(nameById[x.id]||'')}　${esc(x.r.date)}</span><span class="v">出勤 ${esc(x.r.checkin||'--:--')}（所定 ${esc(x.r.fullTimeFlag?settings.start:sh.start)}）</span></div>
+    <div class="dcfm-row"><span>早出</span><span class="v" style="color:var(--yw)">${toHHMM(x.min)}</span></div>
+    <div class="dcfm-row"><span>申請</span><span>${x.r.earlyStatus==='pending'?'<span style="color:var(--yw)">⏳ 申請あり</span>':'<span style="color:var(--rd)">未申請（本人に申請を依頼）</span>'}</span></div>
+    ${x.r.earlyComment?`<div style="font-size:12px;line-height:1.6;padding:6px 8px;background:var(--sf2);border-radius:6px;margin-top:4px">💬 ${esc(x.r.earlyComment)}</div>`:''}
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button class="mb mb-b" style="flex:1" onclick="earlyDecide('${esc(x.id)}','${esc(x.r.date)}',true)">✅ 承認（残業に加算）</button>
+      <button class="mb" style="flex:1;background:none;border:1px solid var(--dim);color:var(--dim)" onclick="earlyDecide('${esc(x.id)}','${esc(x.r.date)}',false)">対象外にする</button>
+    </div></div>`;
+}
+function earlyDecide(empId,date,approve){
+  const r=(records[empId]||[]).find(x=>x.date===date);
+  if(!r){showToast('⚠ 記録が見つかりません');return;}
+  if(isMonthLocked(String(date).slice(0,7),empId)){showToast('🔒 この月はロックされています');return;}
+  if(approve){r.earlyApproved=true;r.earlyDismissed=false;r.earlyStatus='approved';}else{r.earlyApproved=false;r.earlyDismissed=true;r.earlyStatus='rejected';}
+  r.earlyReviewedBy=(curAcc()||{}).name||session?.id||'';r.earlyReviewedAt=Date.now();
+  if(r.checkin&&r.checkout)_recalcRec(r,empId); // 残業(分)を再計算（承認時のみ早出が加算される）
+  S.set('ka_records',records);
+  try{addALog('early',date,`早出${approve?'承認（残業に加算）':'対象外'} ${toHHMM(recEarly(r,empId))}／対象: ${(accounts.find(a=>a.id===empId)||{}).name||empId}`);}catch(e){}
+  showToast(approve?'✅ 早出を承認しました（残業に加算）':'対象外にしました');
+  try{renderCloseCheck();}catch(e){}
+  try{renderTodayStatus();}catch(e){}
+}
+function updateCloseBadge(){
+  try{const b=document.getElementById('closeBadge');if(!b)return;const n=closeCheckData(selectedMonth||thisMonth()).total;b.classList.toggle('show',n>0);}catch(e){}
+}
+
 // ── 打刻前モーダル ──
 let _alcCtx=null; // {dom:'emp'|'adm', type:'ci'|'co', cb, blob, ftFlag}
 // dom: 'emp'|'adm'|'exec' に応じた体調・アルコールの隠しキャリアID
@@ -4013,6 +5080,10 @@ function openAlcModal(dom,type,cb,ftFlag,noAutoCam){
   if(!alcFeatureOn()||!DB.configured()){cb();return;}
   if(isMonthLocked(todayKey().slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   _dchkOverride=null; // 前回分の残留防止
+  // alc31: 打刻時刻はダイヤルで確定するため、直行直帰チェック／実時刻入力欄は表示しない
+  {const _dr=document.getElementById('alc-m-dchk-row');if(_dr)_dr.style.display='none';
+   const _or2=document.getElementById('alc-m-ot-row');if(_or2)_or2.style.display='none';
+   const _dc=document.getElementById('alc-m-dchk');if(_dc)_dc.checked=true;}
   _alcCtx={dom,type,cb,blob:null,ftFlag:!!ftFlag};
   const els=alcEls(dom);
   const src=document.getElementById(type==='ci'?els.a:els.ao);
@@ -4029,8 +5100,9 @@ function openAlcModal(dom,type,cb,ftFlag,noAutoCam){
   document.getElementById('alcModalTitle').textContent=(type==='ci'?'🟢 出勤前':'🔴 退勤時')+' アルコールチェック';
   const pv=document.getElementById('alc-m-prev');if(pv){pv.style.display='none';pv.removeAttribute('src');}
   const st=document.getElementById('alc-m-stat');if(st){st.textContent='📷 未撮影';st.style.color='var(--dim)';}
-  const coVisit=(type==='co'&&getAdminFeatures().visits!==false); // 退勤かつ訪問実績あり→「次へ」
-  const go=document.getElementById('alc-m-go');if(go){go.disabled=false;go.textContent=coVisit?'次へ（訪問実績の確認）':'✅ 送信して打刻';}
+  const coVisit=(type==='co'); // alc34: 退勤は必ず「次へ」（まとめ画面で勤務時間・残業/早出の申請を確認してから送信）
+  const coHasVisit=getAdminFeatures().visits!==false;
+  const go=document.getElementById('alc-m-go');if(go){go.disabled=false;go.textContent=coVisit?(coHasVisit?'次へ（訪問実績と勤務時間の確認）':'次へ（勤務時間の確認）'):'✅ 送信して打刻';}
   const sk=document.getElementById('alc-m-skip');if(sk)sk.textContent=coVisit?'📵 写真なしで次へ（電話確認が必要）':'📵 写真を撮れない場合はこちら（電話確認が必要になります）';
   const dc=document.getElementById('alc-m-dchk');if(dc)dc.checked=_dchkDefault;
   const otI=document.getElementById('alc-m-ot');if(otI)otI.value='';
@@ -4064,9 +5136,13 @@ async function _alcCommit(pc){
   //   写真アップロードや住所取得の遅延・失敗・途中離脱に依存させない（記録の取りこぼし防止）。
   _dchkDefault=!!pc.dchkChecked;
   // 打刻時刻の決定: ①直行直帰ON→所定時刻 ②残業(OFF)で実際の時刻を入力→その時刻 ③どちらでもない→現在時刻(null)
-  _dchkOverride=pc.dchkChecked
-    ?{type:pc.type,time:dchkTargetTime(pc.type,pc.ftFlag)}
-    :(pc.otTime?{type:pc.type,time:pc.otTime,manual:true}:null);
+  // alc31: ダイヤルで確定した時刻を最優先で採用（未設定なら従来ロジックにフォールバック）
+  _dchkOverride=_dialTime
+    ?{type:pc.type,time:_dialTime,manual:true}
+    :(pc.dchkChecked
+      ?{type:pc.type,time:dchkTargetTime(pc.type,pc.ftFlag)}
+      :(pc.otTime?{type:pc.type,time:pc.otTime,manual:true}:null));
+  _dialTime=null;_dialOdo=null;_dialEarly=null; // 次回打刻への持ち越し防止
   const _otDate=pc.type==='ci'?todayKey():(todayMap[session.id]?.checkinDate||todayKey());
   try{ await pc.cb(); }catch(e){ console.warn('stamp failed:',e); }
   // 直行直帰OFF（=残業申請）のとき、残業理由を当日レコードへ保存（emp/admin/exec共通）
@@ -4079,19 +5155,40 @@ async function _alcCommit(pc){
   }
   // ── 打刻確定後に、写真アップロード＋酒気確認記録を作成（ここで時間がかかっても記録は失われない）──
   let photoPath=null,status='nophoto';
+  const _alcId=uid('alc');
   if(!pc.skip&&pc.blob){
     photoPath=session.id+'/'+todayKey()+'_'+pc.type+'_'+Date.now()+'.jpg';
     try{
       await Promise.race([alcUpload(pc.blob,photoPath),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),20000))]);
       status='pending';
-    }catch(e){console.warn('alc upload failed:',e);photoPath=null;status='nophoto';showToast('⚠ 写真の送信に失敗しました（打刻は完了済み・電話確認が必要です）');}
+    }catch(e){
+      console.warn('alc upload failed:',e);
+      // alc33: 写真は諦めず再送キューへ（成功すれば自動で「確認待ち」に切り替わる）。打刻自体は既に確定済み
+      try{_photoRetryQ.push({blob:pc.blob,path:photoPath,alcId:_alcId,tries:0});}catch(_){}
+      photoPath=null;status='nophoto';
+      showToast('⚠ 写真の送信に失敗しました。電波が戻り次第、自動で再送します（打刻は完了済み）');
+    }
   }
   const acc=curAcc();
-  alcChecks.push({id:uid('alc'),empId:session.id,empName:acc?.name||'',storeId:acc?.storeId||null,
+  alcChecks.push({id:_alcId,empId:session.id,empName:acc?.name||'',storeId:acc?.storeId||null,
     date:todayKey(),type:pc.type,time:alcNowTime(),val:pc.val,photo:photoPath,status,
     confirmedBy:null,confirmerRole:null,confirmedAt:null,method:null,note:null,rolledBack:false,rev:0,updatedAt:Date.now()});
   saveAlcChecks();
   renderAlcStatusSelf();updateAlcBadge();
+  // alc33: 退勤後の流れ
+  //  ・「本日のまとめ」経由（viaVisit）＝勤務時間は送信前に確認済み → 残業31分以上なら申請画面だけ出す
+  //  ・訪問実績が非表示の人（まとめ画面なし）＝従来どおり勤務時間の確認画面を出す
+  // alc34: 申請は送信前（まとめ画面／出勤ダイヤル直後）に入力済み。ここでは記録へ書き込むだけ
+  try{
+    const _r=(records[session.id]||[]).find(x=>x.date===_otDate);
+    if(_r){
+      let ch=false;
+      if(pc.type==='co'&&pc.otApply){_r.otGenres=pc.otApply.genres;_r.otComment=pc.otApply.comment;_r.otStatus='pending';_r.otAppliedAt=Date.now();ch=true;}
+      if(pc.earlyApply&&pc.earlyApply.comment){_r.earlyComment=pc.earlyApply.comment;_r.earlyStatus='pending';_r.earlyApproved=false;_r.earlyDismissed=false;_r.earlyAppliedAt=Date.now();ch=true;}
+      if(ch){S.set('ka_records',records);try{updateOtBadge();updateCloseBadge();}catch(e){}}
+    }
+  }catch(e){console.warn('apply write failed',e);}
+  try{renderTodayStatus();}catch(e){}
 }
 // 現在のモーダル状態から保留コンテキストを生成
 function _alcCtxToPC(skip){
@@ -4104,7 +5201,8 @@ function _alcCtxToPC(skip){
   return {dom:_alcCtx.dom,type:_alcCtx.type,cb:_alcCtx.cb,blob:skip?null:_alcCtx.blob,val:v,skip:!!skip,
     dchkChecked,ftFlag:_alcCtx.ftFlag,health:h?h.value:'良好',
     otReason:(!dchkChecked&&ot)?ot.value.trim():'',
-    otTime:(!dchkChecked&&otT&&otT.value)?otT.value:''}; // 残業時=実際の出退勤時刻（空なら現在時刻）
+    otTime:(!dchkChecked&&otT&&otT.value)?otT.value:'', // 残業時=実際の出退勤時刻（空なら現在時刻）
+    earlyApply:(_alcCtx.type==='ci'&&_dialEarly)?{comment:_dialEarly.comment}:null}; // alc34: 出勤ダイヤルで入力した早出申請
 }
 // 直行直帰OFF（残業申請）のとき残業理由が未入力なら送信をブロック
 function _otReasonGuard(){
@@ -4118,8 +5216,8 @@ function _otReasonGuard(){
   return true;
 }
 // 主ボタン：出勤=送信して打刻 / 退勤(訪問あり)=次へ / 退勤(訪問なし)=送信して打刻
-function alcPrimary(){ if(_alcCtx&&_alcCtx.type==='co'&&getAdminFeatures().visits!==false)alcNext(false); else alcSubmit(false); }
-function alcSkip(){ if(_alcCtx&&_alcCtx.type==='co'&&getAdminFeatures().visits!==false)alcNext(true); else alcSubmit(true); }
+function alcPrimary(){ if(_alcCtx&&_alcCtx.type==='co')alcNext(false); else alcSubmit(false); } // alc34: 退勤は必ず「まとめ」で確認・申請してから送信
+function alcSkip(){ if(_alcCtx&&_alcCtx.type==='co')alcNext(true); else alcSubmit(true); }
 // 即時打刻（出勤、または退勤で訪問実績が非表示の人）
 async function alcSubmit(skip){
   if(!_alcCtx)return;
@@ -4186,13 +5284,13 @@ function empCheckoutFlow(){
   reconcileTodayMap();
   const td=todayMap[session?.id];
   if(!td||!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
-  openAlcModal('emp','co',()=>stamp('checkout'),td.fullTimeFlag||false);
+  openStampDial('co',td.fullTimeFlag||false,function(){openAlcModal('emp','co',()=>stamp('checkout'),td.fullTimeFlag||false);},null,null);
 }
 function adminCheckoutFlow(){
   reconcileTodayMap();
   const td=todayMap[session?.id];
   if(!td||!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
-  openAlcModal('adm','co',()=>adminStamp('checkout'),td.fullTimeFlag||false);
+  openStampDial('co',td.fullTimeFlag||false,function(){openAlcModal('adm','co',()=>adminStamp('checkout'),td.fullTimeFlag||false);},null,null);
 }
 // ── 本人向けステータス表示 ──
 function alcLatest(empId,dk,type){
@@ -4216,12 +5314,15 @@ function renderAlcStatusSelf(){
   const e1=document.getElementById('alcStatusEmp');if(e1)e1.innerHTML=html;
   const e2=document.getElementById('alcStatusAdm');if(e2)e2.innerHTML=html;
   const e3=document.getElementById('alcStatusExec');if(e3)e3.innerHTML=html;
+  try{renderOtStatusSelf();}catch(e){} // alc32: 本日の残業状況・申請導線も更新
 }
 // ── 管理者向け確認キュー ──
 function updateAlcBadge(){
   const ids=alcScopeIds();
   const cnt=canConfirmAlc()?alcChecks.filter(c=>(c.status==='pending'||c.status==='nophoto')&&ids.has(c.empId)).length:0;
   ['alcBadge','alcBadgeEmp','alcBadgeExec'].forEach(id=>{const bd=document.getElementById(id);if(bd)bd.classList.toggle('show',cnt>0);});
+  try{updateCloseBadge();}catch(e){} // alc33: 締めチェックのバッジも同時更新
+  try{updateAdminGroupBadges();}catch(e){}
 }
 function _alcIsForgot(c){return c&&(c.forgotCheckout===true||(c.type==='co'&&c.note&&c.note.indexOf('退勤忘れ')>=0));}
 // 退勤忘れ（自動退勤）一覧: 管理者・役員のサマリーで目立つように表示。「確認済み」で非表示（記録・CSVには残る）。
@@ -4554,7 +5655,7 @@ function autoSaveRecordA(td,dateOverride){
   if(_coM<_ciM)_coM+=1440;
   rec.workMinutes=_coM-_ciM;
   if(rec.fullTimeFlag){
-    rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-_ciM)+Math.max(0,_coM-toMins(empEnd(empId)));
+    rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId))); // alc31: 前残業は計上しない
   }else{
     rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId)));
   }
@@ -4808,7 +5909,7 @@ function renderRecordsA(){
     if(rShowO&&!isOdoOnly&&r.todayKm!=null)detailParts.push('🚗 '+r.todayKm+'km');
     if(r.memo)detailParts.push('📝'+esc(r.memo));
     return`<div class="ri"${isHolidayVehicle?' style="border-left:3px solid var(--ac);opacity:.85"':''}${(missCO||missCI)?' style="border-left:3px solid var(--rd);background:rgba(247,95,95,.06)"':''}><div style="flex:1">
-      <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${autoCoBadge(r)}</div>
+      <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${autoCoBadge(r)}${recBadges(r,empId)}</div>
       ${isHolidayVehicle
         ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
         :isOdoOnly&&!rShowK
@@ -4849,8 +5950,8 @@ function renderEditListA(){
     const missOdo=showOdo&&r.checkin&&r.odometer==null&&!isOdoOnly;
     return`<div class="ei"${isHolidayVehicle?' style="border-left:3px solid var(--ac)"':''}${(missCO||missCI)?' style="border-left:3px solid var(--rd)"':''}><div class="ed">📅 ${r.date}${autoCoBadge(r)}${isHolidayVehicle?' <span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac);font-size:10px;margin-left:6px">🚗 車両のみ</span>':''}${missCO?' <span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd);font-size:10px;margin-left:6px">⚠ 退勤未打刻</span>':''}${missCI?' <span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd);font-size:10px;margin-left:6px">⚠ 出勤未打刻</span>':''}${missOdo?' <span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw);font-size:10px;margin-left:6px">⚠ ODO未入力</span>':''}</div>
       ${showKintai?`<div class="er"><div class="ef"><label>出勤時刻</label><input type="time" class="einp" id="ea_ci_${i}" value="${r.checkin||''}"${dis}></div><div class="ef"><label>退勤時刻</label><input type="time" class="einp" id="ea_co_${i}" value="${r.checkout||''}"${dis}></div></div>`:`<input type="hidden" id="ea_ci_${i}" value="${r.checkin||''}"><input type="hidden" id="ea_co_${i}" value="${r.checkout||''}">`}
-      <div class="er">${showOdo?`<div class="ef"><label>ODO(km)</label><input type="number" class="einp" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}" step="0.1"${dis}></div>`:`<input type="hidden" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}">`}${showHealth?`<div class="ef"><label>体調</label><select class="einp" id="ea_hl_${i}"${dis}>${['良好','普通','不調'].map(v=>`<option${r.health===v?' selected':''}>${v}</option>`).join('')}</select></div>`:`<input type="hidden" id="ea_hl_${i}" value="${r.health||'良好'}">`}</div>
-      <div class="er">${showHealth?`<div class="ef"><label>アルコール出勤</label><input type="number" class="einp" id="ea_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div><div class="ef"><label>アルコール退勤</label><input type="number" class="einp" id="ea_ao_${i}" value="${r.alcoholOut||''}" step="0.01"${dis}></div>`:`<input type="hidden" id="ea_al_${i}" value="${r.alcohol||'0.00'}"><input type="hidden" id="ea_ao_${i}" value="${r.alcoholOut||''}">`}</div>
+      <div class="er">${showOdo?`<div class="ef"><label>ODO(km)</label><input type="number" inputmode="decimal" class="einp" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}" step="0.1"${dis}></div>`:`<input type="hidden" id="ea_od_${i}" value="${r.odometer!=null?r.odometer:''}">`}${showHealth?`<div class="ef"><label>体調</label><select class="einp" id="ea_hl_${i}"${dis}>${['良好','普通','不調'].map(v=>`<option${r.health===v?' selected':''}>${v}</option>`).join('')}</select></div>`:`<input type="hidden" id="ea_hl_${i}" value="${r.health||'良好'}">`}</div>
+      <div class="er">${showHealth?`<div class="ef"><label>アルコール出勤</label><input type="number" inputmode="decimal" class="einp" id="ea_al_${i}" value="${r.alcohol||'0.00'}" step="0.01"${dis}></div><div class="ef"><label>アルコール退勤</label><input type="number" inputmode="decimal" class="einp" id="ea_ao_${i}" value="${r.alcoholOut||''}" step="0.01"${dis}></div>`:`<input type="hidden" id="ea_al_${i}" value="${r.alcohol||'0.00'}"><input type="hidden" id="ea_ao_${i}" value="${r.alcoholOut||''}">`}</div>
       <div class="er"><div class="ef"><label>メモ</label><input type="text" class="einp" id="ea_me_${i}" value="${esc(r.memo||'')}"${dis}></div></div>
       ${(()=>{const ea=accounts.find(a=>a.id===empId);return ea&&ea.workStart&&ea.workEnd&&(ea.workStart!==settings.start||ea.workEnd!==settings.end)?`<div class="er"><div class="ef"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="ea_ft_${i}" ${r.fullTimeFlag?'checked':''}${dis} style="width:16px;height:16px;accent-color:var(--ac)"> 常勤時間出勤</label></div></div>`:`<input type="hidden" id="ea_ft_${i}">`})()}
       ${isLocked?'':'<div style="display:flex;gap:6px"><button class="esbtn" onclick="saveEditA('+i+')">✏ 修正する</button><button class="esbtn" style="background:rgba(247,95,95,.1);border-color:var(--rd);color:var(--rd)" onclick="aDeleteEditRecord('+i+')">🗑 削除</button></div>'}
@@ -4898,7 +5999,7 @@ function saveEditA(i){
     if(_eCoM2<_eCiM2)_eCoM2+=1440;
     r.workMinutes=_eCoM2-_eCiM2;
     if(r.fullTimeFlag){
-      r.overtimeMinutes=Math.max(0,toMins(empStart(empId))-_eCiM2)+Math.max(0,_eCoM2-toMins(empEnd(empId)));
+      r.overtimeMinutes=Math.max(0,_eCoM2-toMins(empEnd(empId)));
     }else{
       r.overtimeMinutes=Math.max(0,_eCoM2-toMins(empEnd(empId)));
     }
@@ -5057,7 +6158,7 @@ async function confirmAdminCheckin(){
   closeAdminCheckinModal();
   document.getElementById('aOdoNow').value=ov;
   // アルコール視認チェック（写真+体調+測定値送信）を経て打刻
-  openAlcModal('adm','ci',()=>adminStamp('checkin',ftFlag),ftFlag);
+  openStampDial('ci',ftFlag,function(){openAlcModal('adm','ci',()=>adminStamp('checkin',ftFlag),ftFlag);},null,function(){document.getElementById('aciModal').classList.add('open');});
 }
 
 // ── 管理者 打刻 ──
@@ -5106,7 +6207,7 @@ async function adminStamp(type,fullTimeFlag){
     const w=toMins(time)-toMins(td.checkinTime);
     let ot;
     if(td.fullTimeFlag){
-      ot=Math.max(0,toMins(empStart(session.id))-toMins(td.checkinTime))+Math.max(0,toMins(time)-toMins(empEnd(session.id)));
+      ot=Math.max(0,toMins(time)-toMins(empEnd(session.id)));
     }else{
       ot=Math.max(0,toMins(time)-toMins(empEnd(session.id)));
     }
@@ -5130,7 +6231,7 @@ function adminAutoSave(td){
   if(_coM2<_ciM2)_coM2+=1440;
   rec.workMinutes=_coM2-_ciM2;
   if(rec.fullTimeFlag){
-    rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-_ciM2)+Math.max(0,_coM2-toMins(empEnd(empId)));
+    rec.overtimeMinutes=Math.max(0,_coM2-toMins(empEnd(empId)));
   }else{
     rec.overtimeMinutes=Math.max(0,_coM2-toMins(empEnd(empId)));
   }
@@ -5180,7 +6281,7 @@ function setStE(txt,col){const e=document.getElementById('eWkSt');if(e){e.textCo
 function renderWorkHoursE(ci,co){
   const id=session?.id,w=co-ci,td=todayMap[id]||{};
   let ot;
-  if(td.fullTimeFlag){ot=Math.max(0,toMins(empStart(id))-ci)+Math.max(0,co-toMins(empEnd(id)));}
+  if(td.fullTimeFlag){ot=Math.max(0,co-toMins(empEnd(id)));}
   else{ot=Math.max(0,co-toMins(empEnd(id)));}
   const wh=document.getElementById('eWkH'),oh=document.getElementById('eOtH');
   if(wh)wh.textContent=toHHMM(w);if(oh)oh.textContent=toHHMM(ot);
@@ -5223,13 +6324,13 @@ async function confirmExecCheckin(){
   const ftFlag=document.getElementById('eci-fulltime')?.checked||false;
   closeExecCheckinModal();
   document.getElementById('eOdoNow').value=ov;
-  openAlcModal('exec','ci',()=>execStamp('checkin',ftFlag),ftFlag);
+  openStampDial('ci',ftFlag,function(){openAlcModal('exec','ci',()=>execStamp('checkin',ftFlag),ftFlag);},null,function(){document.getElementById('eciModal').classList.add('open');});
 }
 function execCheckoutFlow(){
   reconcileTodayMap();
   const td=todayMap[session?.id];
   if(!td||!td.checkinTime){showToast('⚠ 先に出勤打刻してください');return;}
-  openAlcModal('exec','co',()=>execStamp('checkout'),td.fullTimeFlag||false);
+  openStampDial('co',td.fullTimeFlag||false,function(){openAlcModal('exec','co',()=>execStamp('checkout'),td.fullTimeFlag||false);},null,null);
 }
 async function execStamp(type,fullTimeFlag){
   if(_actionGuard.has('execStamp'))return;_actionGuard.add('execStamp');
@@ -5283,7 +6384,7 @@ function execAutoSave(td){
   let _coM=toMins(rec.checkout),_ciM=toMins(rec.checkin);
   if(_coM<_ciM)_coM+=1440;
   rec.workMinutes=_coM-_ciM;
-  if(rec.fullTimeFlag){rec.overtimeMinutes=Math.max(0,toMins(empStart(empId))-_ciM)+Math.max(0,_coM-toMins(empEnd(empId)));}
+  if(rec.fullTimeFlag){rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId)));}
   else{rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId)));}
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
@@ -5615,7 +6716,7 @@ function buildVisitEditHTML(empId, month, prefix){
     return`<div class="ei" style="margin-bottom:10px">
       <div class="ed">📅 ${v.date}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-        ${flds.map(f=>`<div class="ef"><label>${f.lbl}</label><div style="display:flex;align-items:center;gap:4px"><input type="number" class="einp" id="${f.id}" value="${f.val}" step="${f.step}" min="0" style="flex:1"${dis}><span style="font-size:11px;color:var(--dim)">${f.unit}</span></div></div>`).join('')}
+        ${flds.map(f=>`<div class="ef"><label>${f.lbl}</label><div style="display:flex;align-items:center;gap:4px"><input type="number" inputmode="decimal" class="einp" id="${f.id}" value="${f.val}" step="${f.step}" min="0" style="flex:1"${dis}><span style="font-size:11px;color:var(--dim)">${f.unit}</span></div></div>`).join('')}
       </div>
       ${isLocked?'':'<button class="esbtn" onclick="saveVisitEdit(\''+empId+'\','+gi+',\''+prefix+'\')">✏ 修正する</button>'}
     </div>`;
@@ -5754,6 +6855,7 @@ const empEnd  =id=>{const a=accounts.find(x=>x.id===id);return a?.workEnd  ||set
 // INIT
 // ═══════════════════════════════════
 function loadStateFromLocal(){
+  try{_prevState={records,visits,alcChecks,accounts,leaveRequests,leaveGrants};}catch(e){_prevState=null;} // alc33: 縮小ガード用に直前の参照を保持
   accounts=S.get('ka_accounts')||[];
   stores=S.get('ka_stores')||[];
   records=S.get('ka_records')||{};
@@ -5766,6 +6868,7 @@ function loadStateFromLocal(){
   lockedMonths=S.get('ka_locked_months')||{};
   lockedEmpMonths=S.get('ka_locked_emp_months')||{};
   alcChecks=S.get('ka_alc_checks')||[];
+  try{dataIntegrityCheck();}catch(e){console.warn('integrity check error',e);} // alc33: 読み取り専用の整合性チェック（データは一切書き換えない）
   sanitizeTodayMap(); // ★同期で復活しうる古い「勤務中」状態を records と整合（誤自動退勤の防止）
   pruneAlcChecks(); // 13ヶ月より古い確認記録を削除（1年保存義務+余裕分）
   autoApproveStaleAlcChecks(); // 4日経過の未承認を運転管理者名義で自動承認・写真削除
