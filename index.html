@@ -484,7 +484,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.09.26-alc33 (新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.01-alc35 (新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1333,7 +1333,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=34;
+const APP_BUILD=35;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1424,7 +1424,7 @@ const DB={
     }
     if(this._url&&this._key)SB.init(this._url,this._key);
     // 起動時に未同期キーを復元
-    try{const saved=JSON.parse(localStorage.getItem(LSK('ka_dirty_keys'))||'[]');saved.forEach(k=>this._dirtyKeys.add(k));}catch(e){}
+    try{const saved=JSON.parse(localStorage.getItem(LSK('ka_dirty_keys'))||'[]');saved.filter(k=>typeof k==='string'&&k.startsWith('ka_')).forEach(k=>this._dirtyKeys.add(k));}catch(e){} // alc35: null等の残骸は読み込まない
   },
 
   configured(){return !!(this._url&&this._key);},
@@ -1448,6 +1448,7 @@ const DB={
   // Push to Supabase with dirty tracking
   async _push(k,v){
     if(!this.configured())return;
+    if(typeof k!=='string'||!k.startsWith('ka_'))return; // alc35: 不正キーは記録しない
     this._dirtyKeys.add(k);
     this._saveDirtyKeys();
     // キューで順序保証
@@ -1503,8 +1504,9 @@ const DB={
     if(!this._dirtyKeys.size||!this.configured())return;
     const keys=[...this._dirtyKeys];
     for(const k of keys){
+      if(typeof k!=='string'||!k.startsWith('ka_')){this._dirtyKeys.delete(k);this._saveDirtyKeys();continue;} // alc35: 不正キーは捨てる
       const raw=localStorage.getItem(LSK(k));
-      if(raw===null)continue;
+      if(raw===null){this._dirtyKeys.delete(k);this._saveDirtyKeys();continue;} // alc35: 送るものが無いキーは未送信扱いにしない
       try{
         let v=JSON.parse(raw);
         v=await this._mergeBeforePush(k,v); // ★衝突安全キーは push 前にリモートとマージ
