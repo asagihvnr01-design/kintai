@@ -484,7 +484,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.01-alc35 (新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.03-alc36 (役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -538,8 +538,8 @@ html[data-bigtext="1"] body{zoom:1.15}
       <div id="otStatusEmp"></div>
     </div>
     <div class="card">
-      <button class="btn-odo" onclick="openHolidayOdoModal()" style="width:100%">🚗 休日利用（走行距離・利用目的）</button>
-      <p style="font-size:11px;color:var(--yw);margin-top:6px;text-align:center">※ 出勤せず車両のみ使用した日はこちら（オドメーターと利用目的を記録）</p>
+      <button class="btn-odo hol-btn" onclick="openHolidayOdoModal()" style="width:100%">🚗 休日利用（走行距離・利用目的）</button>
+      <p class="hol-hint" style="font-size:11px;color:var(--yw);margin-top:6px;text-align:center">※ 出勤せず車両のみ使用した日はこちら（オドメーターと利用目的を記録）</p>
     </div>
     <p style="font-size:11px;color:var(--dim);text-align:center;margin-top:4px">💡 出勤・退勤の打刻はそれぞれ写真チェック後に確定します</p>
     <!-- データ保持用（非表示）: 体調・アルコール・ODOはモーダルで入力 -->
@@ -760,8 +760,8 @@ html[data-bigtext="1"] body{zoom:1.15}
       </div>
     </div>
     <div class="card">
-      <button class="btn-odo" onclick="openHolidayOdoModal()" style="width:100%">🚗 休日利用（走行距離・利用目的）</button>
-      <p style="font-size:11px;color:var(--yw);margin-top:6px;text-align:center">※ 出勤せず車両のみ使用した日はこちら（オドメーターと利用目的を記録）</p>
+      <button class="btn-odo hol-btn" onclick="openHolidayOdoModal()" style="width:100%">🚗 休日利用（走行距離・利用目的）</button>
+      <p class="hol-hint" style="font-size:11px;color:var(--yw);margin-top:6px;text-align:center">※ 出勤せず車両のみ使用した日はこちら（オドメーターと利用目的を記録）</p>
     </div>
     <p style="font-size:11px;color:var(--dim);text-align:center;margin-top:4px">💡 出勤・退勤の打刻はそれぞれ写真チェック後に確定します</p>
     <!-- データ保持用（非表示）: 体調・アルコール・ODOはモーダルで入力 -->
@@ -1001,7 +1001,7 @@ html[data-bigtext="1"] body{zoom:1.15}
       <div class="loc-badge"><div class="loc-dot" id="eLocDot"></div><span id="eLocTxt">位置情報: 未取得</span></div>
       <div id="alcStatusExec" style="margin-top:8px"></div>
       <div id="otStatusExec"></div>
-      <button class="btn-odo" onclick="openHolidayOdoModal()" style="width:100%;margin-top:10px">🚗 休日利用（走行距離・利用目的）</button>
+      <button class="btn-odo hol-btn" onclick="openHolidayOdoModal()" style="width:100%;margin-top:10px">🚗 休日利用（走行距離・利用目的）</button>
       <!-- データ保持用（非表示） -->
       <div style="display:none" aria-hidden="true">
         <select id="eHealthSt"><option>良好</option><option>普通</option><option>不調</option></select>
@@ -1042,10 +1042,11 @@ html[data-bigtext="1"] body{zoom:1.15}
 <!-- Holiday (ODO only) Modal -->
 <div class="modal-ov" id="holidayOdoModal">
   <div class="modal">
-    <div class="modal-title">🚗 休日利用（走行距離・利用目的）</div>
-    <p style="font-size:12px;color:var(--dim);margin-bottom:10px">出勤せず車両のみ使用した日の記録です。オドメーター総距離と利用目的を入力してください（写真・アルコールチェックは不要）。</p>
+    <div class="modal-title" id="hol-title">🚗 休日利用（使用開始）</div>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:10px" id="hol-desc">出勤せず車両のみ使用した日の記録です。<b>使用開始前</b>のオドメーター総距離と利用目的を入力してください（写真・アルコールチェックは不要）。使用後にもう一度このボタンから<b>終了時のオドメーター</b>を入力します。</p>
+    <div id="hol-start-info" style="display:none;font-size:13px;text-align:center;padding:8px;background:var(--sf2);border-radius:8px;margin-bottom:8px"></div>
     <div style="background:var(--sf2);border:2px solid var(--yw);border-radius:12px;padding:14px;margin-bottom:10px">
-      <label class="fl" style="font-size:14px;font-weight:700;text-align:center;display:block;margin-bottom:8px">🚗 オドメーター総距離 (km) <span style="color:var(--rd)">必須</span></label>
+      <label class="fl" style="font-size:14px;font-weight:700;text-align:center;display:block;margin-bottom:8px" id="hol-odo-lbl">🚗 使用開始前のオドメーター (km) <span style="color:var(--rd)">必須</span></label>
       <input type="number" inputmode="decimal" class="fi" id="hol-odo" placeholder="例: 12450" min="0" step="0.1" oninput="holOdoHint()" style="font-size:24px;text-align:center;font-family:var(--mo);height:auto;padding:12px">
       <div class="odo-h" id="hol-odo-h" style="text-align:center;margin-top:6px"></div>
     </div>
@@ -1055,7 +1056,30 @@ html[data-bigtext="1"] body{zoom:1.15}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="sbv" onclick="closeHolidayOdoModal()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
-      <button class="sbv" onclick="submitHolidayOdo()" style="background:var(--yw);color:#000">送信して記録</button>
+      <button class="sbv" onclick="submitHolidayOdo()" style="background:var(--yw);color:#000" id="hol-submit">使用開始を記録</button>
+    </div>
+  </div>
+</div>
+<!-- alc36: 休日利用の給油メッセージ -->
+<div class="modal-ov" id="holFuelModal">
+  <div class="modal">
+    <div class="modal-title">⛽ 給油のお願い</div>
+    <div id="hol-fuel-body" style="font-size:14px;line-height:1.8"></div>
+    <button class="sbv" style="margin-top:14px" onclick="document.getElementById('holFuelModal').classList.remove('open')">確認しました</button>
+  </div>
+</div>
+<!-- alc36: 自家用車の給油記録（会社カード） -->
+<div class="modal-ov" id="fuelModal">
+  <div class="modal">
+    <div class="modal-title">⛽ 給油を記録（会社カード）</div>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:10px">会社のカードで給油したときに入力してください。業務走行から計算した「会社負担枠（L）」の範囲内で給油できます。レシートは従来どおり提出してください。</p>
+    <div id="fuel-info" style="font-size:12px;line-height:1.8;padding:8px 10px;background:var(--sf2);border-radius:8px;margin-bottom:10px"></div>
+    <div class="fr"><label class="fl">給油量 (L) <span style="color:var(--rd)">必須</span></label><input type="number" inputmode="decimal" class="fi" id="fuel-l" min="0" step="0.01" placeholder="例: 32.5"></div>
+    <div class="fr"><label class="fl">金額 (円) <span style="color:var(--rd)">必須</span></label><input type="number" inputmode="decimal" class="fi" id="fuel-yen" min="0" step="1" placeholder="例: 5600"></div>
+    <div class="fr"><label class="fl">給油時のオドメーター (km)</label><input type="number" inputmode="decimal" class="fi" id="fuel-odo" min="0" step="0.1" placeholder="任意"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="sbv" onclick="document.getElementById('fuelModal').classList.remove('open')" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
+      <button class="sbv" onclick="submitFuel()">記録する</button>
     </div>
   </div>
 </div>
@@ -1264,6 +1288,11 @@ html[data-bigtext="1"] body{zoom:1.15}
       <select class="fi" id="stgOtYearStart"><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
       <div style="font-size:11px;color:var(--dim);margin-top:4px">労基署に届け出た協定の対象期間の開始月を選んでください。</div>
     </div>
+    <div class="fr" style="margin-top:10px">
+      <label class="fl">⛽ 燃費の既定値（km/L）</label>
+      <input type="number" inputmode="decimal" class="fi" id="stgFuelEff" min="1" step="0.1" placeholder="10">
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">休日利用の給油量と、自家用車の会社負担給油枠の計算に使います（車両ごとに従業員管理で上書きできます）。</div>
+    </div>
     <button class="sbv" onclick="saveSettings()" style="margin-top:14px">保存する</button>
   </div>
 </div>
@@ -1333,7 +1362,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=35;
+const APP_BUILD=36;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1493,7 +1522,7 @@ const DB={
       if(k==='ka_alc_checks'){
         const rem=await this._fetchKeyValue(k);
         if(Array.isArray(rem)){const m=alcMergeArrays(Array.isArray(localVal)?localVal:[],rem);localStorage.setItem(LSK(k),JSON.stringify(m));return m;}
-      }else if(['ka_records','ka_visits','ka_leave_grants','ka_accounts','ka_stores','ka_leave_requests'].indexOf(k)>=0){
+      }else if(['ka_records','ka_visits','ka_leave_grants','ka_accounts','ka_stores','ka_leave_requests','ka_fuel'].indexOf(k)>=0){
         const rem=await this._fetchKeyValue(k);
         if(rem!=null){const m=kvMergeForPull(k,localVal,rem);localStorage.setItem(LSK(k),JSON.stringify(m));return m;}
       }
@@ -1558,7 +1587,7 @@ const DB={
           return;
         }
         // ── 記録・訪問・todayMap・アカウント等: union-merge（ローカル固有エントリを消さない）──
-        if(['ka_records','ka_visits','ka_leave_grants','ka_today','ka_accounts','ka_stores','ka_leave_requests'].indexOf(r.key)>=0){
+        if(['ka_records','ka_visits','ka_leave_grants','ka_today','ka_accounts','ka_stores','ka_leave_requests','ka_fuel'].indexOf(r.key)>=0){
           try{
             if(r.key==='ka_records')this._recRealRestored=false; // マージ前にリセット
             const localRaw=localStorage.getItem(LSK(r.key));
@@ -2036,9 +2065,9 @@ function checkPendingAutoCheckout(){
       if(_coM<_ciM)_coM+=1440;
       pending.workMinutes=_coM-_ciM;
       if(pending.fullTimeFlag){
-        pending.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(e.id))); // alc31: 前残業は計上しない
+        pending.overtimeMinutes=otFor(e.id,Math.max(0,_coM-toMins(empEnd(e.id)))); // alc31: 前残業は計上しない
       }else{
-        pending.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(e.id)));
+        pending.overtimeMinutes=otFor(e.id,Math.max(0,_coM-toMins(empEnd(e.id))));
       }
       S.set('ka_records',records);
       todayMap[e.id]={};
@@ -2163,13 +2192,30 @@ function ciOdoHint(){const h=document.getElementById('ci-odo-h');if(h)h.innerHTM
 function aciOdoHint(){const h=document.getElementById('aci-odo-h');if(h)h.innerHTML=_odoHintHtml(document.getElementById('aci-odo').value);}
 function eciOdoHint(){const h=document.getElementById('eci-odo-h');if(h)h.innerHTML=_odoHintHtml(document.getElementById('eci-odo').value);}
 function holOdoHint(){const h=document.getElementById('hol-odo-h');if(h)h.innerHTML=_odoHintHtml(document.getElementById('hol-odo').value);}
-// ── 休日利用（走行距離のみ）モーダル: 全ロール共通 ──
+// ── 休日利用（2点ODO）モーダル: 全ロール共通（alc36: 使用開始→使用終了の2回入力。終了時に10km以上なら給油を促す） ──
+function holTodayRec(empId){return (records[empId||session?.id]||[]).find(r=>r.date===todayKey());}
+function holPhase(empId){const rec=holTodayRec(empId);return (rec&&rec.holStart!=null)?'end':'start';}
 function openHolidayOdoModal(){
   if(!session)return;
+  if(isOwnCar(session.id)){openFuelModal();return;} // 自家用車の人はこのボタンが給油記録になる
   if(isMonthLocked(todayKey().slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
-  const inp=document.getElementById('hol-odo');if(inp)inp.value='';
-  const rec=(records[session.id]||[]).find(r=>r.date===todayKey());
-  const pe=document.getElementById('hol-purpose');if(pe)pe.value=(rec&&rec.memo)?rec.memo:''; // 既存の利用目的があれば初期表示
+  const rec=holTodayRec(),ph=holPhase();
+  const inp=document.getElementById('hol-odo');if(inp)inp.value=(ph==='end'&&rec&&rec.odometer!=null)?rec.odometer:'';
+  const pe=document.getElementById('hol-purpose');if(pe)pe.value=(rec&&rec.memo)?rec.memo:'';
+  const tt=document.getElementById('hol-title'),ds=document.getElementById('hol-desc'),si=document.getElementById('hol-start-info'),lb=document.getElementById('hol-odo-lbl'),sb=document.getElementById('hol-submit');
+  if(ph==='end'){
+    if(tt)tt.textContent='🚗 休日利用（使用終了）';
+    if(ds)ds.innerHTML='使用が終わったら<b>終了時のオドメーター総距離</b>を入力してください。開始時との差が本日の走行距離になります。';
+    if(si){si.style.display='';si.innerHTML=`使用開始時のODO：<b style="font-family:var(--mo)">${rec.holStart} km</b>${rec.memo?'　／　目的：'+esc(rec.memo):''}`;}
+    if(lb)lb.innerHTML='🚗 使用終了時のオドメーター (km) <span style="color:var(--rd)">必須</span>';
+    if(sb)sb.textContent=(rec.odometer!=null)?'終了ODOを修正して記録':'使用終了を記録';
+  }else{
+    if(tt)tt.textContent='🚗 休日利用（使用開始）';
+    if(ds)ds.innerHTML='出勤せず車両のみ使用した日の記録です。<b>使用開始前</b>のオドメーター総距離と利用目的を入力してください（写真・アルコールチェックは不要）。使用後にもう一度このボタンから<b>終了時のオドメーター</b>を入力します。';
+    if(si){si.style.display='none';si.innerHTML='';}
+    if(lb)lb.innerHTML='🚗 使用開始前のオドメーター (km) <span style="color:var(--rd)">必須</span>';
+    if(sb)sb.textContent='使用開始を記録';
+  }
   holOdoHint();
   document.getElementById('holidayOdoModal').classList.add('open');
 }
@@ -2185,15 +2231,52 @@ function submitHolidayOdo(){
   const odoNum=parseFloat(odoStr);
   const empId=session.id;
   if(!records[empId])records[empId]=[];
-  const rec=records[empId].find(r=>r.date===dk);
-  // 休日利用=ODO＋利用目的を記録（利用目的はrec.memoに保存→CSV・サマリーに反映）
-  if(rec){rec.odometer=odoNum;rec.todayKm=null;rec.memo=purpose;}
-  else records[empId].unshift({date:dk,odometer:odoNum,todayKm:null,memo:purpose});
-  records[empId].sort((a,b)=>b.date.localeCompare(a.date));
+  let rec=records[empId].find(r=>r.date===dk);
+  const ph=holPhase(empId);
+  if(ph==='start'){
+    // 使用開始: 開始ODOと目的だけを記録（走行距離の計算は終了入力時）
+    if(rec){rec.holStart=odoNum;rec.memo=purpose;}
+    else records[empId].unshift({date:dk,holStart:odoNum,odometer:null,todayKm:null,memo:purpose});
+    records[empId].sort((a,b)=>b.date.localeCompare(a.date));
+    S.set('ka_records',records);
+    closeHolidayOdoModal();
+    try{renderTodayStatus();}catch(e){}
+    showToast('🚗 使用開始を記録しました。使用後にもう一度このボタンから終了ODOを入力してください');
+    return;
+  }
+  // 使用終了
+  if(odoNum<rec.holStart){const h=document.getElementById('hol-odo-h');if(h)h.innerHTML=`<span style="color:var(--rd)">⚠ 終了ODOが開始ODO（${rec.holStart} km）より小さくなっています</span>`;return;}
+  rec.odometer=odoNum;rec.todayKm=null;rec.memo=purpose;
+  rec.holKm=parseFloat((odoNum-rec.holStart).toFixed(1));
+  rec.holEndAt=Date.now();
   recalcOdoKm(empId,dk);
   S.set('ka_records',records);
   closeHolidayOdoModal();
-  showToast('🚗 休日利用（走行距離）を記録しました');
+  try{renderTodayStatus();}catch(e){}
+  if(rec.holKm>=HOL_FUEL_KM){
+    const L=fuelLitersFor(rec.holKm,empId);
+    const b=document.getElementById('hol-fuel-body');
+    if(b)b.innerHTML=`本日の休日利用は <b style="font-family:var(--mo)">${rec.holKm} km</b> でした。<br>${HOL_FUEL_KM}km以上のご利用のため、<b style="color:var(--yw);font-size:18px">約 ${L} L</b>（燃費 ${fuelEff(empId)} km/L 換算）の給油を<b>ご自身で</b>お願いします。<br><span style="font-size:12px;color:var(--dim)">※ 私用で使った分の燃料は自己負担です。次の業務で使う人のため、ガソリンを戻しておいてください。</span>`;
+    const mo=document.getElementById('holFuelModal');if(mo)mo.classList.add('open');
+  }else{
+    showToast(`🚗 休日利用を記録しました（走行 ${rec.holKm} km）`);
+  }
+}
+const HOL_FUEL_KM=10; // 休日利用でこの距離以上なら本人に給油を促す
+// 今日画面の休日利用ボタン: 状態（開始済み／自家用車）に応じて表示を切り替える
+function renderHolBtn(){
+  if(!session)return;
+  const own=isOwnCar(session.id),ph=own?null:holPhase(session.id);
+  document.querySelectorAll('.hol-btn').forEach(b=>{
+    if(own){b.textContent='⛽ 給油を記録（会社カード）';b.style.borderColor='';}
+    else if(ph==='end'){b.textContent='🚗 休日利用：使用終了（終了ODOを入力）';b.style.borderColor='var(--yw)';}
+    else{b.textContent='🚗 休日利用（走行距離・利用目的）';b.style.borderColor='';}
+  });
+  document.querySelectorAll('.hol-hint').forEach(p=>{
+    p.textContent=own?'※ 自家用車：会社のカードで給油したら必ずここで記録してください（業務走行から会社負担枠を計算します）'
+      :ph==='end'?'※ 使用開始を記録済みです。使用が終わったら終了時のオドメーターを入力してください'
+      :'※ 出勤せず車両のみ使用した日はこちら（使用開始前と終了後の2回、オドメーターを記録）';
+  });
 }
 
 
@@ -2201,10 +2284,14 @@ function submitHolidayOdo(){
 // ODOMETER
 // ═══════════════════════════════════
 function getLastOdo(empId){for(const r of(records[empId]||[])){if(r.odometer!=null)return r.odometer;}return null;}
+function _applyBizKm(r){ // alc36: 自家用車＝出勤ODOと帰宅ODOの差を業務走行として todayKm に載せる（集計・CSVはそのまま使える）
+  if(r&&r.odoEnd!=null&&r.odometer!=null&&r.odoEnd>=r.odometer){r.bizKm=parseFloat((r.odoEnd-r.odometer).toFixed(1));r.todayKm=r.bizKm;}
+}
 function recalcOdoKm(empId,dateKey){
   const recs=records[empId];if(!recs)return;
   const i=recs.findIndex(r=>r.date===dateKey);if(i<0)return;
   const r=recs[i];if(r.odometer==null)return;
+  if(isOwnCar(empId)){_applyBizKm(r);return;} // alc36: 自家用車は日をまたぐ差分（私用が混ざる）を使わない
   // 新しい方(index小)にODOがあるレコードを探し、当レコードのtodayKmを算出
   r.todayKm=null;
   for(let j=i-1;j>=0;j--){if(recs[j].odometer!=null){const nxO=recs[j].odometer;r.todayKm=(nxO>r.odometer)?parseFloat((nxO-r.odometer).toFixed(1)):null;break;}}
@@ -2315,6 +2402,7 @@ function _readApplyDraft(){
   if(w){d.otGenres=OT_GENRES.filter((g,i)=>{const cb=document.getElementById('vca-otg'+i);return cb&&cb.checked;});}
   const oc=document.getElementById('vca-otc');if(oc)d.otComment=oc.value;
   const ec=document.getElementById('vca-ec');if(ec)d.earlyComment=ec.value;
+  const od=document.getElementById('vca-odo');if(od)d.odoEnd=od.value; // alc36
   return d;
 }
 // 送信時の検証。ブロックが表示されていない（＝不要）なら ok。表示中なら必須
@@ -2334,6 +2422,14 @@ function _collectApplyInputs(){
     if(!cm){out.ok=false;out.msg='⚠ 早出の申請：理由（事前に相談した相手）を入力してください';return out;}
     out.earlyApply={comment:cm};
   }
+  const od=document.getElementById('vca-odo'); // alc36: 自家用車の帰宅ODO（必須）
+  if(od){
+    const v=parseFloat(od.value);
+    if(od.value===''||isNaN(v)||v<0){out.ok=false;out.msg='⚠ 自家用車：帰宅時のオドメーターを入力してください';return out;}
+    const rec=(records[session?.id]||[]).find(x=>x.date===todayKey());
+    if(rec&&rec.odometer!=null&&v<rec.odometer){out.ok=false;out.msg=`⚠ 帰宅時ODO（${v}）が出勤時ODO（${rec.odometer}）より小さくなっています`;return out;}
+    out.odoEnd=v;
+  }
   return out;
 }
 function renderVcTime(){
@@ -2342,7 +2438,8 @@ function renderVcTime(){
   const ci=td.checkinTime||null, co=_dialTime||td.checkoutTime||null;
   if(!co){el.innerHTML='';return;}
   const sh=effShift(session.id);
-  let ot=0; if(ci){let c=toMins(co),i=toMins(ci);if(c<i)c+=1440;ot=Math.max(0,c-toMins(sh.end));}
+  const _ex=isExecId(session.id); // alc36: 役員は残業・早出なし
+  let ot=0; if(ci&&!_ex){let c=toMins(co),i=toMins(ci);if(c<i)c+=1440;ot=Math.max(0,c-toMins(sh.end));}
   const need=ot>OT_THRESHOLD;
   // alc34: 早出（所定始業より5分超前）の表示。承認されるまで残業には入らない
   const rr=(records[session.id]||[]).find(x=>x.date===todayKey());
@@ -2354,8 +2451,8 @@ function renderVcTime(){
     <div class="dcfm-row"><span>出勤</span><span><span class="v">${esc(ci||'--:--')}</span> <button class="mb mb-b" style="margin-left:8px" onclick="vcEditTime('ci')">時刻を変更</button></span></div>
     <div class="dcfm-row"><span>退勤</span><span><span class="v" style="color:var(--ac2)">${esc(co)}</span> <button class="mb mb-b" style="margin-left:8px" onclick="vcEditTime('co')">時刻を変更</button></span></div>${emLine}
     <div class="dcfm-row"><span>所定</span><span>${esc(sh.start)}〜${esc(sh.end)}</span></div>
-    <div class="dcfm-row"><span>残業</span><span class="v" style="color:${need?'var(--yw)':'var(--tx)'}">${toHHMM(ot)}${need?'（31分以上→送信後に申請）':(ot>0?'（申請不要）':'')}</span></div>
-  </div>`+_applyBlocksHtml(ot,em,rr,draft);
+    <div class="dcfm-row"><span>残業</span><span class="v" style="color:${need?'var(--yw)':'var(--tx)'}">${_ex?'<span style="color:var(--dim)">対象外（役員）</span>':toHHMM(ot)+(need?'（31分以上→送信前に申請）':(ot>0?'（申請不要）':''))}</span></div>
+  </div>`+_applyBlocksHtml(ot,em,rr,draft)+_ownCarOdoHtml(rr,draft);
 }
 function vcEditTime(type){
   type=type||'co';
@@ -2403,7 +2500,7 @@ async function submitVisitConfirm(){
   if(_actionGuard.has('visitSubmit'))return;_actionGuard.add('visitSubmit');
   try{
     const ap=_collectApplyInputs(); if(!ap.ok){showToast(ap.msg);return;} // alc34: 残業・早出の申請は送信前に必須
-    if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;pc.viaVisit=true;pc.otApply=ap.otApply;pc.earlyApply=ap.earlyApply;await _alcCommit(pc);}
+    if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;pc.viaVisit=true;pc.otApply=ap.otApply;pc.earlyApply=ap.earlyApply;pc.odoEnd=ap.odoEnd;await _alcCommit(pc);}
     if(getAdminFeatures().visits===false){closeVisitConfirmModal();showToast('✅ 送信しました（退勤・写真）');return;}
     const dk=todayKey();
     const g=id=>Math.max(0,parseFloat(document.getElementById(id)?.value)||0);
@@ -2424,7 +2521,7 @@ async function skipVisitConfirm(){
   if(_actionGuard.has('visitSubmit'))return;_actionGuard.add('visitSubmit');
   try{
     const ap=_collectApplyInputs(); if(!ap.ok){showToast(ap.msg);return;} // alc34: 訪問を後回しにしても申請は必須
-    if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;pc.viaVisit=true;pc.otApply=ap.otApply;pc.earlyApply=ap.earlyApply;await _alcCommit(pc);}
+    if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;pc.viaVisit=true;pc.otApply=ap.otApply;pc.earlyApply=ap.earlyApply;pc.odoEnd=ap.odoEnd;await _alcCommit(pc);}
     closeVisitConfirmModal();
     showToast('✅ 退勤を送信しました（訪問実績は後で入力できます）');
   }finally{setTimeout(()=>_actionGuard.delete('visitSubmit'),1000);}
@@ -2457,7 +2554,8 @@ function buildAttendanceCsv(month,targetStoreId){
   // ヘッダー行（30分と40分を分離）
   const headers=['店舗','氏名','役職','職種','②-1時間','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','残業理由','走行距離(km)','体調','アルコール','アルコール(退勤)','酒気確認(出勤)','酒気確認(退勤)','酒気確認指示事項','メモ・利用目的','自動退勤',
     '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール','エンゼルケア','年末年始手当',
-    '有給種別','有給時間(h)','残業承認状態','支給残業(分)【30分以内は全額＋31分以上は承認済みのみ】'];
+    '有給種別','有給時間(h)','残業承認状態','支給残業(分)【30分以内は全額＋31分以上は承認済みのみ】',
+    '車両','業務走行(km)【自家用車】','会社カード給油(L)','給油金額(円)','給油枠(L)／累計残高(L)【自家用車】'];
   const rows=[headers];
   targetAccs.forEach(emp=>{
     const stName=stores.find(s=>s.id===emp.storeId)?.name||'';
@@ -2475,7 +2573,8 @@ function buildAttendanceCsv(month,targetStoreId){
       const rec=recs.find(r=>r.date===dk);
       const vis=viss.find(v=>v.date===dk);
       const dayLeave=empLeaves.find(lr=>lr.targetDate===dk);
-      if(!rec&&!vis&&!dayLeave)continue; // データがない日はスキップ
+      const dayFuel=(fuelLogs||[]).filter(f=>f&&f.empId===emp.id&&f.date===dk); // alc36
+      if(!rec&&!vis&&!dayLeave&&!dayFuel.length)continue; // データがない日はスキップ
       // 30分/40分の振り分け: スタッフの設定に応じてc30の値を正しい列に配置
       const c30val=vis?.c30||'';
       const col30=empShortMin===30?c30val:'';
@@ -2504,7 +2603,8 @@ function buildAttendanceCsv(month,targetStoreId){
         vis?.training||'', vis?.overtime||'', vis?.oncall||'', vis?.angel||'',
         isNY?'¥10,000':'',
         dayLeave?leaveTypeMap[dayLeave.type]||'':'', dayLeave?dayLeave.hours:'',
-        recOdoOnly?'':(rec?otStatusLabel(rec):''), recOdoOnly?'':(rec?countedOT(rec,emp.id):'')
+        (recOdoOnly||emp.role==='executive')?'':(rec?otStatusLabel(rec):''), (recOdoOnly||emp.role==='executive')?'':(rec?countedOT(rec,emp.id):''),
+        emp.vehicle==='own'?'自家用車':'リース', (emp.vehicle==='own'&&rec&&rec.bizKm!=null)?rec.bizKm:'', dayFuel.length?dayFuel.reduce((s,f)=>s+(parseFloat(f.liters)||0),0):'', dayFuel.length?dayFuel.reduce((s,f)=>s+(parseFloat(f.yen)||0),0):'', ''
       ]);
     }
     // 月次集計行
@@ -2535,7 +2635,8 @@ function buildAttendanceCsv(month,targetStoreId){
       vc.medical,vc.staff,vc.pre,vc.contract,vc.training,vc.overtime,vc.oncall,vc.angel,
       nyc.amount>0?`${nyc.count}日 ¥${nyc.amount.toLocaleString()}`:'',
       lvSummary?`${lvSummary}（${lvBalStr}）`:'',lvTotalH||'',
-      '',mRecs.reduce((s,r)=>s+countedOT(r,emp.id),0)]);
+      '',mRecs.reduce((s,r)=>s+countedOT(r,emp.id),0),
+      emp.vehicle==='own'?'自家用車':'リース', emp.vehicle==='own'?fuelStat(emp.id,month).mKm:'', emp.vehicle==='own'?fuelStat(emp.id,month).mL:'', emp.vehicle==='own'?fuelStat(emp.id,month).mYen:'', emp.vehicle==='own'?(function(st){return `枠${st.mAllow}／残高${st.balance>0?'+':''}${st.balance}`;})(fuelStat(emp.id,month)):'']);
     // alc34: 36協定の年度累計（年360時間の管理用）
     rows.push([stName,emp.name,'【年度計】',empProf,empShortMin+'分','',
       '',otYearLabel(month),'','',yearOT(emp.id,month),`年360時間の上限に対し${(yearOT(emp.id,month)/OT_YEAR_LIMIT*100).toFixed(0)}%`]);
@@ -2715,7 +2816,7 @@ function addNewRecord(){
     let _aCoM=toMins(co),_aCiM=toMins(ci);
     if(_aCoM<_aCiM)_aCoM+=1440;
     rec.workMinutes=_aCoM-_aCiM;
-    rec.overtimeMinutes=Math.max(0,_aCoM-toMins(empEnd(empId)));
+    rec.overtimeMinutes=otFor(empId,Math.max(0,_aCoM-toMins(empEnd(empId))));
   }
   records[empId].unshift(rec);
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
@@ -2759,7 +2860,7 @@ function aAddNewRecord(){
     let _aCoM=toMins(co),_aCiM=toMins(ci);
     if(_aCoM<_aCiM)_aCoM+=1440;
     rec.workMinutes=_aCoM-_aCiM;
-    rec.overtimeMinutes=Math.max(0,_aCoM-toMins(empEnd(empId)));
+    rec.overtimeMinutes=otFor(empId,Math.max(0,_aCoM-toMins(empEnd(empId))));
   }
   records[empId].unshift(rec);
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
@@ -3173,7 +3274,7 @@ function renderRecords(){
       <div style="flex:1">
         <div class="rl">${r.date}${r.date.startsWith(thisMonth())?'<span class="bdg bdg-b">今月</span>':''}${isHolidayVehicle?'<span class="bdg" style="background:rgba(79,142,247,.12);color:var(--ac)">🚗 車両のみ</span>':''}${missCO?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 退勤未打刻</span>':''}${missCI?'<span class="bdg" style="background:rgba(247,95,95,.15);color:var(--rd)">⚠ 出勤未打刻</span>':''}${missOdo?'<span class="bdg" style="background:rgba(247,211,79,.15);color:var(--yw)">⚠ ODO未入力</span>':''}${r.fullTimeFlag?'<span class="bdg" style="background:rgba(100,181,246,.15);color:#64b5f6">常勤</span>':''}${autoCoBadge(r)}${recBadges(r,session.id)}</div>
         ${isHolidayVehicle
-          ?`<div class="rt" style="color:var(--ac)">休日車両利用（ODO: ${r.odometer?.toFixed(1)} km）${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}${r.memo?' ／ 目的: '+esc(r.memo):''}</div>`
+          ?`<div class="rt" style="color:var(--ac)">休日車両利用（${r.holStart!=null?'ODO '+r.holStart+' → '+(r.odometer!=null?r.odometer.toFixed(1):'未入力（使用中）')+' km':'ODO: '+(r.odometer!=null?r.odometer.toFixed(1):'-')+' km'}）${r.holKm!=null?' ／ 休日走行 '+r.holKm+'km':(r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':'')}${r.memo?' ／ 目的: '+esc(r.memo):''}</div>`
           :isOdoOnly&&!sKintai
             ?`<div class="rt" style="color:var(--ac)">ODO: ${r.odometer?.toFixed(1)} km${r.todayKm!=null?' ／ 走行 '+r.todayKm+'km':''}</div>`
           :`<div class="rt">${r.checkin||'--:--'} → ${r.checkout||'--:--'}${r.workMinutes!=null?' ／ '+toHHMM(r.workMinutes):''}</div>`}
@@ -3284,9 +3385,9 @@ function saveEdit(i){
     if(_eCoM<_eCiM)_eCoM+=1440;
     r.workMinutes=_eCoM-_eCiM;
     if(r.fullTimeFlag){
-      r.overtimeMinutes=Math.max(0,_eCoM-toMins(empEnd(session.id))); // alc31: 前残業は計上しない
+      r.overtimeMinutes=otFor(session.id,Math.max(0,_eCoM-toMins(empEnd(session.id)))); // alc31: 前残業は計上しない
     }else{
-      r.overtimeMinutes=Math.max(0,_eCoM-toMins(empEnd(session.id)));
+      r.overtimeMinutes=otFor(session.id,Math.max(0,_eCoM-toMins(empEnd(session.id))));
     }
   }
   S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditList();
@@ -3460,6 +3561,7 @@ function renderEmpMgmt(){
         ${e.workStart?`<button class="mb" style="background:none;border:1px solid var(--dim);color:var(--dim)" onclick="adminClearEmpWorkTime('${e.id}')">解除</button>`:''}
       </div>
       <div id="wth_${e.id}" style="padding:0 10px 4px">${breakHintHtml(e.workStart||settings.start,e.workEnd||settings.end)}</div>
+      ${vehicleBlockHtml(e)}
       <div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px">
         <span style="font-size:11px;color:var(--dim);flex-shrink:0">職種:</span>
         <button class="mb" id="empProf_nurse_${e.id}" style="padding:5px 12px;${(e.profession||'nurse')==='nurse'?'background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)':'background:none;border:1px solid var(--bd);color:var(--dim)'}" onclick="adminSetEmpProfession('${e.id}','nurse')">看護師</button>
@@ -3591,6 +3693,7 @@ function deleteEmp(id){
 function openSettings(){
   document.getElementById('stgStart').value=settings.start;document.getElementById('stgEnd').value=settings.end;
   const ys=document.getElementById('stgOtYearStart');if(ys)ys.value=String(otYearStart()); // alc34
+  const fe=document.getElementById('stgFuelEff');if(fe)fe.value=settings.fuelEff||''; // alc36
   try{renderBreakHint('stgStart','stgEnd','stgBreakHint');}catch(e){}
   document.getElementById('settingsModal').classList.add('open');
 }
@@ -3598,6 +3701,7 @@ function closeSettings(){document.getElementById('settingsModal').classList.remo
 function saveSettings(){
   settings.start=document.getElementById('stgStart').value;settings.end=document.getElementById('stgEnd').value;
   const ys=document.getElementById('stgOtYearStart');if(ys){const v=parseInt(ys.value,10);if(v>=1&&v<=12)settings.otYearStart=v;} // alc34
+  const fe=document.getElementById('stgFuelEff');if(fe){const v=parseFloat(fe.value);if(v>0)settings.fuelEff=v;else delete settings.fuelEff;} // alc36
   S.set('ka_settings',settings);closeSettings();showToast('✅ 勤務時間を保存しました');
   try{renderTodayStatus();}catch(e){}
 }
@@ -3760,6 +3864,109 @@ function showAdminPg(id,btn){
 // ═══════════════════════════════════
 // TOAST
 // ═══════════════════════════════════
+/* ── alc36: 車両プロファイル（リース／自家用・燃費・任意保険確認日・車検満了日） ── */
+function vehicleBlockHtml(e){
+  const own=e.vehicle==='own';
+  const on='background:rgba(79,142,247,.15);border:1px solid var(--ac);color:var(--ac)',off='background:none;border:1px solid var(--bd);color:var(--dim)';
+  return `<div style="display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--dim);flex-shrink:0">車両:</span>
+    <button class="mb" style="padding:5px 12px;${!own?on:off}" onclick="adminSetEmpVehicle('${e.id}','lease')">リース車</button>
+    <button class="mb" style="padding:5px 12px;${own?on:off}" onclick="adminSetEmpVehicle('${e.id}','own')">自家用車</button>
+    <span style="font-size:11px;color:var(--dim)">燃費</span>
+    <input type="number" inputmode="decimal" class="fi" style="width:72px;padding:5px 8px;font-size:12px" id="veff_${e.id}" value="${e.fuelEff||''}" placeholder="${fuelEff(null)}" min="1" step="0.1">
+    <span style="font-size:11px;color:var(--dim)">km/L</span>
+    ${own?`<span style="width:100%;height:1px"></span>
+    <span style="font-size:11px;color:var(--dim)">任意保険 確認日</span><input type="date" class="fi" style="flex:1;min-width:120px;padding:5px 8px;font-size:12px" id="vins_${e.id}" value="${e.insuranceCheck||''}">
+    <span style="font-size:11px;color:var(--dim)">車検満了</span><input type="date" class="fi" style="flex:1;min-width:120px;padding:5px 8px;font-size:12px" id="vinsp_${e.id}" value="${e.inspectionExp||''}">`:''}
+    <button class="mb mb-b" onclick="adminSaveEmpVehicle('${e.id}')" style="flex-shrink:0">保存</button>
+    ${own?`<span style="font-size:10px;color:var(--dim);width:100%">自家用車：出勤時と帰宅時のODOの差＝業務走行（通勤含む）。燃費で割った量を会社負担の給油枠とし、会社カードでの給油記録と突き合わせます。</span>`:''}
+    ${vehicleWarnHtml(e)}
+  </div>`;
+}
+function vehicleWarnHtml(e){
+  if(e.vehicle!=='own')return '';
+  const w=[];const today=todayKey();
+  const dayDiff=(a,b)=>Math.round((new Date(a+'T00:00:00')-new Date(b+'T00:00:00'))/86400000);
+  if(!e.insuranceCheck)w.push('任意保険の確認が未登録（業務使用には対人・対物の任意保険確認が必要）');
+  else if(dayDiff(today,e.insuranceCheck)>365)w.push('任意保険の確認から1年以上経過（再確認してください）');
+  if(!e.inspectionExp)w.push('車検満了日が未登録');
+  else{const d=dayDiff(e.inspectionExp,today);if(d<0)w.push('車検が切れています（業務使用不可）');else if(d<=30)w.push(`車検満了が${d}日後`);}
+  return w.length?`<span style="font-size:10px;color:var(--rd);width:100%">⚠ ${w.map(esc).join('／')}</span>`:`<span style="font-size:10px;color:var(--gn);width:100%">✔ 任意保険・車検の登録あり</span>`;
+}
+function adminSetEmpVehicle(id,type){
+  const e=accounts.find(a=>a.id===id);if(!e)return;
+  e.vehicle=type==='own'?'own':'lease';S.set('ka_accounts',accounts);
+  try{addALog('vehicle',`${e.name}: 車両を${e.vehicle==='own'?'自家用車':'リース車'}に変更`);}catch(err){}
+  renderEmpMgmt();showToast(`✅ ${e.name} の車両を「${e.vehicle==='own'?'自家用車':'リース車'}」にしました`);
+}
+function adminSaveEmpVehicle(id){
+  const e=accounts.find(a=>a.id===id);if(!e)return;
+  const ef=parseFloat(document.getElementById('veff_'+id)?.value);
+  if(document.getElementById('veff_'+id)?.value&&!(ef>0)){showToast('⚠ 燃費は0より大きい数値で入力してください');return;}
+  if(ef>0)e.fuelEff=ef;else delete e.fuelEff;
+  const ins=document.getElementById('vins_'+id);if(ins)e.insuranceCheck=ins.value||'';
+  const insp=document.getElementById('vinsp_'+id);if(insp)e.inspectionExp=insp.value||'';
+  S.set('ka_accounts',accounts);renderEmpMgmt();showToast(`✅ ${e.name} の車両情報を保存しました`);
+}
+/* ── alc36: 自家用車の給油クレジット（業務走行 ÷ 燃費 ＝ 会社負担枠L、会社カード給油Lと突合、残高は月をまたいで繰越） ── */
+let fuelLogs=[]; // [{id,empId,date,liters,yen,odo,createdAt}]
+function fuelStat(empId,month){
+  const eff=fuelEff(empId),r1=v=>Math.round(v*10)/10;
+  const recs=(records[empId]||[]).filter(r=>r&&r.bizKm!=null);
+  const logs=(fuelLogs||[]).filter(f=>f&&f.empId===empId);
+  const mEnd=month+'-99';
+  const sum=(arr,f)=>arr.reduce((s,x)=>s+(parseFloat(f(x))||0),0);
+  const mKm=sum(recs.filter(r=>String(r.date).startsWith(month)),r=>r.bizKm);
+  const mLogs=logs.filter(f=>String(f.date).startsWith(month));
+  const cKm=sum(recs.filter(r=>r.date<=mEnd),r=>r.bizKm), cL=sum(logs.filter(f=>f.date<=mEnd),f=>f.liters);
+  return {eff,mKm:r1(mKm),mAllow:r1(mKm/eff),mL:r1(sum(mLogs,f=>f.liters)),mYen:Math.round(sum(mLogs,f=>f.yen)),mCount:mLogs.length,cKm:r1(cKm),cAllow:r1(cKm/eff),cL:r1(cL),balance:r1(cKm/eff-cL)};
+}
+const FUEL_OVER_WARN_L=5; // 累計でこのL以上の超過は締めチェックで警告
+function _carLine(id,r,ci){
+  try{
+    if(isOwnCar(id)){
+      const st=fuelStat(id,thisMonth());
+      const col=st.balance<-FUEL_OVER_WARN_L?'var(--rd)':st.balance<0?'var(--yw)':'var(--gn)';
+      const today=(r&&r.bizKm!=null)?`　本日 <b>${r.bizKm} km</b>`:'';
+      return `<br>🚗 自家用車${today}　今月の業務走行 <b>${st.mKm} km</b> → 会社負担枠 <b>${st.mAllow} L</b>／会社カード給油 <b>${st.mL} L</b>　累計残高 <b style="color:${col}">${st.balance>0?'+':''}${st.balance} L</b>${st.balance<0?'<span style="color:'+col+'">（枠を超えています）</span>':''} <button class="mb mb-b" style="margin-left:6px" onclick="openFuelModal()">⛽ 給油を記録</button>`;
+    }
+    if(!ci&&holPhase(id)==='end'){const rec=holTodayRec(id);return `<br>🚗 <span style="color:var(--yw)">休日利用中</span>（開始ODO ${rec.holStart} km）— 使用後に「休日利用」ボタンから終了ODOを入力してください`;}
+  }catch(e){}
+  return '';
+}
+function openFuelModal(){
+  if(!session)return;
+  if(isMonthLocked(todayKey().slice(0,7),session.id)){showToast('🔒 この月はロックされています');return;}
+  ['fuel-l','fuel-yen','fuel-odo'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  const st=fuelStat(session.id,thisMonth());
+  const inf=document.getElementById('fuel-info');
+  if(inf)inf.innerHTML=`今月の業務走行 <b>${st.mKm} km</b>（燃費 ${st.eff} km/L）→ 会社負担枠 <b>${st.mAllow} L</b><br>今月の会社カード給油 <b>${st.mL} L</b>（${st.mCount}回・¥${st.mYen.toLocaleString()}）<br>累計の残高 <b style="color:${st.balance<0?'var(--rd)':'var(--gn)'}">${st.balance>0?'+':''}${st.balance} L</b>${st.balance<0?'　⚠ 枠を超えています（翌月の業務走行で相殺されます）':''}`;
+  document.getElementById('fuelModal').classList.add('open');
+}
+function submitFuel(){
+  if(!session)return;
+  const L=parseFloat(document.getElementById('fuel-l')?.value),yen=parseFloat(document.getElementById('fuel-yen')?.value),odoS=document.getElementById('fuel-odo')?.value;
+  if(!(L>0)){showToast('⚠ 給油量（L）を入力してください');return;}
+  if(!(yen>=0)){showToast('⚠ 金額（円）を入力してください');return;}
+  const odo=odoS!==''&&!isNaN(parseFloat(odoS))?Math.max(0,parseFloat(odoS)):null;
+  fuelLogs.push({id:uid('fuel'),empId:session.id,date:todayKey(),liters:Math.round(L*100)/100,yen:Math.round(yen),odo,createdAt:Date.now()});
+  S.set('ka_fuel',fuelLogs);
+  document.getElementById('fuelModal').classList.remove('open');
+  try{renderTodayStatus();}catch(e){}
+  const st=fuelStat(session.id,thisMonth());
+  showToast(`⛽ 給油 ${L} L を記録しました（累計残高 ${st.balance>0?'+':''}${st.balance} L）`);
+}
+// 退勤まとめ画面: 自家用車の人は帰宅時ODOを必須入力
+function _ownCarOdoHtml(rec,draft){
+  if(!session||!isOwnCar(session.id))return '';
+  draft=draft||{};
+  const ciOdo=rec&&rec.odometer!=null?rec.odometer:null;
+  return `<div class="dwarn" style="display:block;margin-top:8px;background:rgba(79,142,247,.08);border-color:var(--ac);color:var(--tx)">
+    <div style="font-weight:700;color:var(--ac);margin-bottom:6px">🚗 自家用車：帰宅時のオドメーター (km)　<b>送信前に必須</b></div>
+    <div style="font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:4px">出勤時のODO：<b style="font-family:var(--mo)">${ciOdo!=null?ciOdo+' km':'未入力'}</b>。差分が本日の業務走行（通勤を含む）として、会社負担の給油枠（燃費 ${fuelEff(session.id)} km/L）に加算されます。</div>
+    <input type="number" inputmode="decimal" class="fi" id="vca-odo" min="0" step="0.1" placeholder="例: ${ciOdo!=null?Math.round(ciOdo+40):12450}" value="${draft.odoEnd!=null?draft.odoEnd:''}" style="font-size:22px;text-align:center;font-family:var(--mo);height:auto;padding:10px">
+  </div>`;
+}
 function adminSetEmpWorkTime(id){
   const e=accounts.find(a=>a.id===id);if(!e)return;
   const s=document.getElementById('wts_'+id)?.value;
@@ -4140,7 +4347,7 @@ function kvMergeForPull(key,localVal,remoteVal){
     }
     if(key==='ka_leave_grants')return _kvMergeByEmp(localVal,remoteVal,e=>e.grantDate||e.id||e.date);
     if(key==='ka_today')return Object.assign({},localVal||{},remoteVal||{}); // remote優先・local固有empIdは保持
-    if(key==='ka_accounts'||key==='ka_stores'||key==='ka_leave_requests')return _kvMergeArr(localVal,remoteVal,e=>e.id);
+    if(key==='ka_accounts'||key==='ka_stores'||key==='ka_leave_requests'||key==='ka_fuel')return _kvMergeArr(localVal,remoteVal,e=>e.id);
   }catch(e){console.warn('kv merge failed',key,e);}
   return remoteVal;
 }
@@ -4290,11 +4497,19 @@ let _dialSt={d:[0,0,0,0],base:'08:30',type:'ci',ftFlag:false,next:null};
 
 // その日の所定（スタッフ個人の勤務時間設定と連動。未設定なら全体設定）
 function effShift(empId){const id=empId||session?.id;return{start:empStart(id),end:empEnd(id)};}
+// alc36: 役員は残業・早出の対象外（労働者ではないため、申請・警告・集計・支給のすべてを行わない）
+function isExecId(id){const a=accounts.find(x=>x.id===id);return !!(a&&a.role==='executive');}
+function otFor(empId,v){return isExecId(empId)?0:v;}
+// alc36: 車両（リース／自家用）・燃費
+function isOwnCar(empId){const a=accounts.find(x=>x.id===empId);return !!(a&&a.vehicle==='own');}
+function fuelEff(empId){const a=accounts.find(x=>x.id===empId);const v=parseFloat(a&&a.fuelEff);if(v>0)return v;const d=parseFloat(settings&&settings.fuelEff);return d>0?d:10;}
+function fuelLitersFor(km,empId){const e=fuelEff(empId);return Math.ceil((km/e)*10)/10;}
 function _m2t(m){m=Math.max(0,Math.min(1439,Math.round(m)));return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
 // 残業＝後残業のみ（前残業は計上しない／alc31）。alc34: 事前申請して承認された早出だけ例外的に加算
 function recEarly(r,empId){ // 所定始業より前に出勤した分（分）。承認されるまで残業には入れない
   if(!r||!r.checkin)return 0;
   const id=empId||session?.id;
+  if(isExecId(id))return 0; // alc36
   const st=toMins(r.fullTimeFlag?settings.start:empStart(id));
   const early=st-toMins(r.checkin);
   // alc34: 始業EARLY_LIMIT分前までは誤差の範囲として早出扱いにしない（承認対象にも残業にもしない）
@@ -4303,6 +4518,7 @@ function recEarly(r,empId){ // 所定始業より前に出勤した分（分）�
 function recOT(r,empId){
   if(!r||!r.checkin||!r.checkout)return 0;
   const id=empId||session?.id;
+  if(isExecId(id))return 0; // alc36
   let co=toMins(r.checkout),ci=toMins(r.checkin);
   if(co<ci)co+=1440;
   let ot=Math.max(0,co-toMins(r.fullTimeFlag?settings.end:empEnd(id))); // 常勤時間で出勤した日は所定終業も全体設定（recEarly と対称）
@@ -4334,7 +4550,7 @@ function openStampDial(type,ftFlag,next,initTime,back){
   const lbl=type==='ci'?'出勤':'退勤',sh=effShift();
   const od=document.getElementById('dial-odo');if(od)od.style.display=(type==='ci'&&_dialOdo)?'':'none';
   const tt=document.getElementById('dial-title');if(tt)tt.textContent=(type==='ci'&&_dialOdo)?'出勤（時刻とオドメーター）':lbl+'時刻を確定';
-  const ss=document.getElementById('dial-sub');if(ss)ss.innerHTML=`所定 ${esc(sh.start)}〜${esc(sh.end)}（あなたの勤務時間設定）<br>各桁は<b>▲▼</b>タップ、または<b>上下スワイプ</b>で変更できます。`;
+  const ss=document.getElementById('dial-sub');if(ss)ss.innerHTML=`所定 ${esc(sh.start)}〜${esc(sh.end)}（あなたの勤務時間設定）<br>各桁は<b>▲▼</b>タップ、または<b>上下スワイプ</b>で変更できます（時計と同じように桁が繰り上がります）。`;
   _dialBuild();
   const mo=document.getElementById('dialModal');if(mo)mo.classList.add('open');
 }
@@ -4375,7 +4591,12 @@ function alcBackToDial(){
 function _dialSetTime(t){const m=toMins(t),h=Math.floor(m/60),mi=m%60;_dialSt.d=[Math.floor(h/10),h%10,Math.floor(mi/10),mi%10];}
 function _dialTimeVal(){let h=_dialSt.d[0]*10+_dialSt.d[1],m=_dialSt.d[2]*10+_dialSt.d[3];if(h>23)h=23;if(m>59)m=59;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
 function _dialMax(i){if(i===0)return 2;if(i===1)return _dialSt.d[0]===2?3:9;if(i===2)return 5;return 9;}
-function _dialStep(i,dir){const mx=_dialMax(i);let v=_dialSt.d[i]+dir;if(v>mx)v=0;if(v<0)v=mx;_dialSt.d[i]=v;if(_dialSt.d[0]===2&&_dialSt.d[1]>3)_dialSt.d[1]=3;_dialPaint();}
+function _dialStep(i,dir){ // alc36: 時計と同じ繰り上げ・繰り下げ（分 09▲→10／10▼→09、分59▲→次の時の00、23:59▲→00:00）
+  const step=[600,60,10,1][i]*dir;
+  let tot=(_dialSt.d[0]*10+_dialSt.d[1])*60+_dialSt.d[2]*10+_dialSt.d[3]+step;
+  tot=((tot%1440)+1440)%1440;
+  _dialSetTime(_m2t(tot));_dialPaint();
+}
 function _dialBuild(){
   const w=document.getElementById('dial-wrap');if(!w)return;
   w.innerHTML='';
@@ -4405,12 +4626,12 @@ function _dialPaint(){
     const st=toMins(sh.start),early=st-m;
     if(info)info.innerHTML=`打刻する出勤時刻：<b>${t}</b><br>所定始業：<b>${esc(sh.start)}</b>`;
     if(warn){
-      if(early>EARLY_LIMIT){warn.style.display='';warn.innerHTML=`⚠ 始業の<b>${early}分前</b>です。始業${EARLY_LIMIT}分以上前の打刻は原則禁止されています。`;}
+      if(early>EARLY_LIMIT&&!isExecId(session?.id)){warn.style.display='';warn.innerHTML=`⚠ 始業の<b>${early}分前</b>です。始業${EARLY_LIMIT}分以上前の打刻は原則禁止されています。`;}
       else warn.style.display='none';
     }
   }else{
     const en=toMins(sh.end),post=Math.max(0,m-en);
-    if(info)info.innerHTML=`打刻する退勤時刻：<b>${t}</b><br>所定終業：<b>${esc(sh.end)}</b><br>残業：<b>${toHHMM(post)}</b>${post>OT_THRESHOLD?'　→ 残業申請が必要':'　→ 申請不要'}`;
+    if(info)info.innerHTML=`打刻する退勤時刻：<b>${t}</b><br>所定終業：<b>${esc(sh.end)}</b><br>${isExecId(session?.id)?'<span style="color:var(--dim)">役員のため残業の集計はありません</span>':`残業：<b>${toHHMM(post)}</b>${post>OT_THRESHOLD?'　→ 残業申請が必要':'　→ 申請不要'}`}`;
     if(warn){
       if(m<en){warn.style.display='';warn.innerHTML=`⚠ 所定終業（${esc(sh.end)}）より<b>${en-m}分早い</b>退勤です。`;}
       else warn.style.display='none';
@@ -4425,7 +4646,7 @@ function dialNext(){
   if(_dialSt.type==='ci'&&!_dialOdoCommit())return; // オドメーター未入力なら進まない
   if(_dialSt.type==='ci'){
     const early=toMins(sh.start)-m;
-    if(early>EARLY_LIMIT){
+    if(early>EARLY_LIMIT&&!isExecId(session?.id)){ // alc36: 役員は早出の申請なし
       // alc34: 早出は送信前に理由を入力（申請）してから進む。「戻る」でダイヤルへ
       const nx0=_dialSt.next,t0=t;
       closeDial();
@@ -4512,7 +4733,7 @@ function renderOtStatusSelf(){
   const dk=todayKey(),id=session.id;
   const r=(records[id]||[]).find(x=>x.date===dk);
   let html='';
-  if(r&&r.checkin&&r.checkout){
+  if(r&&r.checkin&&r.checkout&&!isExecId(id)){
     const ot=recOT(r,id);
     if(ot>OT_THRESHOLD){
       const st=r.otStatus||'none';
@@ -4662,6 +4883,7 @@ function dataIntegrityCheck(){
 /* ── alc33: 今日ステータスカード（次にやること／酒気確認／残業／今月の残業累計） ── */
 const OT_MONTH_WARN=35*60, OT_MONTH_LIMIT=45*60; // 36協定の目安（分）
 function monthOT(empId,month){ // その月の残業実績（実労働ベース・承認有無を問わない＝法定管理用）
+  if(isExecId(empId))return 0; // alc36
   return (records[empId]||[]).filter(r=>String(r.date||'').startsWith(month)).reduce((s,r)=>s+(r.overtimeMinutes||0),0);
 }
 function monthOTBadge(empId,month){
@@ -4691,6 +4913,7 @@ function otYearLabel(month){
   return `${startY}年${startM}月〜${ey}年${em}月`;
 }
 function yearOT(empId,month){
+  if(isExecId(empId))return 0; // alc36
   return (records[empId]||[]).filter(r=>inOtYear(r.date,month)).reduce((s,r)=>s+(r.overtimeMinutes||0),0);
 }
 function yearOTBadge(empId,month){
@@ -4741,7 +4964,7 @@ function renderTodayStatus(){
   const alcLine=(ci||co)?`🍃 酒気確認　出勤: ${alcStatusLabel(a1)}　退勤: ${co?alcStatusLabel(a2):'<span style="color:var(--dim)">退勤時に実施</span>'}`:'';
   // 残業（本日）
   let otLine='';
-  if(r&&r.checkin&&r.checkout){
+  if(r&&r.checkin&&r.checkout&&!isExecId(id)){
     const ot=recOT(r,id);
     if(ot>OT_THRESHOLD){
       const st=r.otStatus||'none';
@@ -4751,7 +4974,7 @@ function renderTodayStatus(){
   }
   // alc34: 所定始業より前の出勤（早出）。承認されるまで残業には入らないことを明示
   let earlyLine='';
-  if(r&&r.checkin){
+  if(r&&r.checkin&&!isExecId(id)){
     const em=recEarly(r,id);
     if(em>0){
       const ebtn=`<button class="mb mb-b" style="margin-left:6px" onclick="openEarlyApply('${esc(id)}','${dk}')">${r.earlyDismissed?'再申請する':'早出申請をする'}</button>`;
@@ -4765,14 +4988,15 @@ function renderTodayStatus(){
     <div style="font-size:14px;font-weight:700;color:${nextCol};line-height:1.6">${next}</div>
     <div style="font-size:12px;color:var(--dim);margin-top:6px;line-height:1.9">
       出勤 <b style="color:var(--tx);font-family:var(--mo)">${esc(ci||'--:--')}</b>　退勤 <b style="color:var(--tx);font-family:var(--mo)">${esc(co||'--:--')}</b>　所定 ${esc(sh.start)}〜${esc(sh.end)}
-      ${alcLine?'<br>'+alcLine:''}${earlyLine?'<br>'+earlyLine:''}${otLine?'<br>'+otLine:''}
-      <br>📅 今月の残業累計：${monthOTBadge(id,thisMonth())}<span style="color:var(--dim)">（上限 45時間）</span>
-      <br>🗓 今年度の残業累計：${yearOTBadge(id,thisMonth())}<span style="color:var(--dim)">（上限 360時間／${esc(otYearLabel(thisMonth()))}）</span>
+      ${alcLine?'<br>'+alcLine:''}${earlyLine?'<br>'+earlyLine:''}${otLine?'<br>'+otLine:''}${_carLine(id,r,ci)}
+      ${isExecId(id)?'<br><span style="color:var(--dim)">👔 役員のため残業・早出の集計はありません</span>':`<br>📅 今月の残業累計：${monthOTBadge(id,thisMonth())}<span style="color:var(--dim)">（上限 45時間）</span>
+      <br>🗓 今年度の残業累計：${yearOTBadge(id,thisMonth())}<span style="color:var(--dim)">（上限 360時間／${esc(otYearLabel(thisMonth()))}）</span>`}
     </div>
     <div class="syncpill" style="margin-top:8px;font-size:11px;padding:4px 8px;border-radius:8px;line-height:1.5"></div>`;
   ['todayStatusEmp','todayStatusAdm','todayStatusExec'].forEach(function(x){const e=document.getElementById(x);if(e){e.innerHTML=html;e.style.display='';}});
   try{renderDisplayPrefs();}catch(e){}
   try{renderSyncPill();}catch(e){}
+  try{renderHolBtn();}catch(e){}
   // 旧・分散表示は統合カードに集約（重複を避ける）
   ['alcStatusEmp','alcStatusAdm','alcStatusExec','otStatusEmp','otStatusAdm','otStatusExec'].forEach(function(x){const e=document.getElementById(x);if(e)e.innerHTML='';});
 }
@@ -4929,6 +5153,7 @@ function otApplySubmit(){
    未申請・申請中・却下の日は0（＝支給対象外）。運用は「基本受理」。
    CSVの「残業(分)」は打刻ベースの実績（36協定の上限管理・参考用）で、支給には「支給残業(分)」を使う。 */
 function countedOT(r,empId){
+  if(isExecId(empId))return 0; // alc36
   const ot=(r&&r.overtimeMinutes!=null)?r.overtimeMinutes:recOT(r,empId);
   if(ot<=OT_THRESHOLD)return ot;
   return r&&r.otStatus==='approved'?ot:0;
@@ -4950,7 +5175,7 @@ function _otScopeIds(){
 function otPendingList(){
   const ids=_otScopeIds(),out=[];
   Object.keys(records||{}).forEach(function(empId){
-    if(!ids.has(empId))return;
+    if(!ids.has(empId)||isExecId(empId))return;
     (records[empId]||[]).forEach(function(r){
       if((r.overtimeMinutes||0)>OT_THRESHOLD&&r.otStatus==='pending')out.push({empId:empId,r:r});
     });
@@ -5001,7 +5226,7 @@ function updateOtBadge(){try{renderOtQueue();}catch(e){}}
 /* ── alc33: 月次の締めチェック（管理者） ── */
 function _closeMonth(){const i=document.getElementById('closeMonth');return (i&&i.value)||selectedMonth||thisMonth();}
 function closeCheckData(month){
-  const ids=Array.from(_otScopeIds());
+  const ids=Array.from(_otScopeIds()).filter(id=>!isExecId(id)); // alc36: 役員は残業・早出の対象外
   const nameById={};accounts.forEach(a=>nameById[a.id]=a.name);
   const otPend=[],otUnapplied=[],autoCo=[],early=[];
   ids.forEach(id=>(records[id]||[]).forEach(r=>{
@@ -5036,8 +5261,25 @@ function renderCloseCheck(){
   if(d.autoCo.length){h+=`<div class="card"><div class="ct">⏰ 打刻忘れ（自動退勤）未確認（${d.autoCo.length}件）</div>${_forgotListHtml(d.ids,month)}</div>`;}
   if(d.early.length){h+=`<div class="card"><div class="ct">🌅 早出あり（未処理 ${d.early.length}件）</div><div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.7">所定始業より前に出勤した記録です。早出は原則禁止で事前申請が必要なため、<b>事前に申請・許可した早出のみ「承認」</b>してください。承認すると始業前の時間が残業に加算されます。許可していない場合は「対象外」にしてください（残業には加算されません）。</div>${d.early.map(x=>_earlyRowHtml(x,d.nameById)).join('')}</div>`;}
   if(d.lvPend.length){h+=`<div class="card"><div class="ct">🏖 有給 申請中（${d.lvPend.length}件）</div><button class="sbv" onclick="showAdminPgById('leave')">有給管理タブで承認する</button></div>`;}
+  h+=_fuelCloseHtml(d.ids,month,d.nameById); // alc36
   sec.innerHTML=h;
   updateCloseBadge();
+}
+/* ── alc36: 締めチェックの自家用車（給油枠・保険・車検）。情報表示のみで締めは止めない ── */
+function _fuelCloseHtml(ids,month,nameById){
+  const own=(ids||[]).filter(id=>isOwnCar(id));if(!own.length)return '';
+  const rows=own.map(id=>{
+    const st=fuelStat(id,month),acc=accounts.find(a=>a.id===id)||{};
+    const over=st.balance<-FUEL_OVER_WARN_L;
+    const col=over?'var(--rd)':st.balance<0?'var(--yw)':'var(--gn)';
+    return `<div class="dcfm" style="margin-bottom:8px">
+      <div class="dcfm-row"><span><b>${esc(nameById[id]||acc.name||'')}</b>（燃費 ${st.eff} km/L）</span><span class="v" style="color:${col}">累計残高 ${st.balance>0?'+':''}${st.balance} L${over?' ⚠ 超過':''}</span></div>
+      <div class="dcfm-row"><span>${esc(month)} 業務走行 → 負担枠</span><span class="v">${st.mKm} km → ${st.mAllow} L</span></div>
+      <div class="dcfm-row"><span>${esc(month)} 会社カード給油</span><span class="v">${st.mL} L（${st.mCount}回・¥${st.mYen.toLocaleString()}）</span></div>
+      ${vehicleWarnHtml(acc)?`<div style="margin-top:4px">${vehicleWarnHtml(acc)}</div>`:''}
+    </div>`;
+  }).join('');
+  return `<div class="card"><div class="ct">⛽ 自家用車の給油枠（参考・${own.length}名）</div><div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.7">業務走行÷燃費＝会社負担枠。会社カードでの給油が枠を超えた分は翌月の業務走行で相殺されます。累計で ${FUEL_OVER_WARN_L}L 以上超過している場合は本人に確認し、必要なら清算してください（締めの件数には含めません）。</div>${rows}</div>`;
 }
 /* ── alc34: 早出の承認／対象外 ── */
 function _earlyRowHtml(x,nameById){
@@ -5187,6 +5429,7 @@ async function _alcCommit(pc){
       let ch=false;
       if(pc.type==='co'&&pc.otApply){_r.otGenres=pc.otApply.genres;_r.otComment=pc.otApply.comment;_r.otStatus='pending';_r.otAppliedAt=Date.now();ch=true;}
       if(pc.earlyApply&&pc.earlyApply.comment){_r.earlyComment=pc.earlyApply.comment;_r.earlyStatus='pending';_r.earlyApproved=false;_r.earlyDismissed=false;_r.earlyAppliedAt=Date.now();ch=true;}
+      if(pc.type==='co'&&pc.odoEnd!=null){_r.odoEnd=pc.odoEnd;_applyBizKm(_r);ch=true;} // alc36: 自家用車の帰宅ODO → 業務走行
       if(ch){S.set('ka_records',records);try{updateOtBadge();updateCloseBadge();}catch(e){}}
     }
   }catch(e){console.warn('apply write failed',e);}
@@ -5657,9 +5900,9 @@ function autoSaveRecordA(td,dateOverride){
   if(_coM<_ciM)_coM+=1440;
   rec.workMinutes=_coM-_ciM;
   if(rec.fullTimeFlag){
-    rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId))); // alc31: 前残業は計上しない
+    rec.overtimeMinutes=otFor(empId,Math.max(0,_coM-toMins(empEnd(empId)))); // alc31: 前残業は計上しない
   }else{
-    rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId)));
+    rec.overtimeMinutes=otFor(empId,Math.max(0,_coM-toMins(empEnd(empId))));
   }
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
@@ -6001,9 +6244,9 @@ function saveEditA(i){
     if(_eCoM2<_eCiM2)_eCoM2+=1440;
     r.workMinutes=_eCoM2-_eCiM2;
     if(r.fullTimeFlag){
-      r.overtimeMinutes=Math.max(0,_eCoM2-toMins(empEnd(empId)));
+      r.overtimeMinutes=otFor(empId,Math.max(0,_eCoM2-toMins(empEnd(empId))));
     }else{
-      r.overtimeMinutes=Math.max(0,_eCoM2-toMins(empEnd(empId)));
+      r.overtimeMinutes=otFor(empId,Math.max(0,_eCoM2-toMins(empEnd(empId))));
     }
   }
   S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditListA();
@@ -6233,9 +6476,9 @@ function adminAutoSave(td){
   if(_coM2<_ciM2)_coM2+=1440;
   rec.workMinutes=_coM2-_ciM2;
   if(rec.fullTimeFlag){
-    rec.overtimeMinutes=Math.max(0,_coM2-toMins(empEnd(empId)));
+    rec.overtimeMinutes=otFor(empId,Math.max(0,_coM2-toMins(empEnd(empId))));
   }else{
-    rec.overtimeMinutes=Math.max(0,_coM2-toMins(empEnd(empId)));
+    rec.overtimeMinutes=otFor(empId,Math.max(0,_coM2-toMins(empEnd(empId))));
   }
   if(!records[empId])records[empId]=[];
   const idx2=records[empId].findIndex(r=>r.date===dk);
@@ -6386,8 +6629,8 @@ function execAutoSave(td){
   let _coM=toMins(rec.checkout),_ciM=toMins(rec.checkin);
   if(_coM<_ciM)_coM+=1440;
   rec.workMinutes=_coM-_ciM;
-  if(rec.fullTimeFlag){rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId)));}
-  else{rec.overtimeMinutes=Math.max(0,_coM-toMins(empEnd(empId)));}
+  if(rec.fullTimeFlag){rec.overtimeMinutes=otFor(empId,Math.max(0,_coM-toMins(empEnd(empId))));}
+  else{rec.overtimeMinutes=otFor(empId,Math.max(0,_coM-toMins(empEnd(empId))));}
   if(!records[empId])records[empId]=[];
   const idx=records[empId].findIndex(r=>r.date===dk);
   if(idx>=0){
@@ -6870,6 +7113,7 @@ function loadStateFromLocal(){
   lockedMonths=S.get('ka_locked_months')||{};
   lockedEmpMonths=S.get('ka_locked_emp_months')||{};
   alcChecks=S.get('ka_alc_checks')||[];
+  fuelLogs=S.get('ka_fuel')||[]; // alc36
   try{dataIntegrityCheck();}catch(e){console.warn('integrity check error',e);} // alc33: 読み取り専用の整合性チェック（データは一切書き換えない）
   sanitizeTodayMap(); // ★同期で復活しうる古い「勤務中」状態を records と整合（誤自動退勤の防止）
   pruneAlcChecks(); // 13ヶ月より古い確認記録を削除（1年保存義務+余裕分）
