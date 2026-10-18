@@ -393,11 +393,14 @@ html[data-theme="light"] .hdr,html[data-theme="light"] .nav{background:#25406b;b
 html[data-theme="light"] .hdr-title{color:#fff}html[data-theme="light"] .hdr-date{color:#c7d2e6}
 html[data-theme="light"] .hbtn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
 html[data-theme="light"] .nb{color:#c7d2e6}html[data-theme="light"] .nb.active{color:#fff;border-bottom-color:#fff}
+/* alc37: ライト時、カード内（白背景）の .hbtn は白文字だと見えない（訪問実績「今日」・「↩ 判定を変更」・「✔ 確認済み」・「🔄 最新を取得」）→ 通常色に戻す */
+html[data-theme="light"] .card .hbtn{background:var(--sf2);border-color:var(--bd);color:var(--tx)}
 @media(prefers-color-scheme:light){
   html:not([data-theme="dark"]) .hdr,html:not([data-theme="dark"]) .nav{background:#25406b;border-color:#1d3356}
   html:not([data-theme="dark"]) .hdr-title{color:#fff}html:not([data-theme="dark"]) .hdr-date{color:#c7d2e6}
   html:not([data-theme="dark"]) .hbtn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
   html:not([data-theme="dark"]) .nb{color:#c7d2e6}html:not([data-theme="dark"]) .nb.active{color:#fff;border-bottom-color:#fff}
+  html:not([data-theme="dark"]) .card .hbtn{background:var(--sf2);border-color:var(--bd);color:var(--tx)}
 }
 /* 文字を大きく（設定トグル・端末ごと） */
 html[data-bigtext="1"] body{zoom:1.15}
@@ -484,7 +487,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.03-alc36 (役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.18-alc37 (酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -519,6 +522,12 @@ html[data-bigtext="1"] body{zoom:1.15}
   <!-- TODAY -->
   <div id="pg-today" class="page active">
     <div class="card" id="todayStatusEmp" style="display:none"></div>
+    <!-- alc37: 選任された確認者（運転管理者・副・補助者）向け。トップで判定できる -->
+    <div class="card" id="alcTopCardEmp" style="display:none">
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px">🍃 酒気帯び確認<button class="hbtn" onclick="alcRefreshBtn(this)">🔄 最新を取得</button></div>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:8px">写真の顔色・表情と検知器の数値を確認して判定します。写真なしは電話等で本人と対話して判定。<b>確認すると写真は自動削除</b>（記録は1年保存）。別の確認者が先に判定した分は自動で消えます。</p>
+      <div id="alcTopListEmp"></div>
+    </div>
     <div class="card">
       <div class="clk-wrap">
         <div class="clk" id="clock">--:--:--</div>
@@ -552,7 +561,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <!-- 酒気確認（運転管理者・副運転管理者のみ表示） -->
   <div id="pg-alc" class="page">
     <div class="card">
-      <div class="ct">🍃 酒気帯び確認（未確認）</div>
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px">🍃 酒気帯び確認（未確認）<button class="hbtn" onclick="alcRefreshBtn(this)">🔄 最新を取得</button></div>
       <p style="font-size:12px;color:var(--dim);margin-bottom:11px">写真の顔色・表情と検知器の測定値を確認し、判定してください。写真なしの場合は電話等で本人と直接対話し、声の調子を確認してください。<b>確認すると写真は自動削除されます</b>（確認記録は1年間保存されます）。</p>
       <div id="alcQueueListEmp"></div>
     </div>
@@ -734,6 +743,12 @@ html[data-bigtext="1"] body{zoom:1.15}
   <!-- ADMIN: 今日 -->
   <div id="pg-admin-today" class="page">
     <div class="card" id="todayStatusAdm" style="display:none"></div>
+    <!-- alc37: 選任された確認者（運転管理者・副・補助者）向け。トップで判定できる -->
+    <div class="card" id="alcTopCardAdm" style="display:none">
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px">🍃 酒気帯び確認<button class="hbtn" onclick="alcRefreshBtn(this)">🔄 最新を取得</button></div>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:8px">写真の顔色・表情と検知器の数値を確認して判定します。写真なしは電話等で本人と対話して判定。<b>確認すると写真は自動削除</b>（記録は1年保存）。別の確認者が先に判定した分は自動で消えます。</p>
+      <div id="alcTopListAdm"></div>
+    </div>
     <div class="card" id="otQueueCard" style="display:none">
       <div class="ct">⏰ 残業申請の承認待ち</div>
       <div id="otQueueList"></div>
@@ -774,7 +789,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <!-- ADMIN: 酒気帯び確認 -->
   <div id="pg-admin-alc" class="page">
     <div class="card">
-      <div class="ct">🍃 酒気帯び確認（未確認）</div>
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px">🍃 酒気帯び確認（未確認）<button class="hbtn" onclick="alcRefreshBtn(this)">🔄 最新を取得</button></div>
       <p style="font-size:12px;color:var(--dim);margin-bottom:11px">写真の顔色・表情と検知器の測定値を確認し、判定してください。写真なしの場合は電話等で本人と直接対話し、声の調子を確認してください。<b>確認すると写真は自動削除されます</b>（確認記録は1年間保存されます）。</p>
       <div id="alcQueueList"></div>
     </div>
@@ -1009,7 +1024,7 @@ html[data-bigtext="1"] body{zoom:1.15}
       </div>
     </div>
     <div class="card" id="execAlcCard" style="display:none">
-      <div class="ct">🍃 酒気帯び確認（店舗別）<span class="badge-dot" id="alcBadgeExec"></span></div>
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>🍃 酒気帯び確認（店舗別）<span class="badge-dot" id="alcBadgeExec"></span></span><button class="hbtn" onclick="alcRefreshBtn(this)">🔄 最新を取得</button></div>
       <p style="font-size:12px;color:var(--dim);margin-bottom:11px">管理対象店舗の酒気確認をここで判定できます。店舗タブは折りたたみ（未確認件数を表示）。タップで開くと「確認待ち」の判定と、1日ごとに折りたたんだ「確認履歴」を表示（⚠退勤忘れは赤で強調）。<b>確認すると写真は自動削除されます</b>（記録は1年間保存）。※運転管理者の選任は各店舗に入って「従業員管理」で行います。</p>
       <div id="alcExecByStore"></div>
     </div>
@@ -1269,7 +1284,7 @@ html[data-bigtext="1"] body{zoom:1.15}
     <div class="fr"><label class="fl">理由・コメント（自由記入）</label><textarea class="fi" id="alcng-note" rows="2" placeholder="例: 検知器の誤作動。本人と電話確認し顔色・呼気とも問題なし ／ 30分後に再測定して報告" style="resize:vertical"></textarea></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="sbv" onclick="closeAlcNg()" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
-      <button class="sbv" id="alcng-submit" onclick="submitAlcNg()" style="background:var(--rd)">記録する</button>
+      <button class="sbv" id="alcng-submit" onclick="alcNgSubmitBtn(this)" style="background:var(--rd)">記録する</button>
     </div>
   </div>
 </div>
@@ -1362,7 +1377,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=36;
+const APP_BUILD=37;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1547,6 +1562,7 @@ const DB={
         if(res.ok||res.status===201||res.status===200){
           this._dirtyKeys.delete(k);
           this._recentlyFlushed.set(k,Date.now());
+          if(k==='ka_alc_checks'){try{_alcBumpVer();}catch(e){}} // alc37: 酒気確認を送ったら変更番号も更新（他端末の軽量取り込みが気づけるように）
         }
       }catch(e){console.warn('Flush error:',k,e);}
     }
@@ -1582,7 +1598,7 @@ const DB={
             const mergedA=alcMergeArrays(localArr,remoteArr);
             localStorage.setItem(LSK('ka_alc_checks'),JSON.stringify(mergedA));
             // ローカルの方が進んでいれば（他確認者の判定を含む）サーバへ再pushして全端末を収束
-            if(_alcAhead(mergedA,remoteArr))this._push('ka_alc_checks',mergedA);
+            if(_alcAhead(mergedA,remoteArr)){this._push('ka_alc_checks',mergedA);try{_alcBumpVer();}catch(e){}} // alc37: 変更番号も更新
           }catch(e){/* マージ失敗時はローカル維持（remoteで上書きしない＝確認済みを守る） */}
           return;
         }
@@ -1609,6 +1625,8 @@ const DB={
       // 古い保護記録をクリア
       for(const[k,t] of this._recentlyFlushed){if(now-t>15000)this._recentlyFlushed.delete(k);}
       this._lastPullAt=Date.now(); // 最終同期時刻（自動退勤の安全判定に使用）
+      // alc37: 酒気確認は今まるごと取り込んだので「最新を見た」状態にする（直後の alcRefresh が本体を取り直さない）
+      try{if(rows.some(r=>r.key==='ka_alc_checks')){_alcLastFull=Date.now();const vv=rows.find(r=>r.key==='ka_alc_ver');if(vv&&!this._dirtyKeys.has('ka_alc_checks'))_alcVerSeen=vv.value;}}catch(e){}
       return true;
     }catch(e){console.warn('Supabase pull error:',e);return false;}
   },
@@ -1809,12 +1827,14 @@ function enterApp(acc){
     document.getElementById('lr-date').value=todayKey();
     updateLeaveTypeUI();
     renderAlcStatusSelf();applyAlcTabVisibility();updateAlcBadge();
+    try{renderAlcQueue();}catch(e){} // alc37: 確認者なら今日画面のトップカードを表示
   }
 }
 function enterAdminView(acc){
   if(!acc)acc=curAcc();
   reconcileTodayMap(); // 記録から当日状態を復元（退勤不可の防止）
   showScreen('admin');renderAdmin();updateLeaveBadge();updateAlcBadge();renderAlcStatusSelf();applyAdminNavVisibility();applyAlcTabVisibility();
+  try{renderAlcQueue();}catch(e){} // alc37: 確認者なら今日画面のトップカードを表示
   try{const act=document.querySelector('#adminNav .nb.active');setAdminGroup((act&&act.getAttribute('data-grp'))||'store',true);}catch(e){} // alc33: 現在タブのグループを表示
   const ab=document.getElementById('adminBadge');if(ab)ab.textContent='🔑 '+acc.name;
   const sl=document.getElementById('adminStoreLabel');
@@ -2061,14 +2081,7 @@ function checkPendingAutoCheckout(){
       if(_hasCheckoutEvidence(e.id,pending.date))return;
       const autoTime=pending.fullTimeFlag?settings.end:empEnd(e.id);
       pending.checkout=autoTime;pending.autoCheckout=true;
-      let _coM=toMins(autoTime),_ciM=toMins(pending.checkin);
-      if(_coM<_ciM)_coM+=1440;
-      pending.workMinutes=_coM-_ciM;
-      if(pending.fullTimeFlag){
-        pending.overtimeMinutes=otFor(e.id,Math.max(0,_coM-toMins(empEnd(e.id)))); // alc31: 前残業は計上しない
-      }else{
-        pending.overtimeMinutes=otFor(e.id,Math.max(0,_coM-toMins(empEnd(e.id))));
-      }
+      _recalcOTStored(pending,e.id); // alc37: 残業(分)は recOT に1本化。自動退勤で出勤が所定終業より遅い日は勤務0・残業0（24時間残業の誤計上を防ぐ）
       S.set('ka_records',records);
       todayMap[e.id]={};
       ensureForgotCheckoutAlc(e,pending.date,autoTime); // 退勤忘れ→退勤側酒気確認を電話確認待ちで作成
@@ -2200,6 +2213,7 @@ function openHolidayOdoModal(){
   if(isOwnCar(session.id)){openFuelModal();return;} // 自家用車の人はこのボタンが給油記録になる
   if(isMonthLocked(todayKey().slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
   const rec=holTodayRec(),ph=holPhase();
+  if(rec&&(rec.checkin||rec.checkout)){showToast('⚠ 本日は出勤打刻があるため休日利用は記録できません（出勤せず車両のみ使用した日の機能です）');return;} // alc37: 出勤日のメモ・ODOを休日利用で上書きしない
   const inp=document.getElementById('hol-odo');if(inp)inp.value=(ph==='end'&&rec&&rec.odometer!=null)?rec.odometer:'';
   const pe=document.getElementById('hol-purpose');if(pe)pe.value=(rec&&rec.memo)?rec.memo:'';
   const tt=document.getElementById('hol-title'),ds=document.getElementById('hol-desc'),si=document.getElementById('hol-start-info'),lb=document.getElementById('hol-odo-lbl'),sb=document.getElementById('hol-submit');
@@ -2224,6 +2238,7 @@ function submitHolidayOdo(){
   if(!session)return;
   const dk=todayKey();
   if(isMonthLocked(dk.slice(0,7),session?.id)){showToast('🔒 この月はロックされています');return;}
+  {const _r=(records[session.id]||[]).find(r=>r.date===dk);if(_r&&(_r.checkin||_r.checkout)){showToast('⚠ 本日は出勤打刻があるため休日利用は記録できません');closeHolidayOdoModal();return;}} // alc37
   const odoStr=document.getElementById('hol-odo').value;
   if(!odoStr||isNaN(parseFloat(odoStr))||parseFloat(odoStr)<0){const h=document.getElementById('hol-odo-h');if(h)h.innerHTML='<span style="color:var(--rd)">⚠ オドメーター値を正しく入力してください（0以上）</span>';return;}
   const purpose=(document.getElementById('hol-purpose')?.value||'').trim();
@@ -2495,11 +2510,20 @@ function visitBackToCheckout(){
   showToast('↩ 送信前に戻りました（写真・入力は保持）');
 }
 // 最後の送信：退勤(写真アップロード・酒気確認・打刻)＋本日の訪問実績をまとめてコミット
+// alc37: まとめ画面の送信中はボタンを無効化して「送信中…」を表示（写真送信や位置情報取得で数秒かかる間の連打・不安を防ぐ）
+function _vcSending(on){
+  try{
+    const b1=document.getElementById('vc-submit-btn'),b2=document.getElementById('vc-skip-btn');
+    [b1,b2].forEach(b=>{if(!b)return;if(on){if(!b.dataset.lbl)b.dataset.lbl=b.textContent;b.disabled=true;}else{b.disabled=false;if(b.dataset.lbl){b.textContent=b.dataset.lbl;delete b.dataset.lbl;}}});
+    if(on&&b1)b1.textContent='送信中…（写真・打刻を送っています）';
+  }catch(e){}
+}
 async function submitVisitConfirm(){
   if(!session)return;
   if(_actionGuard.has('visitSubmit'))return;_actionGuard.add('visitSubmit');
   try{
     const ap=_collectApplyInputs(); if(!ap.ok){showToast(ap.msg);return;} // alc34: 残業・早出の申請は送信前に必須
+    _vcSending(true);
     if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;pc.viaVisit=true;pc.otApply=ap.otApply;pc.earlyApply=ap.earlyApply;pc.odoEnd=ap.odoEnd;await _alcCommit(pc);}
     if(getAdminFeatures().visits===false){closeVisitConfirmModal();showToast('✅ 送信しました（退勤・写真）');return;}
     const dk=todayKey();
@@ -2514,17 +2538,18 @@ async function submitVisitConfirm(){
     if(typeof renderVSummary==='function')renderVSummary();
     if(typeof renderVSummaryA==='function')renderVSummaryA();
     showToast('✅ 送信しました（退勤・写真・本日の訪問実績）');
-  }finally{setTimeout(()=>_actionGuard.delete('visitSubmit'),1000);}
+  }finally{_vcSending(false);setTimeout(()=>_actionGuard.delete('visitSubmit'),1000);}
 }
 // 訪問は後で入力（スキップ）：退勤（写真・打刻）は送信する
 async function skipVisitConfirm(){
   if(_actionGuard.has('visitSubmit'))return;_actionGuard.add('visitSubmit');
   try{
     const ap=_collectApplyInputs(); if(!ap.ok){showToast(ap.msg);return;} // alc34: 訪問を後回しにしても申請は必須
+    _vcSending(true);
     if(_pendingCheckout){const pc=_pendingCheckout;_pendingCheckout=null;pc.viaVisit=true;pc.otApply=ap.otApply;pc.earlyApply=ap.earlyApply;pc.odoEnd=ap.odoEnd;await _alcCommit(pc);}
     closeVisitConfirmModal();
     showToast('✅ 退勤を送信しました（訪問実績は後で入力できます）');
-  }finally{setTimeout(()=>_actionGuard.delete('visitSubmit'),1000);}
+  }finally{_vcSending(false);setTimeout(()=>_actionGuard.delete('visitSubmit'),1000);}
 }
 function loadVisit(dk){
   if(!session)return;
@@ -3365,6 +3390,7 @@ function saveEdit(i){
   if(newFt!==(r.fullTimeFlag||false))ch.push(`常勤出勤:${r.fullTimeFlag?'ON':'OFF'}→${newFt?'ON':'OFF'}`);
   if(!ch.length){showToast('変更はありませんでした');return;}
   const _coChanged=(newCo!==r.checkout); // 退勤時刻が手動で変更されたか
+  const _ciChanged=(newCi!==r.checkin)||(newFt!==(r.fullTimeFlag||false)); // alc37: 出勤時刻（または常勤フラグ）が変わったか＝早出の再判断
   r.checkin=newCi;r.checkout=newCo;r.health=newHl;r.alcohol=newAl;r.alcoholOut=newAo;r.memo=newMe;r.fullTimeFlag=newFt;
   // ★退勤時刻を手動で修正したら「自動退勤」フラグを外す（本物の退勤として同期保護の対象にする）
   if(_coChanged&&newCo)r.autoCheckout=false;
@@ -3380,17 +3406,10 @@ function saveEdit(i){
     r.odometer=null;r.todayKm=null;
     if(olderIdx>=0){recs[olderIdx].todayKm=newerOdo!=null&&newerOdo>recs[olderIdx].odometer?parseFloat((newerOdo-recs[olderIdx].odometer).toFixed(1)):null;}
   }
-  if(r.checkin&&r.checkout){
-    let _eCoM=toMins(r.checkout),_eCiM=toMins(r.checkin);
-    if(_eCoM<_eCiM)_eCoM+=1440;
-    r.workMinutes=_eCoM-_eCiM;
-    if(r.fullTimeFlag){
-      r.overtimeMinutes=otFor(session.id,Math.max(0,_eCoM-toMins(empEnd(session.id)))); // alc31: 前残業は計上しない
-    }else{
-      r.overtimeMinutes=otFor(session.id,Math.max(0,_eCoM-toMins(empEnd(session.id))));
-    }
-  }
-  S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditList();
+  const _notes=_resetApprovalsAfterEdit(r,empId,_ciChanged,_coChanged); // alc37: 残業(分)は recOT に1本化＋承認状態の整理
+  if(_notes.length)ch.push('【'+_notes.join('・')+'】');
+  S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました'+(_notes.length?'（'+_notes.join('・')+'）':''));renderEditList();
+  try{updateCloseBadge();renderTodayStatus();}catch(e){}
 }
 function addALog(type,date,msg){
   const acc=curAcc();auditLog.unshift({type,empName:acc?.name||'不明',date,msg,ts:new Date().toISOString()});S.set('ka_audit',auditLog);
@@ -3459,7 +3478,7 @@ function renderAdmin(){
         <div><div class="sml">総オンコール</div><div class="smv" style="color:var(--ac2)">${tOC}<span style="font-size:11px"> 回</span></div></div>
         ${tNY>0?`<div><div class="sml">🎍 年末年始手当</div><div class="smv" style="color:var(--ac2)">¥${tNY.toLocaleString()}</div></div>`:''}
       </div>
-      <div style="margin-top:12px;text-align:right"><button class="mb mb-b" style="padding:8px 16px;font-size:12px" onclick="exportCSV('${month}','${curAcc()?.storeId||''}')">📥 CSV出力（${parseInt(am)}月）</button></div>
+      <div style="margin-top:12px;text-align:right"><button class="mb mb-b" style="padding:8px 16px;font-size:12px" onclick="exportCSV('${month}','${currentStoreId||curAcc()?.storeId||''}')">📥 CSV出力（${parseInt(am)}月）</button></div>
     </div>`+_forgotListHtml(emps.map(e=>e.id),month);
   const dk=todayKey();
   document.getElementById('adminEmpCards').innerHTML=emps.map(e=>{
@@ -3470,8 +3489,8 @@ function renderAdmin(){
     const isCurrentMonth=month===thisMonth();
     const td=todayMap[e.id]||{},todayRec=(records[e.id]||[]).find(r=>r.date===dk);
     let chipCls='tc-a',chipLbl=isCurrentMonth?'未出勤':'';
-    if(isCurrentMonth&&todayRec){chipCls='tc-d';chipLbl=`${todayRec.checkin}〜${todayRec.checkout}`;}
-    else if(isCurrentMonth&&td.checkinTime&&!td.checkoutTime){chipCls='tc-w';chipLbl=`${td.checkinTime}〜勤務中`;}
+    if(isCurrentMonth&&todayRec&&todayRec.checkin&&todayRec.checkout){chipCls='tc-d';chipLbl=`${todayRec.checkin}〜${todayRec.checkout}`;} // alc37: 退勤済みのときだけ「出〜退」。出勤のみ（記録は出勤時に先行作成される）は下の「勤務中」へ
+    else if(isCurrentMonth&&((td.checkinTime&&!td.checkoutTime)||(todayRec&&todayRec.checkin&&!todayRec.checkout))){chipCls='tc-w';chipLbl=`${td.checkinTime||todayRec.checkin}〜勤務中`;}
     const nameBadge=e.role==='executive'
       ?'<span style="font-size:10px;background:rgba(180,127,247,.15);color:var(--pu);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:5px">👔 役員</span>'
       :e.role==='admin'
@@ -3817,7 +3836,8 @@ function showEmpPg(id,btn){
   document.querySelectorAll('#empNav .nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('pg-'+id).classList.add('active');btn.classList.add('active');
   try{window.scrollTo(0,0);}catch(e){} // ★タブ切替時は必ず先頭へ（深いスクロール位置の引き継ぎでヘッダーが見えなくなるのを防止）
-  if(id==='alc'){renderAlcQueue();updateAlcBadge();}
+  if(id==='alc'){renderAlcQueue();updateAlcBadge();try{alcRefresh();}catch(e){}} // alc37: 表示時にサーバーの変更番号を確認（変わっていれば取り込み）
+  if(id==='today'){try{renderAlcQueue();if(canConfirmAlc())alcRefresh();}catch(e){}} // alc37: 今日画面のトップカード
   if(id==='visits'){updateCare30Label();updateOncallVisibility();initVisitTab();renderVisitEdit();}
   if(id==='leave')renderLeaveTab();
   if(id==='records')renderRecords();
@@ -3848,9 +3868,9 @@ function showAdminPg(id,btn){
   document.getElementById('pg-admin-'+id).classList.add('active');btn.classList.add('active');
   try{const g=btn.getAttribute('data-grp');if(g)setAdminGroup(g,true);}catch(e){}
   try{window.scrollTo(0,0);}catch(e){} // ★タブ切替時は必ず先頭へ（深いスクロール位置の引き継ぎでヘッダーが見えなくなるのを防止）
-  if(id==='today'){updateOdoHintA();updateCare30LabelA();renderAlcStatusSelf();try{renderOtQueue();}catch(e){}}
+  if(id==='today'){updateOdoHintA();updateCare30LabelA();renderAlcStatusSelf();try{renderOtQueue();}catch(e){}try{renderAlcQueue();if(canConfirmAlc())alcRefresh();}catch(e){}} // alc37: 今日画面のトップカード
   if(id==='close'){try{renderCloseCheck();}catch(e){}}
-  if(id==='alc'){renderAlcQueue();updateAlcBadge();}
+  if(id==='alc'){renderAlcQueue();updateAlcBadge();try{alcRefresh();}catch(e){}} // alc37: 表示時にサーバーの変更番号を確認（変わっていれば取り込み）
   if(id==='visits'){updateCare30LabelA();updateOncallVisibilityA();initAVisitTab();renderVisitEditA();}
   if(id==='aleave')renderLeaveTabA();
   if(id==='arecords'){selectedMonthA=null;renderRecordsA();}
@@ -4252,41 +4272,43 @@ function alcFeatureOn(){const f=getAdminFeatures();return f.kintai!==false&&f.he
 // → 各記録に「改訂番号 rev（状態変更のたびに +1）」と updatedAt を持たせ、保存のたびに id 単位で MERGE。
 //   ★rev は端末の時計に依存しない単調増加のため、時計ズレがあっても
 //     「承認(rev↑)」が「作成時の未確認(rev=0)」に巻き戻らない（＝承認が復活しないバグの根治）。
-//   比較優先度: ① rev が大きい方 → ② updatedAt が新しい方 → ③ 進んだ状態(確認済み)を優先。
+//   比較優先度: ① rev が大きい方 → ② 進んだ状態(確認済み)を優先 → ③ updatedAt が新しい方。
+//   ★alc37: ②と③の順序を入れ替えた。同じ rev から「確認(ok)」と「写真再送(nophoto→pending)」のように
+//     別々の遷移が同時に起きると rev が同値になり、従来は「時刻が後の方」＝未確認が確認済みに勝って
+//     「確認したのに未確認に戻る」事故が起きた。確認済みは同じ rev の未確認に負けない。
 function _alcWriteLocal(){try{localStorage.setItem(LSK('ka_alc_checks'),JSON.stringify(alcChecks));}catch(e){console.warn('alc local save failed',e);}}
 // 状態の進み具合ランク（確認済み ok/ng=2 ＞ 電話確認待ち nophoto=1 ＞ 未確認 pending=0）
 function _alcRank(c){const s=c&&c.status;return(s==='ok'||s==='ng')?2:(s==='nophoto'?1:0);}
+// c が ex より「新しい／進んでいる」なら true（＝c を採用）。alcMergeArrays と _alcAhead で同じ判定を使う。
+function _alcWins(c,ex){
+  if(!c||!c.id)return false;
+  if(!ex)return true;
+  const ra=ex.rev||0, rb=c.rev||0;            // ① 改訂番号(rev)＝状態変更のたびに +1。時計ズレに強い。
+  if(rb!==ra)return rb>ra;
+  const ka=_alcRank(ex), kb=_alcRank(c);      // ② rev同値 → 進んだ状態(確認済み)を優先（確認が巻き戻らない）
+  if(kb!==ka)return kb>ka;
+  const ta=ex.updatedAt||0, tb=c.updatedAt||0; // ③ 同rank → updatedAt が新しい方（ok と ng の同時判定など）
+  if(tb!==ta)return tb>ta;
+  return !!(c.confirmedAt&&!ex.confirmedAt);  // ④ 最終手段: 確認済みを優先
+}
 function alcMergeArrays(a,b){
   const byId=new Map();
   const put=c=>{
     if(!c||!c.id)return;
     const ex=byId.get(c.id);
-    if(!ex){byId.set(c.id,c);return;}
-    // ① 改訂番号(rev)＝状態変更のたびに +1。時計ズレに強い。大きい方が新しい状態。
-    const ra=ex.rev||0, rb=c.rev||0;
-    if(rb>ra){byId.set(c.id,c);return;}
-    if(rb<ra){return;}
-    // ② rev同値 → updatedAt が新しい方
-    const ta=ex.updatedAt||0, tb=c.updatedAt||0;
-    if(tb>ta){byId.set(c.id,c);return;}
-    if(tb<ta){return;}
-    // ③ rev・updatedAt とも同値（旧データ／同時操作）→ 進んだ状態(確認済み)を優先し、承認が巻き戻らないようにする
-    if(_alcRank(c)>_alcRank(ex)){byId.set(c.id,c);return;}
-    if(_alcRank(c)===_alcRank(ex)&&c.confirmedAt&&!ex.confirmedAt){byId.set(c.id,c);} // 最終手段: 確認済みを優先
+    if(!ex||_alcWins(c,ex))byId.set(c.id,c);
   };
   (a||[]).forEach(put);(b||[]).forEach(put);
   return[...byId.values()];
 }
-// merged が remote より「進んでいる」（件数が多い or どれかのrev/updatedAtが新しい）か。
+// merged が remote より「進んでいる」（件数が多い or どれかが _alcWins で remote に勝つ）か。
 // pull後にこれが真なら、他確認者へ判定を届けるためサーバへ再pushして収束させる（無駄な再pushは避ける）。
 function _alcAhead(merged,remote){
   const rm=new Map((remote||[]).map(c=>[c.id,c]));
   if((merged||[]).length>rm.size)return true;
   for(const c of (merged||[])){
     const e=rm.get(c.id);
-    if(!e)return true;
-    if((c.rev||0)>(e.rev||0))return true;
-    if((c.rev||0)===(e.rev||0)&&(c.updatedAt||0)>(e.updatedAt||0))return true;
+    if(!e||_alcWins(c,e))return true;
   }
   return false;
 }
@@ -4362,6 +4384,19 @@ async function alcFetchRemote(){
   return null;
 }
 let _alcSyncQueue=Promise.resolve();
+/* ── alc37: 酒気確認の「変更番号」ka_alc_ver ──
+   ka_alc_checks（約0.5MB）を毎回取りに行かずに済むよう、配列を送るたびに小さな番号（送信時刻）を ka_alc_ver に書く。
+   取り込み（alcRefresh）はまず ka_alc_ver だけを取得し、前回と同じなら本体を取りに行かない（通信節約）。
+   旧ビルドの端末は ka_alc_ver を更新しないため、直近の本体取得から ALC_FULL_MAX_MS 以上経っていれば番号に関係なく本体を取り直す。 */
+const ALC_FULL_MAX_MS=90000;
+let _alcVerSeen=null,_alcLastFull=0,_alcPruneCut=null;
+async function _alcFetchVer(){
+  if(!DB.configured())return null;
+  try{const v=await DB._fetchKeyValue('ka_alc_ver');return (v==null)?null:v;}catch(e){return null;}
+}
+function _alcBumpVer(){const v=Date.now();_alcVerSeen=v;try{S.set('ka_alc_ver',v);}catch(e){}return v;} // S.set＝端末保存＋サーバー送信（未送信なら自動再送の対象）
+// 画面状態の指紋（id:status:rev）。変化がないときは再描画しない（開いている履歴の折りたたみを閉じないため）
+function _alcSig(){try{return (alcChecks||[]).map(c=>c.id+':'+c.status+':'+(c.rev||0)).join('|');}catch(e){return '';}}
 function saveAlcChecks(){
   _alcWriteLocal(); // まずローカルへ即時反映（UIの一貫性確保）
   if(!DB.configured())return _alcSyncQueue;
@@ -4369,14 +4404,78 @@ function saveAlcChecks(){
     const remote=await alcFetchRemote();
     if(remote){
       alcChecks=alcMergeArrays(alcChecks,remote); // 自分の変更とリモートをid単位で統合
+      if(_alcPruneCut)alcChecks=alcChecks.filter(c=>!(c.date&&c.date<_alcPruneCut)); // 整理中はマージで古い記録を復活させない
       _alcWriteLocal();
     }
-    DB._push('ka_alc_checks',alcChecks); // MERGE済み配列を同期（他端末の確認結果を保持）
+    await DB._push('ka_alc_checks',alcChecks); // MERGE済み配列を同期（他端末の確認結果を保持）
+    const myVer=_alcBumpVer();
+    _alcLastFull=Date.now();
     if(typeof renderAlcQueue==='function')renderAlcQueue();
     if(typeof updateAlcBadge==='function')updateAlcBadge();
     if(typeof renderAlcStatusSelf==='function')renderAlcStatusSelf();
+    // ★alc37 送信後の検証: 「取得→統合→送信」の隙間に別端末の送信が入ると、サーバー上で片方の変更が消える
+    //   （配列まるごと保存のため）。送信直後に変更番号を見て、自分の番号と違えば本体を取り直して統合し、
+    //   自分の方が進んでいれば再送する。これで「確認したのに他の確認者には未確認に見える」状態を数秒で収束させる。
+    try{
+      await new Promise(r=>setTimeout(r,1500));
+      const v=await _alcFetchVer();
+      if(v!=null&&v!==myVer){
+        const rem2=await alcFetchRemote();
+        if(rem2){
+          let m=alcMergeArrays(alcChecks,rem2);
+          if(_alcPruneCut)m=m.filter(c=>!(c.date&&c.date<_alcPruneCut));
+          const ahead=_alcAhead(m,rem2);
+          alcChecks=m;_alcWriteLocal();_alcLastFull=Date.now();
+          if(ahead){await DB._push('ka_alc_checks',alcChecks);_alcBumpVer();}
+          else{_alcVerSeen=v;}
+          if(typeof renderAlcQueue==='function')renderAlcQueue();
+          if(typeof updateAlcBadge==='function')updateAlcBadge();
+          if(typeof renderAlcStatusSelf==='function')renderAlcStatusSelf();
+        }
+      }
+    }catch(e){console.warn('alc verify failed',e);}
   }).catch(e=>console.warn('alc sync failed',e));
   return _alcSyncQueue;
+}
+/* ── alc37: 酒気確認だけをサーバーから取り込み直す（前面復帰・タブ表示・🔄・判定ボタン押下時に使用）──
+   opts.force=true なら番号に関係なく本体を取得。戻り値: 取り込みを実行して成功したら true。 */
+let _alcRefreshing=null;
+async function alcRefresh(opts){
+  opts=opts||{};
+  if(!DB.configured())return false;
+  if(typeof navigator!=='undefined'&&navigator.onLine===false)return false;
+  if(_alcRefreshing)return _alcRefreshing; // 同時に何度も呼ばれても1回にまとめる
+  _alcRefreshing=(async()=>{
+    const before=_alcSig();
+    try{
+      const timeout=ms=>new Promise(r=>setTimeout(()=>r(undefined),ms));
+      const v=await Promise.race([_alcFetchVer(),timeout(opts.timeoutMs||4000)]);
+      const stale=(Date.now()-_alcLastFull)>ALC_FULL_MAX_MS;
+      if(!opts.force&&!stale&&v!=null&&v===_alcVerSeen)return true; // 変更なし → 本体は取りに行かない
+      const remote=await Promise.race([alcFetchRemote(),timeout(opts.timeoutMs||8000)]);
+      if(!remote)return false;
+      let m=alcMergeArrays(alcChecks,remote);
+      if(_alcPruneCut)m=m.filter(c=>!(c.date&&c.date<_alcPruneCut));
+      const ahead=_alcAhead(m,remote);
+      alcChecks=m;_alcWriteLocal();_alcLastFull=Date.now();
+      if(v!=null)_alcVerSeen=v;
+      if(ahead){DB._push('ka_alc_checks',alcChecks);_alcBumpVer();} // 自端末の方が進んでいれば他端末へ届ける
+      return true;
+    }catch(e){console.warn('alc refresh failed',e);return false;}
+    finally{
+      _alcRefreshing=null;
+      if(opts.render!==false&&_alcSig()!==before){try{renderAlcQueue();updateAlcBadge();renderAlcStatusSelf();}catch(e){}}
+    }
+  })();
+  return _alcRefreshing;
+}
+// 🔄 最新を取得（酒気確認カードのボタン）
+async function alcRefreshBtn(btn){
+  if(btn){btn.disabled=true;btn.textContent='取得中…';}
+  const r=await alcRefresh({force:true});
+  try{renderAlcQueue();updateAlcBadge();renderAlcStatusSelf();}catch(e){}
+  if(btn){btn.disabled=false;btn.textContent='🔄 最新を取得';}
+  showToast(r?'✅ 酒気確認を最新にしました':'⚠ 取得できませんでした（電波状況を確認してください）');
 }
 // 未承認の酒気確認を「確認日から4日経過」で店舗の運転管理者名義で自動承認し写真削除
 function autoApproveStaleAlcChecks(){
@@ -4406,8 +4505,9 @@ function ensureForgotCheckoutAlc(empAcc,dateKey,autoTime){
 function pruneAlcChecks(){
   const cut=new Date();cut.setMonth(cut.getMonth()-13);
   const ck=[cut.getFullYear(),String(cut.getMonth()+1).padStart(2,'0'),String(cut.getDate()).padStart(2,'0')].join('-');
+  _alcPruneCut=ck; // alc37: 以後のマージでも、この日付より古い記録はサーバーから復活させない（整理のたびに再pushし続けるのを防ぐ）
   const before=alcChecks.length;
-  alcChecks=alcChecks.filter(c=>c.date>=ck);
+  alcChecks=alcChecks.filter(c=>!(c.date&&c.date<ck)); // 日付のない異常データは消さない（整合性チェックで検知）
   if(alcChecks.length!==before)saveAlcChecks();
 }
 function alcNowTime(){const n=new Date();return[n.getHours(),n.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');}
@@ -4532,6 +4632,41 @@ function _recalcRec(r,empId){
   r.overtimeMinutes=recOT(r,empId);
   if(r.overtimeMinutes<=OT_THRESHOLD){r.otStatus='none';r.otGenres=[];r.otComment='';}
 }
+/* ── alc37: 残業(分)の保存値を recOT に1本化（承認済み早出を含む） ──
+   従来、退勤打刻（autoSaveRecordA 等）や勤怠修正（saveEdit 等）は「退勤−所定終業」だけで保存していたため、
+   朝のうちに早出を承認→その後退勤、または承認後に本人がメモ等を修正すると、承認した早出分が
+   CSV「支給残業(分)」・月/年度累計から消えていた（画面の今日ステータスは recOT で足していた）。
+   退勤・修正のどの経路でも同じ値になるよう、保存時はここを通す。過去データは書き換えない（次に保存されたときから）。 */
+function _recalcOTStored(r,empId){
+  if(!r||!r.checkin||!r.checkout)return;
+  let co=toMins(r.checkout),ci=toMins(r.checkin);
+  if(r.autoCheckout&&co<ci){ // 自動退勤（退勤忘れ）で出勤が所定終業より遅い日＝翌日扱いにせず勤務0・残業0（24時間残業の誤計上を防ぐ。勤怠修正で実時刻に直す前提）
+    r.workMinutes=0;r.overtimeMinutes=0;r.otStatus='none';r.otGenres=[];r.otComment='';return;
+  }
+  if(co<ci)co+=1440;
+  r.workMinutes=co-ci;
+  r.overtimeMinutes=recOT(r,empId);
+}
+/* ── alc37: 勤怠修正（本人／管理者）で出退勤時刻が変わったときの承認状態の整理 ──
+   ・承認済みの残業(approved)は、時刻変更で支給対象の残業(分)が変わったら「申請中(pending)」に戻し再承認を求める
+     （本人が時刻を延ばすだけで支給が増えるのを防ぐ。区分・理由は保持、承認者情報は消す）
+   ・出勤時刻が変わったら、早出の承認／対象外は取り消して再判断（早出が0分になれば早出の申請状態を消す）
+   ・残業が30分以内になれば従来どおり申請不要（none） */
+function _resetApprovalsAfterEdit(r,empId,ciChanged,coChanged){
+  if(!r)return [];
+  const notes=[];
+  if(ciChanged){
+    const em=(r.checkin&&!isExecId(empId))?recEarly(r,empId):0;
+    if(em<=0){ if(r.earlyStatus||r.earlyApproved||r.earlyDismissed){notes.push('早出なしに');} r.earlyApproved=false;r.earlyDismissed=false;delete r.earlyStatus; }
+    else if(r.earlyApproved||r.earlyDismissed){ r.earlyApproved=false;r.earlyDismissed=false;r.earlyStatus='pending';delete r.earlyReviewedBy;delete r.earlyReviewedAt;notes.push('早出は再承認待ち'); }
+  }
+  const prev=r.overtimeMinutes;
+  _recalcOTStored(r,empId);
+  const ot=r.overtimeMinutes||0;
+  if(ot<=OT_THRESHOLD){ if(r.otStatus&&r.otStatus!=='none')notes.push('残業30分以内（申請不要）'); r.otStatus='none';r.otGenres=[];r.otComment=''; }
+  else if((ciChanged||coChanged)&&r.otStatus==='approved'&&ot!==prev){ r.otStatus='pending';delete r.otReviewedBy;delete r.otReviewedAt;notes.push('残業は再承認待ち'); }
+  return notes;
+}
 // ダイヤル既定値: 出勤=始業5分前/実時刻/始業、退勤=実時刻
 function dialDefault(type,empId){
   const sh=effShift(empId),now=toMins(alcNowTime());
@@ -4585,8 +4720,19 @@ function dialBack(){closeDial();const bk=_dialSt.back;if(typeof bk==='function')
 // 酒気確認画面から「← 時刻に戻る」: 選んだ時刻を保持したままダイヤルへ戻る（写真は保持）
 function alcBackToDial(){
   if(!_alcCtx)return;const c=_alcCtx;
+  // alc37: 撮った写真・測定値・体調を保持して戻れるように退避（従来は openAlcModal が _alcCtx を作り直すため写真が消えていた）
+  const keep={blob:c.blob,val:(document.getElementById('alc-m-val')||{}).value,health:(document.getElementById('alc-m-health')||{}).value};
   document.getElementById('alcModal').classList.remove('open');
-  openStampDial(c.type,c.ftFlag,function(){openAlcModal(c.dom,c.type,c.cb,c.ftFlag,true);},_dialTime||null); // 戻る先はフロー開始時のまま
+  openStampDial(c.type,c.ftFlag,function(){
+    openAlcModal(c.dom,c.type,c.cb,c.ftFlag,true);
+    if(_alcCtx&&keep.blob){
+      _alcCtx.blob=keep.blob;
+      const valEl=document.getElementById('alc-m-val');if(valEl&&keep.val)valEl.value=keep.val;
+      const hSel=document.getElementById('alc-m-health');if(hSel&&keep.health&&c.type==='ci')hSel.value=keep.health;
+      const pv=document.getElementById('alc-m-prev');if(pv){try{pv.src=URL.createObjectURL(keep.blob);pv.style.display='inline-block';}catch(e){}}
+      const st=document.getElementById('alc-m-stat');if(st){st.textContent='📷 撮影済み（撮り直す場合は再度撮影）';st.style.color='var(--gn)';}
+    }
+  },_dialTime||null); // 戻る先はフロー開始時のまま
 }
 function _dialSetTime(t){const m=toMins(t),h=Math.floor(m/60),mi=m%60;_dialSt.d=[Math.floor(h/10),h%10,Math.floor(mi/10),mi%10];}
 function _dialTimeVal(){let h=_dialSt.d[0]*10+_dialSt.d[1],m=_dialSt.d[2]*10+_dialSt.d[3];if(h>23)h=23;if(m>59)m=59;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
@@ -4663,6 +4809,7 @@ function dialNext(){
   }
   closeDial();
   _dialTime=t;
+  if(_dialSt.type==='ci')_dialEarly=null; // alc37: 早出理由を入れた後に時刻を所定に戻した場合、早出申請を持ち越さない
   const nx=_dialSt.next;
   if(typeof nx==='function')nx(t); // ※_dialOdoは酒気確認から「時刻に戻る」で再編集できるよう、打刻確定時（_alcCommit）に消す
 }
@@ -4809,8 +4956,12 @@ async function retryPhotoQueue(){
   for(const it of _photoRetryQ.slice()){
     try{
       await Promise.race([alcUpload(it.blob,it.path),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),20000))]);
+      // ★alc37: 写真が送れた時点で、既に確認者が電話確認などで判定済みなら「確認待ち」に戻さない
+      //   （従来は自端末の古い nophoto を見て pending に戻し、同じ rev で時刻が後のため確認済みを巻き戻していた）
+      try{const rem=await alcFetchRemote();if(rem){alcChecks=alcMergeArrays(alcChecks,rem);_alcWriteLocal();}}catch(e){}
       const c=alcChecks.find(x=>x.id===it.alcId);
       if(c&&c.status==='nophoto'){c.photo=it.path;c.status='pending';c.rev=(c.rev||0)+1;c.updatedAt=Date.now();saveAlcChecks();try{renderAlcStatusSelf();updateAlcBadge();}catch(e){}}
+      else if(c&&(c.status==='ok'||c.status==='ng')){alcDeletePhoto(it.path);} // 判定済み → 写真は不要なので削除（容量対策）
       _photoRetryQ.splice(_photoRetryQ.indexOf(it),1);
       showToast('📷 写真の送信が完了しました');
     }catch(e){ it.tries=(it.tries||0)+1; if(it.tries>=30)_photoRetryQ.splice(_photoRetryQ.indexOf(it),1); }
@@ -5169,7 +5320,8 @@ function otStatusLabel(r){
 function _otScopeIds(){
   const acc=curAcc();const ids=new Set();
   if(!acc)return ids;
-  accounts.forEach(function(a){if(a.storeId===acc.storeId)ids.add(a.id);});
+  const store=currentStoreId||acc.storeId; // alc37: 役員が店舗に入っているときはその店舗（酒気確認の alcScopeIds と同じ基準）
+  accounts.forEach(function(a){if(store?a.storeId===store:!a.storeId)ids.add(a.id);});
   return ids;
 }
 function otPendingList(){
@@ -5300,10 +5452,21 @@ function earlyDecide(empId,date,approve){
   if(isMonthLocked(String(date).slice(0,7),empId)){showToast('🔒 この月はロックされています');return;}
   if(approve){r.earlyApproved=true;r.earlyDismissed=false;r.earlyStatus='approved';}else{r.earlyApproved=false;r.earlyDismissed=true;r.earlyStatus='rejected';}
   r.earlyReviewedBy=(curAcc()||{}).name||session?.id||'';r.earlyReviewedAt=Date.now();
-  if(r.checkin&&r.checkout)_recalcRec(r,empId); // 残業(分)を再計算（承認時のみ早出が加算される）
+  let autoApply=false;
+  if(r.checkin&&r.checkout){
+    _recalcRec(r,empId); // 残業(分)を再計算（承認時のみ早出が加算される）
+    // alc37: 早出承認で残業が31分以上に跳ねた日は、未申請のままだと支給0になるため自動で「申請中」にする（管理者が残業承認すれば支給）
+    if(approve&&(r.overtimeMinutes||0)>OT_THRESHOLD&&r.otStatus!=='approved'&&r.otStatus!=='pending'){
+      r.otStatus='pending';r.otAppliedAt=Date.now();
+      if(!Array.isArray(r.otGenres)||!r.otGenres.length)r.otGenres=['早出（承認済み）'];
+      r.otComment=(r.otComment?r.otComment+'／':'')+'早出承認により31分超のため自動申請';
+      autoApply=true;
+    }
+  }
   S.set('ka_records',records);
-  try{addALog('early',date,`早出${approve?'承認（残業に加算）':'対象外'} ${toHHMM(recEarly(r,empId))}／対象: ${(accounts.find(a=>a.id===empId)||{}).name||empId}`);}catch(e){}
-  showToast(approve?'✅ 早出を承認しました（残業に加算）':'対象外にしました');
+  try{addALog('early',date,`早出${approve?'承認（残業に加算）':'対象外'} ${toHHMM(recEarly(r,empId))}／対象: ${(accounts.find(a=>a.id===empId)||{}).name||empId}${autoApply?'／残業31分超のため残業申請を自動作成':''}`);}catch(e){}
+  showToast(approve?(autoApply?'✅ 早出を承認しました。残業が31分以上になったため「残業承認待ち」に入れました':'✅ 早出を承認しました（残業に加算）'):'対象外にしました');
+  try{renderOtQueue();}catch(e){}
   try{renderCloseCheck();}catch(e){}
   try{renderTodayStatus();}catch(e){}
 }
@@ -5617,16 +5780,44 @@ function _alcPendRow(c){
         </div>
       </div>
       <div class="pend-btns">
-        <button class="app-btn ok" onclick="confirmAlcCheck('${c.id}')">✅ 酒気帯びなし</button>
-        <button class="app-btn ng" onclick="openAlcNg('${c.id}')">⚠ 異常あり</button>
+        <button class="app-btn ok" onclick="alcJudgeBtn('ok','${c.id}',this)">✅ 酒気帯びなし</button>
+        <button class="app-btn ng" onclick="alcJudgeBtn('ng','${c.id}',this)">⚠ 異常あり</button>
       </div>
     </div>`;
+}
+// ★alc37: 判定ボタン共通入口。押した瞬間にサーバーの最新（変更番号→必要なら本体）を取り込み、
+//   別の確認者（運転管理者／副／補助者）が既に判定済みなら二重判定せず案内を出す。
+//   取得できない（圏外など）ときは従来どおり自端末の状態で判定する。
+async function alcJudgeBtn(kind,id,btn){
+  if(!canConfirmAlc()){showToast('⚠ 酒気確認は運転管理者・副運転管理者・補助者のみ可能です');return;}
+  if(_actionGuard.has('alcJudge'))return;_actionGuard.add('alcJudge');
+  const row=(btn&&btn.closest)?btn.closest('.pend-req'):null;
+  const btns=row?Array.from(row.querySelectorAll('button')):[];
+  const label=btn?btn.textContent:'';
+  btns.forEach(b=>b.disabled=true);
+  if(btn)btn.textContent='確認中…';
+  try{
+    try{await alcRefresh({render:false});}catch(e){}
+    const c=alcChecks.find(x=>x.id===id);
+    if(!c){renderAlcQueue();updateAlcBadge();showToast('ℹ この確認は見つかりませんでした（最新に更新しました）');return;}
+    if(c.status==='ok'||c.status==='ng'){
+      renderAlcQueue();updateAlcBadge();renderAlcStatusSelf();
+      showToast(`ℹ ${c.empName||''}の${c.type==='ci'?'出勤':'退勤'}チェックは既に別の確認者（${c.confirmedBy||'不明'}）が判定済みです`);
+      return;
+    }
+    if(kind==='ok')confirmAlcCheck(id);else openAlcNg(id);
+  }finally{
+    btns.forEach(b=>b.disabled=false);
+    if(btn&&label)btn.textContent=label;
+    _actionGuard.delete('alcJudge');
+  }
 }
 function renderAlcQueue(){
   // 管理者・スタッフの確認キューに描画（役員トップは店舗別に別描画）
   const listEls=[document.getElementById('alcQueueList'),document.getElementById('alcQueueListEmp')].filter(Boolean);
   const histEls=[document.getElementById('alcHistList'),document.getElementById('alcHistListEmp')].filter(Boolean);
   if(document.getElementById('alcExecByStore'))renderExecAlcByStore(); // 役員トップ(店舗別)も同時更新
+  try{_renderAlcTopCards();}catch(e){console.warn('alc top card render failed',e);} // alc37: 今日画面のトップカード（スタッフ／管理者の確認者向け）
   if(!listEls.length)return;
   const ids=alcScopeIds();
   const pend=alcChecks.filter(c=>(c.status==='pending'||c.status==='nophoto')&&ids.has(c.empId))
@@ -5638,6 +5829,29 @@ function renderAlcQueue(){
   const hist=alcChecks.filter(c=>(c.status==='ok'||c.status==='ng')&&ids.has(c.empId)&&c.date>=ck)
     .sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
   _renderAlcHistGrouped(histEls,hist);
+}
+// ★alc37: 「今日」画面のトップカード。選任された確認者（運転管理者・副・補助者）にだけ表示し、
+//   自店舗の「確認待ち」をその場で判定できる＋確認済み履歴（直近14日）を折りたたみで表示。
+//   役員トップの店舗別カードと同じ部品（_alcPendRow／_alcHistGroupedHtml）を使う。管理者・スタッフは店舗をまたがないため店舗タブは持たない。
+function _renderAlcTopCards(){
+  const cards=[['alcTopCardEmp','alcTopListEmp'],['alcTopCardAdm','alcTopListAdm']];
+  const me=curAcc();
+  const show=!!(session&&me&&canConfirmAlc()&&(me.role!=='executive'||currentStoreId)); // 役員は店舗に入っている間だけ管理者トップに表示（役員トップには店舗別カードがある）
+  cards.forEach(([cid,lid])=>{
+    const card=document.getElementById(cid),list=document.getElementById(lid);
+    if(!card||!list)return;
+    if(!show){card.style.display='none';list.innerHTML='';return;}
+    const ids=alcScopeIds();
+    const pend=alcChecks.filter(c=>(c.status==='pending'||c.status==='nophoto')&&ids.has(c.empId)).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+    const cut=new Date();cut.setDate(cut.getDate()-14);
+    const ck=[cut.getFullYear(),String(cut.getMonth()+1).padStart(2,'0'),String(cut.getDate()).padStart(2,'0')].join('-');
+    const hist=alcChecks.filter(c=>(c.status==='ok'||c.status==='ng')&&ids.has(c.empId)&&c.date>=ck).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+    const badge=pend.length?`<span style="color:var(--rd);font-weight:700">🔴未確認 ${pend.length}</span>`:`<span style="color:var(--gn)">✅未確認なし</span>`;
+    const pendHtml=pend.length?pend.map(_alcPendRow).join(''):'<div class="empty" style="padding:12px">確認待ちはありません ✨</div>';
+    const histHtml=hist.length?`<details style="margin-top:8px"><summary style="cursor:pointer;padding:7px 10px;background:var(--sf2);border-radius:8px;font-size:12px;font-weight:700;list-style:none;color:var(--dim)">✅ 確認済み履歴（直近14日・${hist.length}件）</summary><div style="padding:6px 2px 2px">${_alcHistGroupedHtml(hist,false)}</div></details>`:'';
+    list.innerHTML=`<div style="padding:2px 4px 8px;font-size:12px">${badge}</div>${pendHtml}${histHtml}`;
+    card.style.display='';
+  });
 }
 function _alcHistRow(c){
   const fg=_alcIsForgot(c);
@@ -5701,7 +5915,7 @@ function confirmAlcCheck(id){
   // 「酒気帯びなし」判定（異常ありは openAlcNg → submitAlcNg 経由）
   if(!canConfirmAlc()){showToast('⚠ 酒気確認は運転管理者・副運転管理者のみ可能です');return;}
   const c=alcChecks.find(x=>x.id===id);if(!c)return;
-  if(c.status==='ok'||c.status==='ng'){renderAlcQueue();return;} // 別の確認者が確認済み
+  if(c.status==='ok'||c.status==='ng'){renderAlcQueue();updateAlcBadge();showToast(`ℹ 既に別の確認者（${c.confirmedBy||'不明'}）が判定済みです`);return;} // 別の確認者が確認済み（alc37: 無言で消さず案内する）
   c.status='ok';
   c.confirmedBy=curAcc()?.name||'';
   c.confirmerRole=driveRoleLabel(curAcc());
@@ -5726,7 +5940,7 @@ function alcNgToggle(){
 function openAlcNg(id){
   if(!canConfirmAlc()){showToast('⚠ 酒気確認は運転管理者・副運転管理者のみ可能です');return;}
   const c=alcChecks.find(x=>x.id===id);if(!c)return;
-  if(c.status==='ok'||c.status==='ng'){renderAlcQueue();return;}
+  if(c.status==='ok'||c.status==='ng'){renderAlcQueue();updateAlcBadge();showToast(`ℹ 既に別の確認者（${c.confirmedBy||'不明'}）が判定済みです`);return;}
   _alcNgId=id;
   const info=document.getElementById('alcng-info');
   if(info)info.textContent=`対象: ${c.empName}（${c.type==='ci'?'🟢 出勤':'🔴 退勤'} ${c.date} ${c.time}／測定値 ${parseFloat(c.val||0).toFixed(2)} mg/L）`;
@@ -5737,6 +5951,14 @@ function openAlcNg(id){
   document.getElementById('alcNgModal').classList.add('open');
 }
 function closeAlcNg(){document.getElementById('alcNgModal').classList.remove('open');_alcNgId=null;}
+// alc37: 「記録する」ボタン入口。入力中に別の確認者が判定した可能性があるため、記録前にサーバーの最新を取り込む
+async function alcNgSubmitBtn(btn){
+  if(_actionGuard.has('alcNgSubmit'))return;_actionGuard.add('alcNgSubmit');
+  const label=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='確認中…';}
+  try{try{await alcRefresh({render:false});}catch(e){} submitAlcNg();}
+  finally{if(btn){btn.disabled=false;if(label)btn.textContent=label;}_actionGuard.delete('alcNgSubmit');}
+}
 function submitAlcNg(){
   if(!canConfirmAlc()){showToast('⚠ 酒気確認は運転管理者・副運転管理者のみ可能です');return;}
   const c=alcChecks.find(x=>x.id===_alcNgId);if(!c){closeAlcNg();return;}
@@ -5931,6 +6153,7 @@ function autoSaveRecordA(td,dateOverride){
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
   const finalRec=records[empId].find(r=>r.date===dk);
   if(finalRec?.odometer!=null)recalcOdoKm(empId,dk);
+  if(finalRec&&!(rec.autoCheckout===true&&finalRec.checkout&&!finalRec.autoCheckout))_recalcOTStored(finalRec,empId); // alc37: 承認済み早出を含めて残業(分)を確定（本物の退勤を自動退勤で上書きしない場合は触らない）
   S.set('ka_records',records);
   todayMap[empId]={};S.set('ka_today',todayMap);
   if(!dateOverride){
@@ -6225,6 +6448,7 @@ function saveEditA(i){
   if(newFtA!==(r.fullTimeFlag||false))ch.push(`常勤出勤:${r.fullTimeFlag?'ON':'OFF'}→${newFtA?'ON':'OFF'}`);
   if(!ch.length){showToast('変更はありませんでした');return;}
   const _coChangedA=(newCo!==r.checkout);
+  const _ciChangedA=(newCi!==r.checkin)||(newFtA!==(r.fullTimeFlag||false)); // alc37: 出勤時刻（または常勤フラグ）が変わったか＝早出の再判断
   r.checkin=newCi;r.checkout=newCo;r.health=newHl;r.alcohol=newAl;r.alcoholOut=newAo;r.memo=newMe;r.fullTimeFlag=newFtA;
   // ★退勤時刻を手動修正したら自動退勤フラグを外す（本物の退勤として同期保護対象に）
   if(_coChangedA&&newCo)r.autoCheckout=false;
@@ -6239,23 +6463,39 @@ function saveEditA(i){
     r.odometer=null;r.todayKm=null;
     if(olderIdx>=0){recs[olderIdx].todayKm=newerOdo!=null&&newerOdo>recs[olderIdx].odometer?parseFloat((newerOdo-recs[olderIdx].odometer).toFixed(1)):null;}
   }
-  if(r.checkin&&r.checkout){
-    let _eCoM2=toMins(r.checkout),_eCiM2=toMins(r.checkin);
-    if(_eCoM2<_eCiM2)_eCoM2+=1440;
-    r.workMinutes=_eCoM2-_eCiM2;
-    if(r.fullTimeFlag){
-      r.overtimeMinutes=otFor(empId,Math.max(0,_eCoM2-toMins(empEnd(empId))));
-    }else{
-      r.overtimeMinutes=otFor(empId,Math.max(0,_eCoM2-toMins(empEnd(empId))));
-    }
-  }
-  S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました');renderEditListA();
+  const _notesA=_resetApprovalsAfterEdit(r,empId,_ciChangedA,_coChangedA); // alc37: 残業(分)は recOT に1本化＋承認状態の整理
+  if(_notesA.length)ch.push('【'+_notesA.join('・')+'】');
+  S.set('ka_records',records);addALog('edit',r.date,ch.join(' ／ '));showToast('✅ 記録を修正しました'+(_notesA.length?'（'+_notesA.join('・')+'）':''));renderEditListA();
+  try{updateCloseBadge();renderTodayStatus();}catch(e){}
 }
 function renderAuditLogA(){
   const empAcc=curAcc();
   _renderAuditGrouped(document.getElementById('aAuditEl'),auditLog.filter(l=>l.empName===empAcc?.name));
 }
 
+// ★alc37: pull（同期取り込み）後の共通再描画。
+//   従来は表示中のタブしか再描画せず、役員トップの酒気確認カードとスタッフ画面の酒気確認タブは
+//   最新を取り込んでも古い「未確認」が残って見えた（別の確認者が判定済みの分が消えない）。
+//   表示中ページに加えて、酒気確認の全画面（役員カード・今日のトップカード・各タブ）と今日のステータスを必ず最新にする。
+//   入力中の画面（勤怠修正・従業員管理・訪問実績）は入力内容を消さないよう再描画しない。
+function _afterPullRefresh(){
+  try{
+    const activePg=document.querySelector('#sc-emp .page.active');
+    if(activePg){const id=activePg.id.replace('pg-','');
+      if(id==='records')renderRecords();if(id==='leave')renderLeaveTab();}
+    const adminPg=document.querySelector('#sc-admin .page.active');
+    if(adminPg){const id=adminPg.id.replace('pg-admin-','');
+      if(id==='summary')renderAdmin();if(id==='leave')renderAdminLeave();if(id==='close'){try{renderCloseCheck();}catch(e){}}if(id==='today'){try{renderOtQueue();}catch(e){}}}
+    const ex=document.getElementById('sc-exec');
+    if(ex&&ex.style.display!=='none'&&typeof renderExecScreen==='function'&&document.getElementById('storeList'))renderExecScreen();
+  }catch(e){console.warn('page re-render failed',e);}
+  try{renderAlcQueue();}catch(e){}
+  try{updateAlcBadge();}catch(e){}
+  try{renderAlcStatusSelf();}catch(e){}
+  try{renderTodayStatus();}catch(e){}
+  try{applyAdminNavVisibility();}catch(e){}
+  try{_alcVerSeen=S.get('ka_alc_ver');_alcLastFull=Date.now();}catch(e){} // 全キーを取り込んだ直後＝酒気確認は最新を見た状態
+}
 async function manualSync(){
   if(!DB.configured()){showToast('⚠ Supabase未設定');return;}
   showLoading('手動同期中...');
@@ -6263,9 +6503,8 @@ async function manualSync(){
   if(ok){
     loadStateFromLocal();
     const activePg=document.querySelector('#sc-admin .page.active');
-    if(activePg){const id=activePg.id.replace('pg-admin-','');if(id==='summary')renderAdmin();if(id==='leave')renderAdminLeave();if(id==='mgmt')renderEmpMgmt();if(id==='alc')renderAlcQueue();}
-    updateAlcBadge();renderAlcStatusSelf();
-    applyAdminNavVisibility();
+    if(activePg){const id=activePg.id.replace('pg-admin-','');if(id==='mgmt')renderEmpMgmt();}
+    _afterPullRefresh();
     showToast('✅ 同期しました');
   }else{showToast('⚠ 同期に失敗しました');}
   hideLoading();
@@ -6320,7 +6559,7 @@ function setDriveRole(id,role){
 function renderExecDriveRole(){
   const card=document.getElementById('execAlcCard');
   if(card)card.style.display=canConfirmAlc()?'':'none';
-  if(canConfirmAlc()){renderExecAlcByStore();updateAlcBadge();}
+  if(canConfirmAlc()){renderExecAlcByStore();updateAlcBadge();try{alcRefresh();}catch(e){}} // alc37: 表示時に変更番号を確認（変わっていれば取り込み）
 }
 // kintai/health/odo は保存値に関わらず常にtrue（出勤ボタン非表示等の旧機能は廃止）
 function getAdminFeatures(){const f=curAcc()?.adminFeatures||{};return {kintai:true,health:true,odo:true,visits:f.visits!==false,leave:f.leave!==false};}
@@ -6502,6 +6741,7 @@ function adminAutoSave(td){
   }
   records[empId].sort((a,b)=>b.date.localeCompare(a.date));
   const fRec=records[empId].find(r=>r.date===dk);
+  if(fRec)_recalcOTStored(fRec,empId); // alc37: 承認済み早出を含めて残業(分)を確定
   if(fRec?.odometer!=null)recalcOdoKm(empId,dk);
   S.set('ka_records',records);
   todayMap[empId]={};S.set('ka_today',todayMap);
@@ -7201,6 +7441,9 @@ function _flushWithKeepalive(){
           headers:DB._hdr(),
           body:JSON.stringify({key:k,value:v})
         }).catch(()=>{});
+        if(k==='ka_alc_checks'){ // alc37: 酒気確認を送るときは変更番号も一緒に送る
+          try{fetch(DB._url+'/rest/v1/'+KV_TABLE,{method:'POST',keepalive:true,headers:DB._hdr(),body:JSON.stringify({key:'ka_alc_ver',value:Date.now()})}).catch(()=>{});}catch(e){}
+        }
       }catch(e){}
     }
   }
@@ -7244,23 +7487,10 @@ document.addEventListener('visibilitychange',async()=>{
     const ok=await DB.pullAll();
     if(ok){
       loadStateFromLocal();
-      // Re-render current page
+      // Re-render current page（訪問実績は従来どおり復帰時に再描画）
       const activePg=document.querySelector('#sc-emp .page.active');
-      if(activePg){
-        const id=activePg.id.replace('pg-','');
-        if(id==='records')renderRecords();
-        if(id==='visits')renderVSummary();
-        if(id==='leave')renderLeaveTab();
-      }
-      const adminPg=document.querySelector('#sc-admin .page.active');
-      if(adminPg){
-        const id=adminPg.id.replace('pg-admin-','');
-        if(id==='summary')renderAdmin();
-        if(id==='leave')renderAdminLeave();
-        if(id==='alc')renderAlcQueue();
-      }
-      updateAlcBadge();renderAlcStatusSelf();
-      applyAdminNavVisibility();
+      if(activePg&&activePg.id==='pg-visits')renderVSummary();
+      _afterPullRefresh(); // alc37: 酒気確認の全画面・今日のステータスも含めて共通再描画
     }
     hideLoading();
   }
