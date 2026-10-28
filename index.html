@@ -487,7 +487,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.18-alc37 (酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.28-alc38 (役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1028,6 +1028,12 @@ html[data-bigtext="1"] body{zoom:1.15}
       <p style="font-size:12px;color:var(--dim);margin-bottom:11px">管理対象店舗の酒気確認をここで判定できます。店舗タブは折りたたみ（未確認件数を表示）。タップで開くと「確認待ち」の判定と、1日ごとに折りたたんだ「確認履歴」を表示（⚠退勤忘れは赤で強調）。<b>確認すると写真は自動削除されます</b>（記録は1年間保存）。※運転管理者の選任は各店舗に入って「従業員管理」で行います。</p>
       <div id="alcExecByStore"></div>
     </div>
+    <!-- alc38: 役員トップで残業・早出・有給をその場で承認（店舗別） -->
+    <div class="card" id="execApprCard" style="display:none">
+      <div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>✅ 承認待ち（店舗別）<span class="badge-dot" id="apprBadgeExec"></span></span><button class="hbtn" onclick="apprRefreshBtn(this)">🔄 最新を取得</button></div>
+      <p style="font-size:12px;color:var(--dim);margin-bottom:11px">各店舗の<b>残業申請（31分以上）・早出・有給申請</b>をここで承認／却下できます。押した瞬間にサーバーの最新を確認してから処理します（取消済み・処理済み・表示後に内容が変わった申請は処理せず、最新の内容で出し直します。<b>通信できないときは処理しません</b>）。有給は<b>残数が足りない申請は承認できません</b>（却下するか本人に取消を依頼）。月の最終確認は「🧾 締めチェック」で。</p>
+      <div id="apprExecByStore"></div>
+    </div>
     <div class="card">
       <div class="ct">📊 全店舗サマリー</div>
       <div id="execSummary"></div>
@@ -1362,7 +1368,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 <!-- Custom Confirm Modal -->
 <div class="modal-ov" id="cfmModal">
   <div class="modal" style="padding-bottom:24px">
-    <div id="cfmMsg" style="font-size:14px;line-height:1.7;margin-bottom:18px;color:var(--tx)"></div>
+    <div id="cfmMsg" style="font-size:14px;line-height:1.7;margin-bottom:18px;color:var(--tx);white-space:pre-line"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <button class="sbv" id="cfmNo" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
       <button class="sbv" id="cfmYes">確認する</button>
@@ -1377,7 +1383,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=37;
+const APP_BUILD=38;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -1450,8 +1456,17 @@ const S={
 
 // ★本番: 本番KVテーブル。既存の全記録はこのテーブルに保存されている。
 const KV_TABLE='kv_store';
+// alc38: 待ち時間の上限つきで Promise を待つ（上限に達したら fallback を返す。待ち終わったらタイマーを片付ける）
+function _withTimeout(p,ms,fallback){
+  let t=null;
+  return Promise.race([
+    Promise.resolve(p).then(v=>{if(t)clearTimeout(t);return v;},e=>{if(t)clearTimeout(t);return fallback;}),
+    new Promise(r=>{t=setTimeout(()=>r(fallback),ms);})
+  ]);
+}
 const DB={
   _url:null,_key:null,_dirtyKeys:new Set(),_pushQueue:Promise.resolve(),_lastPullAt:0,
+  _pushSeq:{},_inflight:{}, // alc38: キーごとの送信番号と送信中の件数（後の送信が残っている間は未送信のまま／送信中のキーを古い値で再送しない）
 
   init(){
     // ★本番: 本番KVテーブル KV_TABLE='kv_store' を使用（既存の全記録を読み書き）
@@ -1488,6 +1503,17 @@ const DB={
 
   // 最近フラッシュしたキーを追跡（pullで上書きされないよう保護）
   _recentlyFlushed:new Map(), // key → timestamp
+  // alc38: 送信キューの完了を待つ（上限 ms）。前回待って終わらなかった同じキュー（固まった送信）なら待たずに進む＝何度も待たせない
+  _stuckQueue:null,
+  async _waitQueue(ms){
+    const q=this._pushQueue;
+    if(q===this._stuckQueue)return false;
+    const done=await _withTimeout(q.then(()=>true),ms,false);
+    if(!done&&ms>=this._stuckMinMs)this._stuckQueue=q; // 短い待ち（残り時間が少ないとき）で「固まった」と決めつけない
+    return done;
+  },
+  _stuckMinMs:8000,
+  _pushTimeoutMs:90000, // alc38: 送信の上限（応答が返らない送信でキューが止まり続けないように。遅いだけの送信は切らない長さ。上限を超えたら失敗＝未送信として自動再送）
 
   // Push to Supabase with dirty tracking
   async _push(k,v){
@@ -1495,24 +1521,34 @@ const DB={
     if(typeof k!=='string'||!k.startsWith('ka_'))return; // alc35: 不正キーは記録しない
     this._dirtyKeys.add(k);
     this._saveDirtyKeys();
+    const seq=(this._pushSeq[k]=(this._pushSeq[k]||0)+1); // alc38: このキーの何回目の送信か
+    this._inflight[k]=(this._inflight[k]||0)+1;
     // キューで順序保証
     this._pushQueue=this._pushQueue.then(async()=>{
+      let ctl=null,tm=null;
       try{
+        try{if(typeof AbortController!=='undefined'){ctl=new AbortController();tm=setTimeout(()=>{try{ctl.abort();}catch(_){}},this._pushTimeoutMs);}}catch(_){ctl=null;}
         const res=await fetch(this._url+'/rest/v1/'+KV_TABLE,{
           method:'POST',
           headers:this._hdr(),
-          body:JSON.stringify({key:k,value:v})
+          body:JSON.stringify({key:k,value:v}),
+          signal:ctl?ctl.signal:undefined
         });
         if(res.ok||res.status===201||res.status===200){
-          this._dirtyKeys.delete(k);
           this._recentlyFlushed.set(k,Date.now());
-          this._saveDirtyKeys();
+          // alc38: 同じキーの後の送信が控えている間は「未送信」のまま（後の送信が失敗したときに再送の対象から漏れないように）
+          if(this._pushSeq[k]===seq){this._dirtyKeys.delete(k);this._saveDirtyKeys();}
           try{renderSyncPill();}catch(e){} // alc34: 送信完了を即時に表示へ反映
         }else{
           console.warn('Supabase push failed:',k,'status:',res.status);
+          this._dirtyKeys.add(k);this._saveDirtyKeys(); // alc38: 失敗したら必ず未送信に戻す
         }
       }catch(e){
         console.warn('Supabase push error:',k,e);
+        try{this._dirtyKeys.add(k);this._saveDirtyKeys();}catch(_){} // alc38
+      }finally{
+        if(tm)clearTimeout(tm);
+        this._inflight[k]=Math.max(0,(this._inflight[k]||1)-1);
       }
     });
     return this._pushQueue;
@@ -1532,35 +1568,48 @@ const DB={
   // ★push前にリモートとマージ（衝突安全キーのみ）。stale localが他端末の新しい値を消すのを防ぐ。
   //   これをしないと、_flushDirty が古いローカル配列をそのままpushして、
   //   別確認者の判定や別スタッフの記録をサーバ上で上書き（＝巻き戻し/バラバラ）してしまう。
-  async _mergeBeforePush(k,localVal){
+  async _mergeBeforePush(k,localVal,rawBefore){
     try{
       if(k==='ka_alc_checks'){
         const rem=await this._fetchKeyValue(k);
-        if(Array.isArray(rem)){const m=alcMergeArrays(Array.isArray(localVal)?localVal:[],rem);localStorage.setItem(LSK(k),JSON.stringify(m));return m;}
+        if(Array.isArray(rem)){const m=alcMergeArrays(Array.isArray(localVal)?localVal:[],rem);this._casLocal(k,rawBefore,m);return m;}
       }else if(['ka_records','ka_visits','ka_leave_grants','ka_accounts','ka_stores','ka_leave_requests','ka_fuel'].indexOf(k)>=0){
         const rem=await this._fetchKeyValue(k);
-        if(rem!=null){const m=kvMergeForPull(k,localVal,rem);localStorage.setItem(LSK(k),JSON.stringify(m));return m;}
+        if(rem!=null){const m=kvMergeForPull(k,localVal,rem);this._casLocal(k,rawBefore,m);return m;}
       }
     }catch(e){}
     return localVal;
   },
-  async _flushDirty(){
+  // alc38: 取得している間に端末の保存値が変わっていなければ保存する（変わっていれば新しい操作のほうを残し、古いマージ結果で上書きしない）
+  _casLocal(k,rawBefore,v){
+    try{if(rawBefore===undefined||localStorage.getItem(LSK(k))===rawBefore)localStorage.setItem(LSK(k),JSON.stringify(v));}catch(e){}
+  },
+  async _flushDirty(onlyKeys){
     if(!this._dirtyKeys.size||!this.configured())return;
-    const keys=[...this._dirtyKeys];
+    // alc38: 送信中の push を先に終わらせる。送信が終わる前にサーバーの古い値とマージ（サーバー優先）して再送すると、
+    //   送信中の変更（承認など）をサーバー・端末の両方で巻き戻してしまうため。
+    await this._waitQueue(8000);
+    const keys=[...this._dirtyKeys].filter(k=>!onlyKeys||onlyKeys.indexOf(k)>=0); // alc38: 指定があればそのキーだけ
     for(const k of keys){
       if(typeof k!=='string'||!k.startsWith('ka_')){this._dirtyKeys.delete(k);this._saveDirtyKeys();continue;} // alc35: 不正キーは捨てる
+      if((this._inflight[k]||0)>0)continue; // alc38: まだ送信中のキーはその送信に任せる（失敗すれば未送信のまま次回に再送）
       const raw=localStorage.getItem(LSK(k));
       if(raw===null){this._dirtyKeys.delete(k);this._saveDirtyKeys();continue;} // alc35: 送るものが無いキーは未送信扱いにしない
       try{
+        const seq0=this._pushSeq[k]||0;
         let v=JSON.parse(raw);
-        v=await this._mergeBeforePush(k,v); // ★衝突安全キーは push 前にリモートとマージ
+        v=await this._mergeBeforePush(k,v,raw); // ★衝突安全キーは push 前にリモートとマージ
+        if((this._pushSeq[k]||0)!==seq0||(this._inflight[k]||0)>0)continue; // alc38: マージ中に新しい操作の送信が始まった → 新しいほうに任せる（古いマージ結果で上書きしない）
         const res=await fetch(this._url+'/rest/v1/'+KV_TABLE,{
           method:'POST',
           headers:this._hdr(),
           body:JSON.stringify({key:k,value:v})
         });
         if(res.ok||res.status===201||res.status===200){
-          this._dirtyKeys.delete(k);
+          if((this._pushSeq[k]||0)===seq0)this._dirtyKeys.delete(k); // alc38: 送信中に新しい送信が積まれていれば未送信のまま
+          else{ // alc38: この送信の最中に新しい操作の送信が始まった → 到着順が入れ替わっても最新が残るよう、端末の最新値をもう一度送る
+            try{const cur=localStorage.getItem(LSK(k));if(cur!=null)this._push(k,JSON.parse(cur));}catch(_){}
+          }
           this._recentlyFlushed.set(k,Date.now());
           if(k==='ka_alc_checks'){try{_alcBumpVer();}catch(e){}} // alc37: 酒気確認を送ったら変更番号も更新（他端末の軽量取り込みが気づけるように）
         }
@@ -1572,12 +1621,18 @@ const DB={
   // Pull all keys from Supabase → localStorage (未同期分を先にpush)
   async pullAll(){
     if(!this.configured())return false;
+    // alc38: 送信中の push がサーバーに届いてから取得する（届く前の古い値を取り込んで、直前の承認・修正を巻き戻さないため）
+    await this._waitQueue(8000);
     // 未同期データを先にSupabaseへ送信して保護
     await this._flushDirty();
     // フラッシュ直後のSupabase反映待ち（競合状態防止）
     if(this._recentlyFlushed.size>0){
       await new Promise(r=>setTimeout(r,1500));
     }
+    const seqAt=Object.assign({},this._pushSeq); // alc38: 取得開始時点の送信番号（取得中に始まった送信を見分ける）
+    const inflAt=Object.assign({},this._inflight); // alc38: 取得開始時点でまだ送信中だったキー
+    const lsAt={}; // alc38: 取得開始時点の端末の保存値（取得中に端末で変わった項目を見分ける）
+    ['ka_records','ka_visits','ka_leave_grants','ka_today','ka_accounts','ka_stores','ka_leave_requests','ka_fuel'].forEach(k=>{try{lsAt[k]=localStorage.getItem(LSK(k));}catch(e){}});
     try{
       const res=await fetch(this._url+'/rest/v1/'+KV_TABLE+'?select=key,value',{headers:this._hdr()});
       if(!res.ok)throw new Error('HTTP '+res.status);
@@ -1608,10 +1663,23 @@ const DB={
             if(r.key==='ka_records')this._recRealRestored=false; // マージ前にリセット
             const localRaw=localStorage.getItem(LSK(r.key));
             const localVal=localRaw?JSON.parse(localRaw):null;
-            const merged=kvMergeForPull(r.key,localVal,r.value);
+            // alc38: 取得中に自分の送信が始まった（またはまだ送信中の）キーは、取得値が「送信前の古いサーバー値」の可能性がある。
+            //   ・取得の前から送信中（遅い回線）→ この回は端末優先（送信中の変更を守る。他端末にしかない記録・項目は取り込む）。
+            //   ・取得中に送信が始まった → 取得中に端末で変わった項目だけ端末優先、ほかはサーバー優先（他端末の承認などを取り込む）。
+            //     送った値と違えば送り直して、送信中の上書きで消えた他端末の変更をサーバーにも戻す。
+            const raced=((this._pushSeq[r.key]||0)!==(seqAt[r.key]||0))||((this._inflight[r.key]||0)>0);
+            let merged,repush=false;
+            if(!raced){merged=kvMergeForPull(r.key,localVal,r.value);}
+            else if((inflAt[r.key]||0)>0||lsAt[r.key]==null){merged=kvMergeForPull(r.key,r.value,localVal);}
+            else{
+              try{merged=_kvMergeRaced(r.key,JSON.parse(lsAt[r.key]),localVal,r.value);repush=JSON.stringify(merged)!==localRaw;}
+              catch(e2){merged=kvMergeForPull(r.key,r.value,localVal);}
+            }
             localStorage.setItem(LSK(r.key),JSON.stringify(merged));
             // ★「本物の退勤を自動退勤/退勤なしから復元した」ときだけサーバへ再push（無駄な書き戻しを防ぐ）
-            if(r.key==='ka_records'&&this._recRealRestored){this._push(r.key,merged);}
+            //   alc38: 送信と重なった回は、端末優先の値で他端末の変更を上書きしないよう、この再pushはしない（重なった回は repush で収束）
+            if(r.key==='ka_records'&&this._recRealRestored&&!raced){this._push(r.key,merged);}
+            else if(repush){this._push(r.key,merged);}
           }catch(e){localStorage.setItem(LSK(r.key),JSON.stringify(r.value));}
           return;
         }
@@ -1874,6 +1942,7 @@ function enterAdminView(acc){
 // EXECUTIVE / STORE MANAGEMENT
 // ═══════════════════════════════════
 function renderExecScreen(){
+  try{renderExecApprovals();}catch(e){console.warn('exec approvals render failed',e);} // alc38: 承認待ち（店舗別）
   const el=document.getElementById('storeList');
   if(!stores.length){el.innerHTML='<div class="empty">店舗がまだありません。下のフォームから追加してください。</div>';document.getElementById('execSummary').innerHTML='';return;}
   // Summary across all stores
@@ -3077,9 +3146,10 @@ function updateLeaveTypeUI(){
   if(hRow)hRow.style.display=showH?'block':'none';
   const hpd=curAcc()?.leaveConfig?.workHoursPerDay||8;
   if(hHint){
-    if(type==='full')hHint.textContent=`消化: 1日分（全日休）← 日数プール`;
-    else if(type==='half')hHint.textContent=`消化: 0.5日分（半日休）← 日数プール`;
-    else hHint.textContent='時間数を入力 ← 時間給プール';
+    const _av=_leaveAvailHint(session?.id,type); // alc38: 残・申請中を表示（申請中を含めると足りない場合は申請時に警告）
+    if(type==='full')hHint.textContent=`消化: 1日分（全日休）← 日数プール${_av}`;
+    else if(type==='half')hHint.textContent=`消化: 0.5日分（半日休）← 日数プール${_av}`;
+    else hHint.textContent=`時間数を入力 ← 時間給プール${_av}`;
   }
 }
 function submitLeaveReq(){
@@ -3109,10 +3179,18 @@ function submitLeaveReq(){
     // hourlyだがhourlyPoolがない場合 → 日数プールから消化（時間換算）
     if(hours>bal.remDayH){showToast(`⚠ 有給残数が不足しています（残: ${bal.remDayH}時間）`);return;}
   }
-  const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,note:document.getElementById('lr-note').value,status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
-  leaveRequests.push(req);S.set('ka_leave_requests',leaveRequests);
-  document.getElementById('lr-note').value='';
-  renderLeaveTab();showToast('✅ 有給申請を送信しました');
+  const doSubmit=()=>{
+    // 確認ダイアログ中に同じ申請が入っていないか再確認（二重申請ガード）
+    if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
+    const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,note:document.getElementById('lr-note').value,status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
+    leaveRequests.push(req);S.set('ka_leave_requests',leaveRequests);
+    document.getElementById('lr-note').value='';
+    renderLeaveTab();showToast('✅ 有給申請を送信しました');
+  };
+  // alc38: 申請中を含めると残数が足りないときは警告（確認すれば申請できる。承認時に残数不足なら承認されない）
+  const _short=_leavePendingShortMsg(empId,type,hours);
+  if(_short){confirmAction(_short,doSubmit,'このまま申請する');return;}
+  doSubmit();
 }
 function cancelLeaveReq(id){
   const r=leaveRequests.find(x=>x.id===id);
@@ -3137,15 +3215,15 @@ function renderAdminLeave(){
   const pending=leaveRequests.filter(r=>r.status==='pending'&&storeIds.has(r.empId));
   const approved=leaveRequests.filter(r=>r.status==='approved'&&storeIds.has(r.empId));
   const typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
-  document.getElementById('pendingLeave').innerHTML=pending.length?pending.map(r=>`
+  document.getElementById('pendingLeave').innerHTML=pending.length?pending.map(r=>{const _ck=_leaveApproveCheck(r);return`
     <div class="pend-req">
       <div class="pend-top"><div class="pend-name">👤 ${esc(r.empName)}</div><span class="req-status rs-pending">⏳ 申請中</span></div>
-      <div class="pend-info">${r.targetDate} ／ ${typeMap[r.type]||r.type} ／ ${r.hours}時間${r.note?` ／ ${esc(r.note)}`:''}</div>
+      <div class="pend-info">${r.targetDate} ／ ${typeMap[r.type]||r.type} ／ ${r.hours}時間${r.note?` ／ ${esc(r.note)}`:''}${_leaveBalInfoHtml(r)}</div>
       <div class="pend-btns">
-        <button class="app-btn ok" onclick="approveLeave('${r.id}')">✅ 承認</button>
+        <button class="app-btn ok" onclick="approveLeave('${r.id}')"${_ck.ok?'':' disabled style="opacity:.45"'}>✅ 承認</button>
         <button class="app-btn ng" onclick="rejectLeave('${r.id}')">❌ 却下</button>
       </div>
-    </div>`).join(''):'<div class="empty">承認待ちの申請はありません ✨</div>';
+    </div>`;}).join(''):'<div class="empty">承認待ちの申請はありません ✨</div>';
   // 承認済み申請 → 従業員ごとアコーディオン＋年フィルター
   const appEl=document.getElementById('approvedLeave');
   if(appEl){
@@ -3207,15 +3285,88 @@ function toggleApprovedEmp(id){
   if(el.style.display==='none'){el.style.display='block';if(icon)icon.textContent='▲ 閉じる';}
   else{el.style.display='none';if(icon)icon.textContent='▼ 開く';}
 }
+/* ── alc38: 有給の残数判定（承認時のブロック・申請時の警告・残数表示で共用） ──
+   ・残数は従来どおり getLeaveBal（承認済みだけを消化として数える）。
+   ・承認時: その申請を足すと残数を超えるなら承認できない（却下か、本人の取消）。
+   ・申請時: 承認済みだけでは足りるが「申請中」を含めると足りない場合は、警告して確認すれば申請できる
+     （先に申請した分が承認されると、この申請は承認時にブロックされる）。 */
+const _lvNum=v=>Math.round((parseFloat(v)||0)*100)/100;
+function _leaveNeed(r){
+  if(!r)return {pool:'day',amt:0};
+  if(r.type==='full')return {pool:'day',amt:1};
+  if(r.type==='half')return {pool:'day',amt:0.5};
+  return {pool:'hour',amt:parseFloat(r.hours)||0};
+}
+// 申請中（pending）の合計。pool='day'→日、'hour'→時間。excludeId の申請は除く
+function _leavePendingSum(empId,pool,excludeId){
+  return _lvNum((leaveRequests||[]).filter(q=>q&&q.empId===empId&&q.status==='pending'&&q.id!==excludeId)
+    .reduce((s,q)=>{const n=_leaveNeed(q);return n.pool===pool?s+n.amt:s;},0));
+}
+// 申請 r を今承認できるか（承認済みだけで計算した残数で判定）
+function _leaveApproveCheck(r){
+  const n=_leaveNeed(r);
+  const unit=n.pool==='hour'?'時間':'日',label=n.pool==='hour'?'時間給残':'有給残';
+  const acc=accounts.find(a=>a.id===r.empId);
+  if(!acc||!(acc.leaveConfig&&acc.leaveConfig.grantDate))return {ok:false,reason:'noconfig',rem:0,need:n.amt,after:0,unit,label,pool:n.pool};
+  const bal=getLeaveBal(r.empId);
+  if(n.pool==='hour'&&!bal.hasHourlyPool)return {ok:false,reason:'nopool',rem:0,need:n.amt,after:0,unit,label,pool:n.pool};
+  const rem=_lvNum(n.pool==='hour'?bal.remHourlyH:bal.remDays);
+  return {ok:n.amt<=rem+1e-9,reason:'',rem,need:_lvNum(n.amt),after:_lvNum(rem-n.amt),unit,label,pool:n.pool};
+}
+function _leaveBlockMsg(r,ck){
+  if(ck.reason==='noconfig')return `⚠ ${r.empName||''}さんは有給設定が未登録のため承認できません（有給管理の「設定」から登録してください）`;
+  if(ck.reason==='nopool')return `⚠ ${r.empName||''}さんは時間給プールが未設定のため時間休を承認できません`;
+  return `⚠ ${r.empName||''}さんの申請は残数不足のため承認できません（${ck.label} ${ck.rem}${ck.unit}／必要 ${ck.need}${ck.unit}）。却下するか、本人に取消を依頼してください`;
+}
+// 承認待ち一覧に出す「残数 → 承認後」の表示
+function _leaveBalInfoHtml(r){
+  try{
+    const ck=_leaveApproveCheck(r);
+    const others=_leavePendingSum(r.empId,ck.pool,r.id);
+    const oth=others>0?`　<span style="color:var(--yw)">他に申請中 ${others}${ck.unit}</span>`:'';
+    if(!ck.ok){
+      const why=ck.reason==='noconfig'?'有給設定が未登録':ck.reason==='nopool'?'時間給プール未設定':`${ck.label} ${ck.rem}${ck.unit}／必要 ${ck.need}${ck.unit}`;
+      return `<div style="font-size:12px;margin-top:4px"><span style="color:var(--rd);font-weight:700">⚠ 承認できません</span>（${why}）${oth}</div>`;
+    }
+    return `<div style="font-size:12px;margin-top:4px">${ck.label} ${ck.rem}${ck.unit} → 承認後 <b>${ck.after}${ck.unit}</b>${oth}</div>`;
+  }catch(e){return '';}
+}
+// 申請フォームの「残・申請中」表示（申請者への事前の注意）
+function _leaveAvailHint(empId,type){
+  try{
+    const acc=accounts.find(a=>a.id===empId);if(!acc||!acc.leaveConfig||!acc.leaveConfig.grantDate)return '';
+    const bal=getLeaveBal(empId),hour=(type==='hourly');
+    if(hour&&!bal.hasHourlyPool)return '';
+    const rem=_lvNum(hour?bal.remHourlyH:bal.remDays),u=hour?'時間':'日';
+    const pend=_leavePendingSum(empId,hour?'hour':'day',null);
+    if(pend<=0)return `（残 ${rem}${u}）`;
+    return `（残 ${rem}${u}・うち申請中 ${pend}${u} → 実質あと ${_lvNum(Math.max(0,rem-pend))}${u}）`;
+  }catch(e){return '';}
+}
+// 申請時の確認: 承認済みだけでは足りるが、申請中を含めると足りないとき true（警告して確認）
+function _leavePendingShortMsg(empId,type,hours){
+  const n=type==='hourly'?{pool:'hour',amt:parseFloat(hours)||0}:{pool:'day',amt:type==='full'?1:0.5};
+  const bal=getLeaveBal(empId);
+  const rem=_lvNum(n.pool==='hour'?bal.remHourlyH:bal.remDays),u=n.pool==='hour'?'時間':'日';
+  const pend=_leavePendingSum(empId,n.pool,null);
+  if(pend<=0||n.amt<=rem-pend+1e-9)return '';
+  return `⚠ 申請中の有給（${pend}${u}）を含めると残数が足りません。\n残 ${rem}${u} − 申請中 ${pend}${u} → あと ${_lvNum(Math.max(0,rem-pend))}${u}（今回の申請 ${_lvNum(n.amt)}${u}）\n\nこのまま申請はできますが、先に申請した分が承認されて残数が足りなくなると、この申請は承認できません（却下か取消が必要になります）。\n申請しますか？`;
+}
 function approveLeave(id){
-  const r=leaveRequests.find(x=>x.id===id);if(!r)return;
+  const r=leaveRequests.find(x=>x.id===id);if(!r)return false;
+  if(r.status!=='pending'){showToast(`ℹ この申請は既に${{approved:'承認済み',rejected:'却下',cancelled:'取消'}[r.status]||'処理済み'}です`);try{renderAdminLeave();}catch(e){}return false;} // alc38: 取消・処理済みを承認しない
+  const ck=_leaveApproveCheck(r); // alc38: 残数不足なら承認できない
+  if(!ck.ok){showToast(_leaveBlockMsg(r,ck));try{renderAdminLeave();}catch(e){}return false;}
   r.status='approved';r.reviewedAt=new Date().toISOString();r.reviewedBy=curAcc()?.name;
-  S.set('ka_leave_requests',leaveRequests);renderAdminLeave();updateLeaveBadge();showToast(`✅ ${r.empName}の申請を承認しました`);
+  S.set('ka_leave_requests',leaveRequests);try{renderAdminLeave();}catch(e){}updateLeaveBadge();showToast(`✅ ${r.empName}の申請を承認しました`);
+  return true;
 }
 function rejectLeave(id){
-  const r=leaveRequests.find(x=>x.id===id);if(!r)return;
+  const r=leaveRequests.find(x=>x.id===id);if(!r)return false;
+  if(r.status!=='pending'){showToast(`ℹ この申請は既に${{approved:'承認済み',rejected:'却下',cancelled:'取消'}[r.status]||'処理済み'}です`);try{renderAdminLeave();}catch(e){}return false;} // alc38
   r.status='rejected';r.reviewedAt=new Date().toISOString();r.reviewedBy=curAcc()?.name;
-  S.set('ka_leave_requests',leaveRequests);renderAdminLeave();updateLeaveBadge();showToast('🗑 申請を却下しました');
+  S.set('ka_leave_requests',leaveRequests);try{renderAdminLeave();}catch(e){}updateLeaveBadge();showToast('🗑 申請を却下しました');
+  return true;
 }
 function returnLeave(id){
   const r=leaveRequests.find(x=>x.id===id);if(!r)return;
@@ -4373,6 +4524,36 @@ function kvMergeForPull(key,localVal,remoteVal){
   }catch(e){console.warn('kv merge failed',key,e);}
   return remoteVal;
 }
+// alc38: 同期の取得中に自分の送信が始まったときのマージ。既定はサーバー優先（他端末の承認・修正を取り込む）で、
+//   取得を始めた時点（before）から端末で変わった項目だけ端末優先にする（取得中にした自分の操作を巻き戻さない）。
+function _kvMergeRaced(key,before,now,remote){
+  const base=kvMergeForPull(key,now,remote);
+  if(key==='ka_records'||key==='ka_visits'||key==='ka_leave_grants'){
+    const kf=key==='ka_leave_grants'?(e=>e.grantDate||e.id||e.date):(e=>e.date);
+    Object.keys(now||{}).forEach(emp=>{
+      const bm={};((before||{})[emp]||[]).forEach(e=>{try{const kk=kf(e);if(kk!==undefined)bm[kk]=JSON.stringify(e);}catch(_){}});
+      ((now||{})[emp]||[]).forEach(e=>{
+        let kk;try{kk=kf(e);}catch(_){return;}
+        if(kk===undefined||bm[kk]===JSON.stringify(e))return; // 取得中に変わっていない → サーバー優先のまま
+        const out=Array.isArray(base[emp])?base[emp]:(base[emp]=[]);
+        const i=out.findIndex(x=>{try{return kf(x)===kk;}catch(_){return false;}});
+        const v=(key==='ka_leave_grants')?e:_mergeRecLike(e,i>=0?out[i]:{}); // 端末優先（サーバーにしかない項目は補う）
+        if(i>=0)out[i]=v;else out.push(v);
+      });
+    });
+    if(key!=='ka_leave_grants')Object.keys(base).forEach(id=>{if(Array.isArray(base[id]))base[id].sort((a,b)=>(b.date||'').localeCompare(a.date||''));});
+  }else if(key==='ka_today'){
+    Object.keys(now||{}).forEach(id=>{if(JSON.stringify((before||{})[id])!==JSON.stringify(now[id]))base[id]=now[id];});
+  }else if(Array.isArray(base)){ // ka_accounts・ka_stores・ka_leave_requests・ka_fuel（id 単位）
+    const bm={};(before||[]).forEach(e=>{if(e&&e.id!=null)bm[e.id]=JSON.stringify(e);});
+    (now||[]).forEach(e=>{
+      if(!e||e.id==null||bm[e.id]===JSON.stringify(e))return;
+      const i=base.findIndex(x=>x&&x.id===e.id);
+      if(i>=0)base[i]=e;else base.push(e);
+    });
+  }
+  return base;
+}
 async function alcFetchRemote(){
   if(!DB.configured())return null;
   try{
@@ -5355,6 +5536,7 @@ function renderOtQueue(){
 }
 function otDecide(empId,date,ok){
   const r=(records[empId]||[]).find(function(x){return x.date===date;});if(!r)return;
+  if(isMonthLocked(String(date).slice(0,7),empId)){showToast('🔒 この月はロックされています（ロックを解除してから承認・却下してください）');return;} // alc38: 早出の承認と同じく、ロック月は変更しない
   r.otStatus=ok?'approved':'rejected';
   r.otReviewedBy=(curAcc()||{}).name||'';
   r.otReviewedAt=new Date().toISOString();
@@ -5364,8 +5546,8 @@ function otDecide(empId,date,ok){
   try{if(document.getElementById('pg-admin-close')?.classList.contains('active'))renderCloseCheck();else updateCloseBadge();}catch(e){}
 }
 function otApproveAll(month){
-  const list=otPendingList().filter(x=>String(x.r.date||'').startsWith(month));
-  if(!list.length)return;
+  const list=otPendingList().filter(x=>String(x.r.date||'').startsWith(month)&&!isMonthLocked(String(x.r.date||'').slice(0,7),x.empId)); // alc38: ロック月は除く
+  if(!list.length){showToast('ℹ 承認できる残業申請はありません（ロック中の月は除外）');return;}
   if(!confirm(`${month} の残業申請 ${list.length}件 をすべて承認します。よろしいですか？`))return;
   const me=(curAcc()||{}).name||'',now=new Date().toISOString();
   list.forEach(x=>{x.r.otStatus='approved';x.r.otReviewedBy=me;x.r.otReviewedAt=now;});
@@ -5407,7 +5589,8 @@ function renderCloseCheck(){
    +(d.total?`<div class="dwarn" style="display:block;background:rgba(247,211,79,.1);border-color:var(--yw);color:var(--yw)">⚠ 未処理が <b>${d.total}件</b> あります。下の各項目を処理してください。</div>`
             :`<div class="dwarn" style="display:block;background:rgba(61,214,140,.1);border-color:var(--gn);color:var(--gn)">✅ 締め準備OK — この月の未処理はありません。</div><button class="sbv" style="margin-top:10px" onclick="exportCSV('${month}','${esc(storeId)}')">📥 ${month.replace('-','年')}月のCSVを出力</button>`);
   let h='';
-  if(d.otPend.length){h+=`<div class="card"><div class="ct">⏰ 残業 承認待ち（${d.otPend.length}件）</div><button class="sbv" style="margin-bottom:10px" onclick="otApproveAll('${month}')">✅ すべて承認する（${d.otPend.length}件）</button>`+d.otPend.map(x=>_otRowHtml(x.id,x.r,d.nameById)).join('')+'</div>';}
+  if(d.otPend.length){const _okN=d.otPend.filter(x=>!isMonthLocked(String(x.r.date||'').slice(0,7),x.id)).length,_lkN=d.otPend.length-_okN; // alc38: ロック中は一括承認の件数に含めない
+    h+=`<div class="card"><div class="ct">⏰ 残業 承認待ち（${d.otPend.length}件）</div>${_okN?`<button class="sbv" style="margin-bottom:10px" onclick="otApproveAll('${month}')">✅ すべて承認する（${_okN}件）</button>`:''}${_lkN?`<div style="font-size:11px;color:var(--yw);margin-bottom:8px">🔒 ロック中の ${_lkN}件は承認・却下できません（ロックを解除してから処理してください）</div>`:''}`+d.otPend.map(x=>_otRowHtml(x.id,x.r,d.nameById)).join('')+'</div>';}
   if(d.otUnapplied.length){h+=`<div class="card"><div class="ct">📝 残業31分以上で未申請（${d.otUnapplied.length}件）</div><div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.7">本人に「今日」画面から申請するよう依頼してください。<b style="color:var(--rd)">未申請のままでは残業代の支給対象になりません</b>（31分以上は申請して承認されたものだけが支給残業になります）。</div>`+d.otUnapplied.map(x=>`<div class="pend-req"><div class="pend-top"><div class="pend-name">${esc(d.nameById[x.id]||'')}</div><div style="font-family:var(--mo);color:var(--ac2);font-weight:700">${toHHMM(x.r.overtimeMinutes||0)}</div></div><div class="pend-info">${esc(x.r.date)}　${esc(x.r.checkin||'')}〜${esc(x.r.checkout||'')}</div></div>`).join('')+'</div>';}
   if(d.alcPend.length){h+=`<div class="card"><div class="ct">🍃 酒気確認 未確認（${d.alcPend.length}件）</div><button class="sbv" onclick="showAdminPgById('alc')">酒気確認タブで確認する</button></div>`;}
   if(d.autoCo.length){h+=`<div class="card"><div class="ct">⏰ 打刻忘れ（自動退勤）未確認（${d.autoCo.length}件）</div>${_forgotListHtml(d.ids,month)}</div>`;}
@@ -5472,6 +5655,356 @@ function earlyDecide(empId,date,approve){
 }
 function updateCloseBadge(){
   try{const b=document.getElementById('closeBadge');if(!b)return;const n=closeCheckData(selectedMonth||thisMonth()).total;b.classList.toggle('show',n>0);}catch(e){}
+}
+
+/* ═══════════ alc38: 役員トップ「✅ 承認待ち（店舗別）」 ═══════════
+   役員ダッシュボード（初期画面）で、店舗ごとの残業申請・早出・有給申請をその場で承認／却下できる。
+   ・ボタンを押した瞬間にサーバーの最新（勤怠記録・有給申請・ロック・有給の付与と設定）を取り込んでから処理する（apprRefresh）。
+     最新を確認できないとき（オフライン・通信エラー・送信待ちが残っている）は処理しない。
+     自分の直前の送信がサーバーに届くまで待ってから取得するので、続けて承認しても前の承認を巻き戻さない。
+   ・画面に出していた内容（残業の分数・時刻・区分・理由など）から変わっていたら処理せず、最新の内容で出し直す。
+   ・処理は管理画面と同じ関数（otDecide／earlyDecide／approveLeave／rejectLeave）＝結果は締めチェック・有給管理と同じ。
+   ・「残業31分以上で未申請」は参考表示（件数に含めない）。早出・未申請は運用開始日 APPR_SINCE 以降の打刻のみ対象。 */
+const APPR_SINCE='2026-10-01'; // 残業申請制・早出事前申請の運用開始日（これより前の打刻は早出・未申請の一覧に出さない）
+const APPR_KEYS=['ka_records','ka_leave_requests','ka_locked_months','ka_locked_emp_months','ka_leave_grants','ka_accounts'];
+const APPR_NEED_REC=['ka_records','ka_locked_months','ka_locked_emp_months']; // 残業・早出の処理に必要な最新
+const APPR_NEED_LV=['ka_leave_requests','ka_leave_grants','ka_accounts'];   // 有給の処理に必要な最新（申請・付与・有給設定）
+let _apprRefreshing=null,_apprRefreshSig='',_apprBulkJob=null;
+// 1キーを取得。{ok:true,value}（サーバーに無いキーは value=null）／{ok:false}（通信エラー・時間切れ）
+function _apprFetchKey(k,ms){
+  const job=(async()=>{
+    try{
+      const res=await fetch(DB._url+'/rest/v1/'+KV_TABLE+'?select=value&key=eq.'+encodeURIComponent(k),{headers:DB._hdr()});
+      if(!res||!res.ok)return {ok:false};
+      const rows=await res.json();
+      if(!Array.isArray(rows))return {ok:false};
+      return {ok:true,value:(rows[0]&&('value' in rows[0]))?rows[0].value:null};
+    }catch(e){return {ok:false};}
+  })();
+  return _withTimeout(job,ms||8000,{ok:false});
+}
+// 取得したサーバー値を端末へ取り込む（未送信・送信中のキーは呼び出し側で除外済み）
+function _apprApplyRemote(k,rem){
+  if(rem==null)return; // サーバーに無い → 端末のまま
+  if(k==='ka_records'){
+    DB._recRealRestored=false;
+    const m=kvMergeForPull(k,records,rem);
+    records=m;try{localStorage.setItem(LSK(k),JSON.stringify(m));}catch(e){}
+    if(DB._recRealRestored)DB._push(k,m); // 本物の退勤を復元したときはサーバーへ戻す（pullAll と同じ扱い）
+  }else if(k==='ka_leave_requests'){
+    const m=kvMergeForPull(k,leaveRequests,rem);leaveRequests=m;try{localStorage.setItem(LSK(k),JSON.stringify(m));}catch(e){}
+  }else if(k==='ka_leave_grants'){
+    const m=kvMergeForPull(k,leaveGrants,rem);leaveGrants=m;try{localStorage.setItem(LSK(k),JSON.stringify(m));}catch(e){}
+  }else if(k==='ka_accounts'){
+    const m=kvMergeForPull(k,accounts,rem);accounts=m;try{localStorage.setItem(LSK(k),JSON.stringify(m));}catch(e){}
+  }else if(k==='ka_locked_months'||k==='ka_locked_emp_months'){
+    // まるごと1値のキー: 自分が直前に送ったばかりなら端末を優先（pullAll と同じ保護）
+    const fl=DB._recentlyFlushed&&DB._recentlyFlushed.get(k);
+    if(fl&&(Date.now()-fl)<10000)return;
+    const v=(rem&&typeof rem==='object')?rem:{};
+    if(k==='ka_locked_months')lockedMonths=v;else lockedEmpMonths=v;
+    try{localStorage.setItem(LSK(k),JSON.stringify(v));}catch(e){}
+  }
+}
+// サーバーの最新を取り込む。戻り値 {ok, offline, keys:{キー:'ok'|'local'|'fail'|'dirty'|'busy'|'offline'}}
+async function apprRefresh(opts){
+  opts=opts||{};
+  const keys=(opts.keys&&opts.keys.length)?opts.keys:APPR_KEYS;
+  const st={};keys.forEach(k=>st[k]='fail');
+  if(!DB.configured()){keys.forEach(k=>st[k]='local');return {ok:true,local:true,keys:st};} // サーバー未設定（端末内だけで運用）
+  if(typeof navigator!=='undefined'&&navigator.onLine===false){keys.forEach(k=>st[k]='offline');return {ok:false,offline:true,keys:st};}
+  const sig=keys.join(',');
+  if(_apprRefreshing&&_apprRefreshSig===sig)return _apprRefreshing; // 同じ取り込みが進行中なら1回にまとめる
+  const totalMs=opts.totalMs||20000,t0=Date.now(),left=()=>Math.max(0,totalMs-(Date.now()-t0)); // 全体の上限（「確認中…」が長く続かないように）
+  const job=(async()=>{
+    try{
+      for(let attempt=0;attempt<2;attempt++){
+        if(attempt>0&&left()<3000)break;
+        // ① 自分の送信（直前の承認など）がサーバーに届くのを待つ（届く前の古い値をサーバー優先で取り込んで巻き戻さないため）
+        await DB._waitQueue(Math.min(8000,left()));
+        // ② 未送信が残っていれば先に送る（pullAll と同じ。必要なキーだけ。送れなければ下で 'dirty' になり処理しない）
+        if(keys.some(k=>DB._dirtyKeys.has(k))&&left()>1000)await _withTimeout(DB._flushDirty(keys),Math.min(10000,left()));
+        const seq0={};keys.forEach(k=>seq0[k]=(DB._pushSeq&&DB._pushSeq[k])||0);
+        const fms=Math.max(500,Math.min(opts.timeoutMs||8000,left()));
+        const vals=await Promise.all(keys.map(k=>st[k]==='ok'?null:_apprFetchKey(k,fms)));
+        let again=false;
+        keys.forEach((k,i)=>{
+          if(st[k]==='ok')return;
+          const r=vals[i];
+          if(!r||!r.ok){st[k]='fail';return;}
+          if(DB._dirtyKeys.has(k)){st[k]='dirty';again=true;return;}
+          // ③ 取得している間に自分の送信が始まった → 取得値は古い可能性があるので取り込まない（もう一度取り直す）
+          if(((DB._pushSeq&&DB._pushSeq[k])||0)!==seq0[k]||((DB._inflight&&DB._inflight[k])||0)>0){st[k]='busy';again=true;return;}
+          _apprApplyRemote(k,r.value);
+          st[k]='ok';
+        });
+        if(!again)break;
+      }
+      return {ok:keys.every(k=>st[k]==='ok'),keys:st};
+    }catch(e){console.warn('appr refresh failed',e);return {ok:false,keys:st};}
+  })();
+  _apprRefreshing=job;_apprRefreshSig=sig;
+  try{return await job;}finally{if(_apprRefreshing===job){_apprRefreshing=null;_apprRefreshSig='';}}
+}
+// 必要なキーが最新か／最新にできなかった理由
+function _apprFreshOk(res,need){return !!(res&&res.keys&&need.every(k=>res.keys[k]==='ok'||res.keys[k]==='local'));}
+function _apprFreshMsg(res,need,verb){
+  verb=verb||'処理しませんでした';
+  const ks=(res&&res.keys)||{},v=need.map(k=>ks[k]);
+  if((res&&res.offline)||v.indexOf('offline')>=0)return `📴 オフラインのため${verb}（電波の良い場所でもう一度押してください）`;
+  if(v.indexOf('dirty')>=0||v.indexOf('busy')>=0)return `⏳ 送信待ちのデータがあるため${verb}（自動で再送しています。少し待ってからもう一度押してください）`;
+  return `⚠ サーバーの最新を確認できなかったため${verb}（電波状況を確認して、もう一度押してください）`;
+}
+// 画面に出した内容の指紋（押した時点の表示と、最新の記録が同じかを比べる）
+const _apprSigOt=r=>[r.overtimeMinutes||0,r.checkin||'',r.checkout||'',Array.isArray(r.otGenres)?r.otGenres.join('・'):String(r.otGenres||''),r.otComment||''].join('|');
+const _apprSigEarly=(r,id)=>[recEarly(r,id),r.checkin||'',r.earlyStatus||'',r.earlyComment||''].join('|');
+const _apprSigLv=q=>[_leaveNeed(q).amt,q.type||'',q.targetDate||'',q.empId||''].join('|');
+// 指紋は短いハッシュにして画面（data-sig）に持たせる（理由などの本文を属性に入れない）
+function _apprHash(s){let h=0x811c9dc5;s=String(s);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h.toString(16);}
+function _apprChangedMsg(kind,shownMin,nowMin){
+  const m0=parseInt(shownMin,10);
+  if(!isNaN(m0)&&m0!==nowMin)return `ℹ 表示した後に内容が変わりました（${kind} ${toHHMM(m0)} → ${toHHMM(nowMin)}）。最新の内容を確認してから、もう一度押してください`;
+  return `ℹ 表示した後に申請の内容（時刻・区分・理由）が変わりました。最新の内容を確認してから、もう一度押してください`;
+}
+// 店舗（ids＝所属アカウントのSet）の承認待ちを集める
+function apprStoreData(ids){
+  const otPend=[],early=[],otUnapplied=[];
+  ids.forEach(id=>{
+    if(isExecId(id))return; // 役員は残業・早出の対象外（alc36）
+    (records[id]||[]).forEach(r=>{
+      try{
+        if(!r)return;
+        const ot=r.overtimeMinutes||0,dt=String(r.date||'');
+        if(ot>OT_THRESHOLD&&r.otStatus==='pending')otPend.push({id,r});
+        if(dt<APPR_SINCE)return;
+        if(ot>OT_THRESHOLD&&r.checkout&&(!r.otStatus||r.otStatus==='none'))otUnapplied.push({id,r});
+        if(r.checkin&&!r.earlyApproved&&!r.earlyDismissed){const m=recEarly(r,id);if(m>0)early.push({id,r,min:m});}
+      }catch(e){console.warn('appr data skip',id,e);} // 壊れた1件で一覧全体を止めない
+    });
+  });
+  const lv=(leaveRequests||[]).filter(q=>q&&q.status==='pending'&&ids.has(q.empId));
+  const desc=(a,b)=>String(b.r.date||'').localeCompare(String(a.r.date||''));
+  otPend.sort(desc);early.sort(desc);otUnapplied.sort(desc);
+  lv.sort((a,b)=>String(a.targetDate||'').localeCompare(String(b.targetDate||''))); // 有給は取得日の近い順（承認の順番＝残数の消化順）
+  return {otPend,early,otUnapplied,lv,total:otPend.length+early.length+lv.length};
+}
+function _apprIds(storeId){return new Set(accounts.filter(a=>storeId?a.storeId===storeId:!a.storeId).map(a=>a.id));}
+const _apprLocked=(date,empId)=>isMonthLocked(String(date||'').slice(0,7),empId);
+const _apprLockNote='<div style="font-size:11px;color:var(--yw);margin-top:6px">🔒 この月はロック中です（ロックを解除してから処理してください）</div>';
+const _apprSec=(title,extra)=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:12px 2px 6px;font-size:13px;font-weight:700">${title}${extra||''}</div>`;
+function _apprOtRowHtml(x,nameById){
+  const r=x.r,mon=String(r.date||'').slice(0,7),locked=_apprLocked(r.date,x.id);
+  const genres=Array.isArray(r.otGenres)?r.otGenres.join('・'):String(r.otGenres||'');
+  return `<div class="pend-req appr-row" data-kind="ot" data-emp="${esc(x.id)}" data-date="${esc(r.date)}" data-sig="${_apprHash(_apprSigOt(r))}" data-min="${r.overtimeMinutes||0}"${locked?' data-locked="1"':''}>
+    <div class="pend-top"><div class="pend-name">👤 ${esc(nameById[x.id]||'')}</div><div style="font-family:var(--mo);font-size:13px;color:var(--ac2);font-weight:700">${toHHMM(r.overtimeMinutes||0)}</div></div>
+    <div class="pend-info">${esc(r.date)}　${esc(r.checkin||'--:--')}〜${esc(r.checkout||'--:--')}<br>区分: ${esc(genres||'-')}<br>理由: ${esc(r.otComment||'-')}<br>今月の残業累計（この人）: ${monthOTBadge(x.id,mon)}</div>
+    ${locked?_apprLockNote:`<div class="pend-btns"><button class="app-btn ok" onclick="apprOt('${esc(x.id)}','${esc(r.date)}',1,this)">✅ 承認</button><button class="app-btn ng" onclick="apprOt('${esc(x.id)}','${esc(r.date)}',0,this)">❌ 却下</button></div>`}
+  </div>`;
+}
+function _apprEarlyRowHtml(x,nameById){
+  const r=x.r,sh=effShift(x.id),locked=_apprLocked(r.date,x.id);
+  return `<div class="pend-req appr-row" data-kind="early" data-emp="${esc(x.id)}" data-date="${esc(r.date)}" data-sig="${_apprHash(_apprSigEarly(r,x.id))}" data-min="${x.min||0}"${locked?' data-locked="1"':''}>
+    <div class="pend-top"><div class="pend-name">👤 ${esc(nameById[x.id]||'')}</div><div style="font-family:var(--mo);font-size:13px;color:var(--yw);font-weight:700">早出 ${toHHMM(x.min)}</div></div>
+    <div class="pend-info">${esc(r.date)}　出勤 ${esc(r.checkin||'--:--')}（所定 ${esc(r.fullTimeFlag?settings.start:sh.start)}）<br>申請: ${r.earlyStatus==='pending'?'<span style="color:var(--yw)">⏳ 申請あり</span>':'<span style="color:var(--rd)">未申請（本人に申請を依頼）</span>'}${r.earlyComment?`<br>💬 ${esc(r.earlyComment)}`:''}</div>
+    ${locked?_apprLockNote:`<div class="pend-btns"><button class="app-btn ok" onclick="apprEarly('${esc(x.id)}','${esc(r.date)}',1,this)">✅ 承認（残業に加算）</button><button class="app-btn" style="background:none;border:1px solid var(--dim);color:var(--dim)" onclick="apprEarly('${esc(x.id)}','${esc(r.date)}',0,this)">対象外にする</button></div>`}
+  </div>`;
+}
+function _apprLeaveRowHtml(q,nameById){
+  const typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
+  const ck=_leaveApproveCheck(q);
+  const amt=q.type==='hourly'?(_lvNum(q.hours)+'時間'):q.type==='full'?'1日':'0.5日';
+  const ad=q.createdAt?new Date(q.createdAt):null;
+  const ap=(ad&&!isNaN(ad))?`${ad.getMonth()+1}/${ad.getDate()} 申請`:'';
+  return `<div class="pend-req appr-row" data-kind="lv" data-id="${esc(q.id)}" data-sig="${_apprHash(_apprSigLv(q))}">
+    <div class="pend-top"><div class="pend-name">👤 ${esc((nameById&&nameById[q.empId])||q.empName||'')}</div><span class="req-status rs-pending">${esc(q.targetDate||'')}</span></div>
+    <div class="pend-info">${typeMap[q.type]||esc(q.type)} ／ ${amt}${q.note?` ／ ${esc(q.note)}`:''}${ap?`　<span style="opacity:.8">${ap}</span>`:''}${_leaveBalInfoHtml(q)}</div>
+    <div class="pend-btns"><button class="app-btn ok" onclick="apprLeave('${esc(q.id)}',1,this)"${ck.ok?'':' disabled style="opacity:.45"'}>✅ 承認</button><button class="app-btn ng" onclick="apprLeave('${esc(q.id)}',0,this)">❌ 却下</button></div>
+  </div>`;
+}
+function _apprUnappliedHtml(list,nameById){
+  if(!list.length)return '';
+  return `<details style="margin-top:10px"><summary style="cursor:pointer;padding:7px 10px;background:var(--sf2);border-radius:8px;font-size:12px;font-weight:700;list-style:none;color:var(--dim)">📝 残業31分以上で未申請（参考・${list.length}件）</summary>
+    <div style="font-size:11px;color:var(--dim);line-height:1.7;margin:6px 2px">未申請のままでは残業代の支給対象になりません（承認待ちの件数には含めていません）。当日分は本人が「今日」画面から申請できます。過去日は本人に理由を確認し、必要に応じて勤怠修正で対応してください。</div>
+    ${list.map(x=>{try{return `<div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:5px 4px;border-bottom:1px solid var(--bd)"><span>👤 ${esc(nameById[x.id]||'')}　${esc(x.r.date)}　${esc(x.r.checkin||'')}〜${esc(x.r.checkout||'')}</span><b style="font-family:var(--mo);color:var(--ac2);flex-shrink:0">${toHHMM(x.r.overtimeMinutes||0)}</b></div>`;}catch(e){return '';}}).join('')}
+  </details>`;
+}
+// 1件の表示に失敗しても、ほかの申請・店舗は表示する
+function _apprRowsSafe(arr,fn,nameById){
+  return arr.map(x=>{try{return fn(x,nameById);}catch(e){console.warn('appr row render failed',e);return '<div class="pend-req" style="font-size:12px;color:var(--rd)">⚠ 表示できない申請が1件あります（店舗に入って締めチェック・有給管理で確認してください）</div>';}}).join('');
+}
+function renderExecApprovals(){
+  const card=document.getElementById('execApprCard'),el=document.getElementById('apprExecByStore');
+  if(!card||!el)return;
+  const me=curAcc();
+  if(!me||me.role!=='executive'){card.style.display='none';return;}
+  card.style.display='';
+  const nameById={};accounts.forEach(a=>nameById[a.id]=a.name);
+  const groups=stores.map(s=>({id:s.id,name:'🏪 '+esc(s.name),ids:_apprIds(s.id)}));
+  const storeless=_apprIds('');
+  if(storeless.size)groups.push({id:'',name:'👔 役員・店舗未所属',ids:storeless});
+  let grand=0;
+  const html=groups.map(g=>{
+    try{
+      const d=apprStoreData(g.ids);
+      grand+=d.total;
+      if(!g.id&&!d.total)return ''; // 役員グループは承認待ちがあるときだけ出す
+      const lockedN=d.otPend.filter(x=>_apprLocked(x.r.date,x.id)).length+d.early.filter(x=>_apprLocked(x.r.date,x.id)).length;
+      const badge=d.total?`<span style="color:var(--rd);font-weight:700">🔴未処理 ${d.total}</span> <span style="display:inline-block;font-size:11px;color:var(--dim);font-weight:400">（残業${d.otPend.length}・早出${d.early.length}・有給${d.lv.length}${lockedN?`・うち🔒ロック中 ${lockedN}`:''}）</span>`:'<span style="color:var(--gn)">✅承認待ちなし</span>';
+      const closeBtn=g.id?`<button class="hbtn" style="flex-shrink:0" onclick="apprOpenClose('${esc(g.id)}')">🧾 締めチェック</button>`:'';
+      let body='';
+      if(d.otPend.length){
+        const act=d.otPend.filter(x=>!_apprLocked(x.r.date,x.id)).length;
+        body+=_apprSec(`⏰ 残業 承認待ち（${d.otPend.length}件）`,act?`<button class="mb mb-b" style="padding:6px 10px;font-size:12px;flex-shrink:0" onclick="apprOtAll('${esc(g.id)}',this)">✅ すべて承認（${act}件）</button>`:'')
+          +_apprRowsSafe(d.otPend,_apprOtRowHtml,nameById);
+      }
+      if(d.early.length){
+        body+=_apprSec(`🌅 早出（未処理 ${d.early.length}件）`)
+          +'<div style="font-size:11px;color:var(--dim);line-height:1.6;margin:0 2px 6px">事前に申請・許可した早出のみ「承認」してください（始業前の時間が残業に加算されます）。それ以外は「対象外」に。</div>'
+          +_apprRowsSafe(d.early,_apprEarlyRowHtml,nameById);
+      }
+      if(d.lv.length)body+=_apprSec(`🏖 有給 申請中（${d.lv.length}件）`)+_apprRowsSafe(d.lv,_apprLeaveRowHtml,nameById);
+      if(!d.total)body+='<div class="empty" style="padding:12px">承認待ちはありません ✨</div>';
+      body+=_apprUnappliedHtml(d.otUnapplied,nameById);
+      return `<div data-appr-store="${esc(g.id)}" style="margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;padding:8px 8px 10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 4px 8px;font-size:14px;font-weight:700;border-bottom:1px solid var(--bd)"><span>${g.name}　${badge}</span>${closeBtn}</div>
+        ${body}
+      </div>`;
+    }catch(e){
+      console.warn('appr group render failed',e);
+      return `<div style="margin-bottom:10px;border:1px solid var(--rd);border-radius:10px;padding:10px;font-size:12px;color:var(--rd)">⚠ ${g.name} の承認待ちを表示できませんでした（店舗に入って締めチェックで確認してください）</div>`;
+    }
+  }).join('');
+  el.innerHTML=html||'<div class="empty">店舗がありません</div>';
+  const bd=document.getElementById('apprBadgeExec');if(bd)bd.classList.toggle('show',grand>0);
+}
+// 処理後、送信が保留（電波不良など）になっていたら知らせる
+async function _apprPushCheck(){
+  await _withTimeout(DB._pushQueue,20000);
+  try{
+    const ks=['ka_records','ka_leave_requests'];
+    if(ks.some(k=>((DB._inflight&&DB._inflight[k])||0)>0))showToast('⏳ 送信に時間がかかっています。届かなかった場合は一覧に戻るので、電波の良い場所でアプリを開き直して、もう一度処理してください');
+    else if(DB._dirtyKeys&&ks.some(k=>DB._dirtyKeys.has(k)))showToast('⚠ 通信できず送信が保留中です。電波の良い場所でアプリを開き直し、一覧に残っていればもう一度処理してください');
+  }catch(e){}
+}
+// 共通: ボタンを無効化 → サーバーの最新を取り込み（できなければ中止）→ 処理 → 再描画
+async function _apprAct(btn,need,fn){
+  if(_actionGuard.has('appr')){showToast('⏳ 処理中です。少しお待ちください');return false;}
+  _actionGuard.add('appr');
+  const row=(btn&&btn.closest)?btn.closest('.appr-row'):null;
+  const shown=row?{sig:row.getAttribute('data-sig'),min:row.getAttribute('data-min')}:null; // 押した時点で画面に出ていた内容（指紋と分数）
+  const btns=row?Array.from(row.querySelectorAll('button')):(btn?[btn]:[]);
+  const label=btn?btn.textContent:'';
+  btns.forEach(b=>b.disabled=true);if(btn)btn.textContent='確認中…';
+  let changed=false;
+  try{
+    const res=await apprRefresh({keys:need});
+    if(!_apprFreshOk(res,need)){showToast(_apprFreshMsg(res,need));return false;}
+    changed=!!fn(shown);
+  }catch(e){console.warn('appr action failed',e);}
+  finally{
+    btns.forEach(b=>b.disabled=false);if(btn&&label)btn.textContent=label;
+    _actionGuard.delete('appr');
+    try{renderExecApprovals();}catch(e){}
+  }
+  if(changed)await _apprPushCheck();
+  return changed;
+}
+function apprOt(empId,date,ok,btn){
+  return _apprAct(btn,APPR_NEED_REC,shown=>{
+    const r=(records[empId]||[]).find(x=>x.date===date);
+    if(!r){showToast('ℹ 記録が見つかりませんでした（最新に更新しました）');return false;}
+    if(!(r.otStatus==='pending'&&(r.overtimeMinutes||0)>OT_THRESHOLD)){showToast(`ℹ この残業は既に処理済みか、内容が変わっています（現在: ${otStatusLabel(r)}）`);return false;}
+    if(shown&&shown.sig&&shown.sig!==_apprHash(_apprSigOt(r))){showToast(_apprChangedMsg('残業',shown.min,r.overtimeMinutes||0));return false;}
+    if(_apprLocked(date,empId)){showToast('🔒 この月はロックされています（ロックを解除してから処理してください）');return false;}
+    otDecide(empId,date,!!ok);
+    return true;
+  });
+}
+function apprEarly(empId,date,approve,btn){
+  return _apprAct(btn,APPR_NEED_REC,shown=>{
+    const r=(records[empId]||[]).find(x=>x.date===date);
+    if(!r){showToast('ℹ 記録が見つかりませんでした（最新に更新しました）');return false;}
+    if(r.earlyApproved||r.earlyDismissed||recEarly(r,empId)<=0){showToast(`ℹ この早出は既に処理済みか、早出ではなくなっています（現在: ${earlyStatusLabel(r)}）`);return false;}
+    if(shown&&shown.sig&&shown.sig!==_apprHash(_apprSigEarly(r,empId))){showToast(_apprChangedMsg('早出',shown.min,recEarly(r,empId)));return false;}
+    if(_apprLocked(date,empId)){showToast('🔒 この月はロックされています（ロックを解除してから処理してください）');return false;}
+    earlyDecide(empId,date,!!approve);
+    return true;
+  });
+}
+function apprLeave(id,ok,btn){
+  return _apprAct(btn,APPR_NEED_LV,shown=>{
+    const q=(leaveRequests||[]).find(x=>x.id===id);
+    if(!q){showToast('ℹ 申請が見つかりませんでした（最新に更新しました）');return false;}
+    if(shown&&shown.sig&&q.status==='pending'&&shown.sig!==_apprHash(_apprSigLv(q))){showToast('ℹ 表示した後に申請の内容が変わりました。最新の内容を確認してから、もう一度押してください');return false;}
+    return ok?approveLeave(id):rejectLeave(id); // 取消済み・処理済み・残数不足は各関数が止める
+  });
+}
+// 画面に出ていた申請のうち、今も同じ内容のものだけを選ぶ（shownList が無いとき＝画面外からの呼び出しは今の一覧）
+function _apprPickShown(cur,shownList){
+  if(!shownList)return {list:cur,dropped:0};
+  const list=[];let dropped=0;
+  shownList.forEach(s=>{
+    const x=cur.find(c=>c.id===s.id&&c.r.date===s.date);
+    if(x&&_apprHash(_apprSigOt(x.r))===s.sig)list.push(x);else dropped++;
+  });
+  return {list,dropped};
+}
+// 店舗の残業申請をまとめて承認（押した時点で画面に出ていたもの・ロック中の月は除く）
+function apprOtAll(storeId,btn){
+  const grp=(btn&&btn.closest)?btn.closest('[data-appr-store]'):null;
+  const shownList=grp?Array.from(grp.querySelectorAll('.appr-row[data-kind="ot"]')).filter(e=>e.getAttribute('data-locked')!=='1')
+    .map(e=>({id:e.getAttribute('data-emp'),date:e.getAttribute('data-date'),sig:e.getAttribute('data-sig')})):null;
+  return _apprAct(btn,APPR_NEED_REC,()=>{
+    const cur=apprStoreData(_apprIds(storeId)).otPend.filter(x=>!_apprLocked(x.r.date,x.id));
+    const pick=_apprPickShown(cur,shownList);
+    if(!pick.list.length){showToast(pick.dropped?`ℹ 表示した後に内容が変わったため、承認できる申請がありません（${pick.dropped}件。最新に更新しました）`:'ℹ 承認できる残業申請はありません（最新に更新しました）');return false;}
+    const sel=pick.list.map(x=>({id:x.id,date:x.r.date,sig:_apprHash(_apprSigOt(x.r))}));
+    const total=pick.list.reduce((s,x)=>s+(x.r.overtimeMinutes||0),0);
+    const sn=(stores.find(s=>s.id===storeId)||{}).name||'';
+    confirmAction(`${sn?sn+' の':''}残業申請 ${sel.length}件（合計 ${toHHMM(total)}）をすべて承認します。${pick.dropped?`\n※表示した後に内容が変わった・処理済みの ${pick.dropped}件は除きました（一覧は最新にしました）。`:''}\n区分・理由を確認済みであれば「すべて承認する」を押してください。`,()=>{
+      // 確認画面を開いている間に変わったものは承認しない（もう一度最新を取り込んでから、確認画面と同じ内容のものだけ承認）
+      _apprBulkJob=(async()=>{
+        for(let i=0;i<50&&_actionGuard.has('appr');i++)await new Promise(r=>setTimeout(r,100)); // 直前の処理が終わるのを待つ
+        return _apprAct(null,APPR_NEED_REC,()=>{
+          const me=(curAcc()||{}).name||'',now=new Date().toISOString();let n=0,skip=0;
+          sel.forEach(k=>{
+            const r=(records[k.id]||[]).find(x=>x.date===k.date);
+            if(r&&r.otStatus==='pending'&&(r.overtimeMinutes||0)>OT_THRESHOLD&&!_apprLocked(r.date,k.id)&&_apprHash(_apprSigOt(r))===k.sig){r.otStatus='approved';r.otReviewedBy=me;r.otReviewedAt=now;n++;}
+            else skip++;
+          });
+          if(n)S.set('ka_records',records);
+          showToast(`✅ ${n}件の残業を承認しました${skip?`（確認中に変わった・処理済みの ${skip}件は除きました）`:''}`);
+          try{renderOtQueue();updateCloseBadge();}catch(e){}
+          return n>0;
+        });
+      })();
+    },'すべて承認する');
+    return false;
+  });
+}
+// 店舗の締めチェックで開く月＝未処理が残っている一番古い月（ロック中の月は除く。無ければ今月）
+function _apprCloseMonth(storeId){
+  let m='';
+  try{
+    const d=apprStoreData(_apprIds(storeId));
+    d.otPend.concat(d.early,d.otUnapplied).forEach(x=>{const ym=String(x.r.date||'').slice(0,7);if(/^\d{4}-\d{2}$/.test(ym)&&!_apprLocked(x.r.date,x.id)&&(!m||ym<m))m=ym;});
+  }catch(e){}
+  return m||thisMonth();
+}
+function apprOpenClose(storeId){
+  try{
+    const m=_apprCloseMonth(storeId);
+    enterStore(storeId);
+    const mi=document.getElementById('closeMonth');if(mi)mi.value=m;
+    showAdminPgById('close');
+  }catch(e){console.warn('open close check failed',e);}
+}
+async function apprRefreshBtn(btn){
+  if(btn){btn.disabled=true;btn.textContent='取得中…';}
+  let r=null;try{r=await apprRefresh();}catch(e){}
+  try{renderExecApprovals();}catch(e){}
+  if(btn){btn.disabled=false;btn.textContent='🔄 最新を取得';}
+  showToast(r&&r.ok?'✅ 承認待ちを最新にしました':_apprFreshMsg(r,APPR_KEYS,'最新にできませんでした'));
 }
 
 // ── 打刻前モーダル ──
@@ -6226,7 +6759,8 @@ function updateLeaveTypeUIA(){
   const hRow=document.getElementById('alr-hours-row');if(hRow)hRow.style.display=showH?'block':'none';
   const hHint=document.getElementById('alr-hours-hint');
   const hpd=curAcc()?.leaveConfig?.workHoursPerDay||8;
-  if(hHint){if(type==='full')hHint.textContent=`消化時間: ${hpd}時間（全日休）`;else if(type==='half')hHint.textContent=`消化時間: ${hpd/2}時間（半日休）`;else hHint.textContent='';}
+  const _av=_leaveAvailHint(session?.id,type); // alc38: 残・申請中を表示
+  if(hHint){if(type==='full')hHint.textContent=`消化時間: ${hpd}時間（全日休）${_av}`;else if(type==='half')hHint.textContent=`消化時間: ${hpd/2}時間（半日休）${_av}`;else hHint.textContent=_av?`時間給プール${_av}`:'';}
 }
 function renderLeaveTabA(){
   const empId=session?.id;if(!empId)return;
@@ -6304,9 +6838,15 @@ function submitLeaveReqA(){
   if(type==='hourly'&&bal.hasHourlyPool){if(hours>bal.remHourlyH){showToast(`⚠ 時間給残数不足（残: ${bal.remHourlyH}時間）`);return;}}
   else if(type==='full'||type==='half'){const needDays=type==='full'?1:0.5;if(needDays>bal.remDays){showToast(`⚠ 有給日数残不足（残: ${bal.remDays}日）`);return;}}
   else{if(hours>bal.remDayH){showToast(`⚠ 有給残数不足（残: ${bal.remDayH}時間）`);return;}}
-  const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,note:document.getElementById('alr-note').value,status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
-  leaveRequests.push(req);S.set('ka_leave_requests',leaveRequests);
-  document.getElementById('alr-note').value='';renderLeaveTabA();showToast('✅ 有給申請を送信しました');
+  const doSubmit=()=>{
+    if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
+    const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,note:document.getElementById('alr-note').value,status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
+    leaveRequests.push(req);S.set('ka_leave_requests',leaveRequests);
+    document.getElementById('alr-note').value='';renderLeaveTabA();showToast('✅ 有給申請を送信しました');
+  };
+  const _short=_leavePendingShortMsg(empId,type,hours); // alc38
+  if(_short){confirmAction(_short,doSubmit,'このまま申請する');return;}
+  doSubmit();
 }
 function cancelLeaveReqA(id){
   const r=leaveRequests.find(x=>x.id===id);if(!r||r.empId!==session.id)return;
@@ -6960,9 +7500,10 @@ function aUpdateLeaveUI(){
   const hHint=document.getElementById('alr-hours-hint');
   const hpd=curAcc()?.leaveConfig?.workHoursPerDay||8;
   if(hHint){
-    if(type==='full')hHint.textContent=`消化: 1日分（全日休）← 日数プール`;
-    else if(type==='half')hHint.textContent=`消化: 0.5日分（半日休）← 日数プール`;
-    else hHint.textContent='時間数を入力 ← 時間給プール';
+    const _av=_leaveAvailHint(session?.id,type); // alc38
+    if(type==='full')hHint.textContent=`消化: 1日分（全日休）← 日数プール${_av}`;
+    else if(type==='half')hHint.textContent=`消化: 0.5日分（半日休）← 日数プール${_av}`;
+    else hHint.textContent=`時間数を入力 ← 時間給プール${_av}`;
   }
 }
 function aSubmitLeave(){
@@ -6983,12 +7524,18 @@ function aSubmitLeave(){
   if(type==='hourly'&&bal.hasHourlyPool){if(hours>bal.remHourlyH){showToast(`⚠ 時間給残数が不足しています（残: ${bal.remHourlyH}時間）`);return;}}
   else if(type==='full'||type==='half'){const needDays=type==='full'?1:0.5;if(needDays>bal.remDays){showToast(`⚠ 有給日数残が不足しています（残: ${bal.remDays}日）`);return;}}
   else{if(hours>bal.remDayH){showToast(`⚠ 有給残数が不足しています（残: ${bal.remDayH}時間）`);return;}}
-  const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,
-    note:document.getElementById('alr-note')?.value||'',
-    status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
-  leaveRequests.push(req);S.set('ka_leave_requests',leaveRequests);
-  const noteEl=document.getElementById('alr-note');if(noteEl)noteEl.value='';
-  renderLeaveTabA();showToast('✅ 有給申請を送信しました');
+  const doSubmit=()=>{
+    if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
+    const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,
+      note:document.getElementById('alr-note')?.value||'',
+      status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
+    leaveRequests.push(req);S.set('ka_leave_requests',leaveRequests);
+    const noteEl=document.getElementById('alr-note');if(noteEl)noteEl.value='';
+    renderLeaveTabA();showToast('✅ 有給申請を送信しました');
+  };
+  const _short=_leavePendingShortMsg(empId,type,hours); // alc38: 申請中を含めると不足 → 警告して確認
+  if(_short){confirmAction(_short,doSubmit,'このまま申請する');return;}
+  doSubmit();
 }
 
 // ── 管理者 設定 ──
