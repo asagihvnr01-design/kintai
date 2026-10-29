@@ -229,6 +229,39 @@ select.fi{appearance:none;cursor:pointer}
 .lcr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .lcr-name{font-size:13px;font-weight:700}
 .lcr-info{font-size:11px;color:var(--dim);line-height:1.8}
+/* alc39: 有給管理（職員ごとのカード）・有給設定 */
+.lv-tags{display:flex;flex-wrap:wrap;gap:5px;margin:-2px 0 6px}
+.lv-tag{font-size:11px;background:var(--sf);border:1px solid var(--bd);color:var(--dim);border-radius:5px;padding:2px 7px;font-weight:700}
+.lv-tag.warn{color:var(--yw);border-color:rgba(247,211,79,.55)}
+.lv-tag.pend{color:var(--yw);background:rgba(247,211,79,.1);border-color:rgba(247,211,79,.4)}
+.lv-ten{font-size:13px;margin-bottom:8px;line-height:1.6}
+.lv-ten b{color:var(--ac);font-size:14px}
+.lv-ten span{font-size:11px;color:var(--dim);margin-left:2px}
+.lv-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px}
+.lv-sum-i{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:7px 6px;text-align:center;min-width:0}
+.lv-sum-l{font-size:11px;color:var(--dim)}
+.lv-sum-v{font-family:var(--mo);font-size:18px;font-weight:700;color:var(--pu);line-height:1.3}
+.lv-sum-v small{font-size:11px;font-weight:400;margin-left:1px}
+.lv-sum-v.sm{font-size:12px;color:var(--tx);font-weight:600}
+.lv-soon{font-size:12px;color:var(--yw);margin-top:6px;line-height:1.6}
+.lv-next{font-size:12px;color:var(--tx);margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08)}
+.lv-open{width:100%;margin-top:8px;background:none;border:1px dashed var(--bd);color:var(--ac);border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn);min-height:40px}
+.lv-detail{margin-top:8px}
+.lv-sec{font-size:12px;font-weight:700;margin:6px 2px}
+.lv-sec span{font-weight:400;color:var(--dim);font-size:11px}
+.lv-detail .grant-item{background:var(--sf);border:1px solid var(--bd);gap:8px;align-items:flex-start}
+.lv-src{font-size:10px;border-radius:4px;padding:1px 5px;margin-left:4px;font-weight:700;border:1px solid var(--bd);color:var(--dim)}
+.lv-src.auto{color:var(--ac);border-color:rgba(79,142,247,.5)}
+.lv-src.manual{color:var(--yw);border-color:rgba(247,211,79,.55)}
+.lv-src.rule{color:var(--pu);border-color:rgba(180,127,247,.5)}
+.lv-rec{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px}
+.lv-rec-sub{font-size:11px;color:var(--dim);margin-top:2px;line-height:1.5}
+.lv-ret-btn{flex-shrink:0;font-size:11px;padding:6px 10px;border-radius:6px;border:1px solid rgba(247,211,79,.5);background:rgba(247,211,79,.12);color:var(--yw);cursor:pointer;min-height:34px;font-family:var(--fn);font-weight:700}
+.lv-adj-btn{margin-top:5px;font-size:11px;padding:4px 10px;border:1px solid var(--bd);background:none;color:var(--dim);border-radius:6px;cursor:pointer;font-family:var(--fn);min-height:32px}
+.lcm-hint{font-size:11px;color:var(--dim);line-height:1.6;margin-top:4px}
+.lcm-chk{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.6;margin-top:10px;cursor:pointer}
+.lcm-chk input{width:18px;height:18px;flex-shrink:0;margin-top:1px;accent-color:var(--ac)}
+.lcm-preview{background:var(--sf2);border-radius:8px;padding:9px 11px;font-size:12px;line-height:1.6;margin-top:12px}
 
 /* MODAL */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:flex-end;overscroll-behavior:contain}
@@ -487,7 +520,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.28-alc38 (役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.29-alc39 (有給を就業規則どおりに毎年自動で付与（正社員・有期契約は入社日から15〜20日・パート等は入社6か月後の月の1日から週の日数ごとの日数・時間休は年5日分の枠）／残数は取得日に使える付与の古い順に消化し2年で失効／有給管理を職員ごとにまとめ（勤続○年○ヵ月目＝キャリアアップ助成金の数え方・残数・次回の付与・付与の履歴・取得記録）、承認待ちは申請があるときだけ一番上に／付与の個別調整（0日も可）／有給設定に入社日・雇用区分・週の所定労働日数など／役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -900,9 +933,9 @@ html[data-bigtext="1"] body{zoom:1.15}
     <div id="adminEmpCards"></div>
   </div>
   <div id="pg-admin-leave" class="page">
-    <div class="card"><div class="ct">従業員別 有給設定・残数</div><div id="leaveEmpList"></div></div>
-    <div class="card"><div class="ct">承認待ち申請</div><div id="pendingLeave"></div></div>
-    <div class="card"><div class="ct">承認済み申請</div><div id="approvedLeave"></div></div>
+    <!-- alc39: 承認待ちは申請があるときだけ一番上に表示。職員ごとに 勤続・残数・付与の履歴・取得記録 をまとめる -->
+    <div class="card" id="pendingLeaveCard" style="display:none;border-color:rgba(247,211,79,.55)"><div class="ct" id="pendingLeaveTitle">⏳ 承認待ちの有給申請</div><div id="pendingLeave"></div></div>
+    <div class="card"><div class="ct">職員ごとの有給（勤続・残数・付与・取得記録）</div><div id="leaveEmpList"></div></div>
   </div>
   <!-- ADMIN: 設定 -->
   <div id="pg-admin-acfg" class="page">
@@ -1323,17 +1356,44 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="modal">
     <button class="modal-close" onclick="closeLCModal()">✕</button>
     <div class="modal-title">有給設定: <span id="lcm-name"></span></div>
-    <div class="fr"><label class="fl">初回付与日</label><input type="date" class="fi" id="lcm-date"></div>
+    <!-- alc39: 付与日・付与日数は就業規則どおりに自動で計算する（入力するのは本人の条件だけ） -->
+    <div id="lcm-note" class="lcm-hint" style="color:var(--yw);margin:0 0 8px"></div>
+    <div class="fr"><label class="fl">入社日</label><input type="date" class="fi" id="lcm-hire" onchange="lcmPreview()" oninput="lcmPreview()">
+      <div class="lcm-hint">パート等から正社員になった人も、最初の入社日を入れます（勤続を通算します）</div></div>
     <div class="t-row">
-      <div class="fr" style="margin-bottom:0"><label class="fl">付与日数（年間）</label><input type="number" inputmode="decimal" class="fi" id="lcm-days" min="1" max="40" value="10"></div>
-      <div class="fr" style="margin-bottom:0"><label class="fl">実働時間/日</label><input type="number" inputmode="decimal" class="fi" id="lcm-hpd" min="1" max="24" step="0.5" value="8"></div>
+      <div class="fr" style="margin-bottom:0"><label class="fl">雇用区分</label><select class="fi" id="lcm-type" onchange="lcmPreview()"><option value="regular">正社員</option><option value="fixed">有期契約</option><option value="part">パート等</option></select></div>
+      <div class="fr" style="margin-bottom:0"><label class="fl">週の所定労働日数</label><select class="fi" id="lcm-wd" onchange="lcmPreview()"><option value="5">5日以上</option><option value="4">4日</option><option value="3">3日</option><option value="2">2日</option><option value="1">1日</option></select></div>
     </div>
-    <div class="fr" style="margin-top:10px;margin-bottom:0">
-      <label class="fl">時間給付与時間（年間）<span style="font-size:11px;color:var(--dim);font-weight:400;margin-left:6px">日数プールとは別枠で付与</span></label>
-      <input type="number" inputmode="decimal" class="fi" id="lcm-hourly" min="0" max="40" step="1" value="0" placeholder="例: 5">
-      <div style="font-size:11px;color:var(--dim);margin-top:4px">1時間単位で申請・消化できる専用プールです（0の場合は日数プールから消化）</div>
+    <label class="lcm-chk" id="lcm-o30-row" style="display:none"><input type="checkbox" id="lcm-o30" onchange="lcmPreview()"><span>週30時間以上働く（週4日以下でも週5日と同じ日数）</span></label>
+    <div class="t-row" style="margin-top:10px">
+      <div class="fr" style="margin-bottom:0"><label class="fl">1日の所定労働時間</label><input type="number" inputmode="decimal" class="fi" id="lcm-hpd" min="1" max="24" step="0.5" value="8" oninput="lcmPreview()"></div>
+      <div class="fr" style="margin-bottom:0"><label class="fl">勤続から除く月数</label><input type="number" inputmode="numeric" class="fi" id="lcm-adj" min="0" max="600" step="1" value="0" oninput="lcmPreview()"></div>
     </div>
+    <div class="lcm-hint">勤続から除く月数: アプリを使い始める前に休職・育休など勤務11日未満の月があった場合に入れます（勤続の表示だけに使い、付与日数は変わりません）</div>
+    <label class="lcm-chk" id="lcm-hr-row"><input type="checkbox" id="lcm-usehr" onchange="lcmPreview()"><span>時間休を使う（付与日数のうち5日分を時間休の枠にする。1日＝所定労働時間を1時間単位に切り上げ）</span></label>
+    <div id="lcm-preview" class="lcm-preview"></div>
+    <div id="lcm-recalc-note" class="lcm-hint" style="display:none;color:var(--yw)"></div>
+    <label class="lcm-chk" id="lcm-recalc-row" style="display:none"><input type="checkbox" id="lcm-recalc" onchange="lcmPreview()"><span>付与済みの回も新しい設定で計算し直す（入力の誤りを直すとき）</span></label>
+    <div class="lcm-hint">付与日数は就業規則（正社員・有期契約: 入社日から15・15・15・15・16・18・20日／パート等: 入社6か月後の月の1日から週の日数ごとの日数）で自動計算します。出勤率8割未満などで回ごとに変えるとき、アプリを使う前（紙など）に取得した分を反映するときは、職員の「付与の履歴」の「✎ 調整」でその回の日数を直します。</div>
     <button class="sbv" onclick="saveLCConfig()" style="margin-top:14px">設定を保存</button>
+  </div>
+</div>
+
+<!-- alc39: 付与の個別調整（出勤率8割未満で付与しない・日数を変える など） -->
+<div class="modal-ov" id="lgAdjModal">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeLgAdj()">✕</button>
+    <div class="modal-title">付与の調整</div>
+    <div id="lga-info" style="font-size:12px;line-height:1.7;margin-bottom:10px"></div>
+    <div class="t-row">
+      <div class="fr" style="margin-bottom:0"><label class="fl">日数（全日・半日の枠）</label><input type="number" inputmode="decimal" class="fi" id="lga-days" min="0" max="40" step="0.5"></div>
+      <div class="fr" style="margin-bottom:0" id="lga-h-row"><label class="fl">時間休（時間）</label><input type="number" inputmode="numeric" class="fi" id="lga-hours" min="0" max="80" step="1"></div>
+    </div>
+    <div class="fr" style="margin-top:10px"><label class="fl">理由（必須）</label><input type="text" class="fi" id="lga-note" placeholder="例: 出勤率8割未満のため付与なし"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="sbv" id="lga-reset" onclick="resetLgAdj()" style="flex:1;background:var(--sf2);color:var(--tx)">調整を取り消す</button>
+      <button class="sbv" onclick="saveLgAdj()" style="flex:1">保存する</button>
+    </div>
   </div>
 </div>
 
@@ -1383,7 +1443,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=38;
+const APP_BUILD=39;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -2714,7 +2774,7 @@ function buildAttendanceCsv(month,targetStoreId){
     const lvHalf=empLeaves.filter(r=>r.type==='half').length;
     const lvHourly=empLeaves.filter(r=>r.type==='hourly');
     const lvHourlyH=lvHourly.reduce((s,r)=>s+r.hours,0);
-    const bal=emp.leaveConfig?.grantDate?getLeaveBal(emp.id):null;
+    const bal=_lvConfigured(emp)?getLeaveBal(emp.id):null;
     const lvParts=[];
     if(lvFull)lvParts.push(`全日${lvFull}日`);
     if(lvHalf)lvParts.push(`半日${lvHalf}回`);
@@ -2738,21 +2798,24 @@ function buildAttendanceCsv(month,targetStoreId){
   // ── 有給サマリー（alc31: CSV末尾に付与） ──
   rows.push([]);
   rows.push([`【有給サマリー】${y}年${parseInt(m)}月`]);
-  rows.push(['店舗','氏名','有給残(日数)','時間休 残(h)','直近付与日','直近付与日数','有効な付与(付与日:日数)','今月 申請中','今月 承認済','今月 却下','全期間 申請中']);
+  rows.push(['店舗','氏名','有給残(日数)','時間休 残(h)','直近付与日','直近付与日数','有効な付与(付与日:日数)','今月 申請中','今月 承認済','今月 却下','全期間 申請中','雇用区分','入社日','勤続','次回付与日','次回付与']);
   targetAccs.forEach(emp=>{
     const stName2=stores.find(s=>s.id===emp.storeId)?.name||'';
-    const bal2=emp.leaveConfig?.grantDate?getLeaveBal(emp.id):null;
+    const bal2=_lvConfigured(emp)?getLeaveBal(emp.id):null;
     const reqs=(leaveRequests||[]).filter(r=>r.empId===emp.id);
     const mReqs=reqs.filter(r=>String(r.targetDate||'').startsWith(month));
     const cntBy=(arr,st)=>arr.filter(r=>r.status===st).length;
-    const grants=(leaveGrants[emp.id]||[]).slice().sort((a,b)=>String(a.grantDate).localeCompare(String(b.grantDate)));
-    const lastG=grants.length?grants[grants.length-1]:null;
+    const past=bal2?(bal2.grants||[]).filter(g=>g.grantDate<=bal2.today):[]; // alc39: 直近付与＝今日までに付与された最新の回（付与予定は含めない）
+    const lastG=past.length?past[past.length-1]:null;
     const activeStr=bal2?(bal2.active||[]).map(g=>`${g.grantDate}:${g.days}日`).join(' / '):'';
+    const cfg2=lvCfg(emp),ten2=cfg2?lvTenure(emp.id):null;
     rows.push([stName2,emp.name,
       bal2?bal2.remDays:'', (bal2&&bal2.hasHourlyPool)?bal2.remHourlyH:'',
       lastG?lastG.grantDate:'', lastG?lastG.days:'', activeStr,
       cntBy(mReqs,'pending'),cntBy(mReqs,'approved'),cntBy(mReqs,'rejected'),
-      cntBy(reqs,'pending')]);
+      cntBy(reqs,'pending'),
+      cfg2?LV_TYPE_LBL[cfg2.empType]+(cfg2.confirmed?'':'（未確認）'):'', cfg2?cfg2.hire:'', ten2?lvTenureLabel(ten2):'',
+      (bal2&&bal2.next)?bal2.next.grantDate:'', (bal2&&bal2.next)?_lvAmt(bal2.next):'']);
   });
   // BOM + CSV生成
   const csvContent='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\n');
@@ -2773,8 +2836,8 @@ function exportCSV(month,targetStoreId){
 function exportLeaveCSV(empId){
   const acc=accounts.find(a=>a.id===empId);
   if(!acc){showToast('⚠ 対象従業員が見つかりません');return;}
-  const bal=acc.leaveConfig?.grantDate?getLeaveBal(empId):null;
-  const allGrants=(leaveGrants[empId]||[]).sort((a,b)=>a.grantDate.localeCompare(b.grantDate));
+  const bal=_lvConfigured(acc)?getLeaveBal(empId):null;
+  const allGrants=bal?(bal.grants||[]):[]; // alc39: 就業規則で自動計算した回・調整した回も含む
   const allReqs=leaveRequests.filter(r=>r.empId===empId).sort((a,b)=>a.targetDate.localeCompare(b.targetDate));
   const typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
   const statusMap={pending:'申請中',approved:'承認済',rejected:'却下',cancelled:'取消'};
@@ -2783,23 +2846,30 @@ function exportLeaveCSV(empId){
   rows.push(['従業員名',acc.name]);
   rows.push(['店舗',stores.find(s=>s.id===acc.storeId)?.name||'']);
   if(acc.leaveConfig){
+    const cfg=lvCfg(acc),ten=cfg?lvTenure(empId):null;
+    if(cfg){
+      rows.push(['入社日',cfg.hire+(cfg.confirmed?'':'（未確認：初回付与日を入社日とみなしています）')]);
+      rows.push(['雇用区分',LV_TYPE_LBL[cfg.empType]]);
+      rows.push(['週の所定労働日数',cfg.weekDays+'日'+(cfg.weekDays<5&&cfg.over30?'（週30時間以上）':'')]);
+      rows.push(['時間休',cfg.useHourly?'あり（年5日分を時間休の枠にする）':'なし']);
+      rows.push(['勤続（キャリアアップ助成金の数え方）',ten?lvTenureLabel(ten):'']);
+    }
     rows.push(['付与基準日',acc.leaveConfig.grantDate]);
     rows.push(['年間付与日数',acc.leaveConfig.grantDays+'日']);
     rows.push(['年間付与時間数',(acc.leaveConfig.grantHourlyHours||0)+'時間']);
-    rows.push(['実働時間/日',(acc.leaveConfig.workHoursPerDay||8)+'時間']);
+    rows.push(['実働時間/日',(cfg?cfg.hpd:(acc.leaveConfig.workHoursPerDay||8))+'時間']);
   }
   rows.push([]);
   // セクション2: 付与履歴
   rows.push(['=== 付与履歴 ===']);
-  rows.push(['付与日','有効期限','日数','時間給','ステータス','日数残','時間給残']);
+  rows.push(['付与日','有効期限','日数','時間給','ステータス','日数残','時間給残','種別','調整の理由']);
   const today=todayKey();
-  allGrants.forEach(g=>{
+  allGrants.forEach((g,i)=>{
     const isActive=g.grantDate<=today&&g.expiryDate>today;
     const expired=g.expiryDate<=today;
-    const st=expired?'期限切れ':isActive?'有効':'付与予定';
-    const dd=isActive&&bal?bal.grantDayDetails.find(x=>x.grantDate===g.grantDate):null;
-    const dh=isActive&&bal&&bal.hasHourlyPool?bal.grantHourlyDetails.find(x=>x.grantDate===g.grantDate):null;
-    rows.push([g.grantDate,g.expiryDate,g.days+'日',(g.hourlyHours||0)+'h',st,dd?dd.remainDays+'日':'',dh?dh.remainHourlyH+'h':'']);
+    const st=expired?'期限切れ（残は失効）':isActive?'有効':'付与予定';
+    const r=(bal&&bal.rem&&bal.rem[i])||{day:0,hour:0};
+    rows.push([g.grantDate,g.expiryDate,g.days+'日',(g.hourlyHours||0)+'h',st,(isActive||expired)?r.day+'日':'',(isActive||expired)&&g.hourlyHours?r.hour+'h':'',LV_SRC_LBL[g.src]||'',g.src==='manual'?(g.note||''):'']);
   });
   rows.push([]);
   // セクション3: 残数サマリー
@@ -2984,80 +3054,260 @@ function aDeleteEditRecord(i){
 // ═══════════════════════════════════
 // LEAVE MANAGEMENT
 // ═══════════════════════════════════
-function generateLeaveGrants(empId){
-  const acc=accounts.find(a=>a.id===empId);
-  if(!acc?.leaveConfig?.grantDate)return;
-  const cfg=acc.leaveConfig,hpd=cfg.workHoursPerDay||8,days=cfg.grantDays||10,hourlyH=cfg.grantHourlyHours||0;
-  const futureLimit=new Date();futureLimit.setFullYear(futureLimit.getFullYear()+1);
-  leaveGrants[empId]=[];
-  let gd=new Date(cfg.grantDate),i=0;
-  while(gd<=futureLimit&&i<50){
-    i++;
-    const gdStr=gd.toISOString().split('T')[0];
-    const expStr=addYears(gdStr,2);
-    leaveGrants[empId].push({id:`g_${empId}_${gdStr}`,empId,grantDate:gdStr,days,hoursPerDay:hpd,totalHours:days*hpd,hourlyHours:hourlyH,expiryDate:expStr});
-    gd.setFullYear(gd.getFullYear()+1);
-  }
-  leaveGrants[empId].sort((a,b)=>a.grantDate.localeCompare(b.grantDate));
-  S.set('ka_leave_grants',leaveGrants);
+/* ── alc39: 有給は就業規則どおりに毎年自動で付与する（付与漏れ・期限切れ分の消化を起こさない）──
+   ・付与日と日数は、有給設定（入社日・雇用区分・週の所定労働日数・週30時間以上・1日の所定労働時間・時間休）から表示のたびに計算する。
+     計算した付与は保存しない（どの端末でも同じ結果になり、スタッフの端末が付与を書き込むこともない）。
+     正社員・有期契約: 入社日に付与し、以後は毎年の入社応当日に 15・15・15・15・16・18・20日（6年以降20日）。
+       週30時間未満かつ週4日以下の人は「10日×週の日数/5」。ただし法定の比例付与（パート等の表）を下回らない。
+     パート等: 入社月の6か月後の月の1日に付与し、以後は毎年同じ日に、週の所定労働日数ごとの日数（週30時間以上は週5日の日数）。
+     時間休を使う人は、付与日数のうち5日分を時間休の枠にする（1日＝1日の所定労働時間を1時間単位に切り上げ。8時間・7.5時間→40時間、7時間→35時間）。
+   ・保存済みの付与（ka_leave_grants）の扱い:
+     付与日が LEAVE_RULE_SINCE 以前のもの＝付与済みの記録として、そのまま使う（書き換えない）。その日までの回は計算しない。
+     付与日がそれより後で印のないもの＝旧方式が保存日から1年先まで作っていた「付与予定」→ 使わずに計算で置き換える。
+     src:'manual'（管理者の個別調整）・src:'rule'（設定を変えたとき、付与済みの回を変更前の設定のまま固定したもの）は計算より優先。
+     src:'void'＝調整を取り消して自動計算に戻した印。同期では rev（改訂番号）の大きいほうを残す（_lgMergePick）。
+     leaveConfig.ruleFrom＝この日より前の回は今の設定で計算しない（雇用区分の変更などを「今後から」で保存した日）。
+   ・残数: 承認済みの申請を取得日の順に、その日に使える付与の古いほうから消化する（付与日から2年で失効＝繰越は前年分まで）。
+     承認・申請のチェックも同じ計算（その申請を足しても、取得日の時点で承認済みの全部をまかなえるか）。 */
+const LEAVE_RULE_SINCE='2026-10-29';
+const LV_REG=[15,15,15,15,16,18,20];                       // 正社員・有期契約（入社日・1年・2年…6年以降）
+const LV_PRO={5:[10,11,12,14,16,18,20],4:[7,8,9,10,12,13,15],3:[5,6,6,8,9,10,11],2:[3,4,4,5,6,6,7],1:[1,2,2,2,3,3,3]}; // パート等（6か月・1年6か月…6年6か月以降）
+const LV_TYPE_LBL={regular:'正社員',fixed:'有期契約',part:'パート等'};
+const LV_SRC_LBL={legacy:'記録',auto:'自動',rule:'固定',manual:'調整'};
+const _isYmd=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s);
+const _lvDs=s=>{if(!_isYmd(s))return '';const[y,m,d]=s.split('-').map(Number);return `${y}/${m}/${d}`;};
+// 月を足す（その月に同じ日が無ければ月末）
+function lvAddMonths(ds,n){
+  const[y,m,d]=ds.split('-').map(Number);const t=(m-1)+n;
+  const yy=y+Math.floor(t/12),mm=((t%12)+12)%12+1,last=new Date(yy,mm,0).getDate();
+  return [yy,String(mm).padStart(2,'0'),String(Math.min(d,last)).padStart(2,'0')].join('-');
 }
+// 前日（使える期限の表示用: expiryDate は失効する日）
+function _lvLastDay(ds){if(!_isYmd(ds))return '';const[y,m,d]=ds.split('-').map(Number);const t=new Date(y,m-1,d-1);return [t.getFullYear(),String(t.getMonth()+1).padStart(2,'0'),String(t.getDate()).padStart(2,'0')].join('-');}
+// 有給設定を読み取る（ov: 保存前の入力で試算するとき）。入社日が無い旧設定は「初回付与日＝入社日」とみなす（未確認として表示）
+function lvCfg(acc,ov){
+  const c=ov||(acc&&acc.leaveConfig);
+  if(!c||typeof c!=='object')return null;
+  const hire=_isYmd(c.hireDate)?c.hireDate:(_isYmd(c.grantDate)?c.grantDate:null);
+  if(!hire)return null;
+  const empType=LV_TYPE_LBL[c.empType]?c.empType:'regular';
+  const wd=parseInt(c.weekDays,10),weekDays=(wd>=1&&wd<=5)?wd:5;
+  const over30=c.over30h===true||(c.over30h==null&&weekDays>=5);
+  const h=parseFloat(c.workHoursPerDay),hpd=(h>0&&h<=24)?h:8;
+  const useHourly=empType!=='part'&&(c.useHourly!=null?!!c.useHourly:(parseFloat(c.grantHourlyHours)||0)>0);
+  const adjM=Math.max(0,Math.min(600,parseInt(c.tenureAdjMonths,10)||0));
+  return {hire,confirmed:_isYmd(c.hireDate),empType,weekDays,over30,hpd,useHourly,adjM,ruleFrom:_isYmd(c.ruleFrom)?c.ruleFrom:''};
+}
+const _lvConfigured=acc=>!!lvCfg(acc);
+function lvFirstGrant(cfg){return cfg.empType==='part'?lvAddMonths(cfg.hire.slice(0,8)+'01',6):cfg.hire;}
+// n回目（0＝初回）の付与日数（合計）
+function lvRuleDays(cfg,n){
+  const i=Math.max(0,Math.min(6,n|0));
+  if(cfg.empType==='part')return LV_PRO[cfg.over30?5:cfg.weekDays][i];
+  if(cfg.weekDays<=4&&!cfg.over30)return Math.max(Math.floor(10*cfg.weekDays/5),LV_PRO[cfg.weekDays][i]);
+  return LV_REG[i];
+}
+// 時間休の枠に回す（年5日分まで）
+function lvSplit(cfg,total){
+  if(!cfg.useHourly)return {days:total,hourlyHours:0};
+  const hd=Math.min(5,total);return {days:total-hd,hourlyHours:hd*Math.ceil(cfg.hpd)};
+}
+// 就業規則どおりの付与日の一覧（until までの付与日）
+function lvRuleList(cfg,until){
+  const out=[];if(!cfg)return out;
+  const g0=lvFirstGrant(cfg);
+  for(let n=0;n<100;n++){
+    const gd=addYears(g0,n);if(gd>until)break;
+    const total=lvRuleDays(cfg,n),sp=lvSplit(cfg,total);
+    out.push({grantDate:gd,n,total,days:sp.days,hourlyHours:sp.hourlyHours,expiryDate:addYears(gd,2)});
+  }
+  return out;
+}
+const _lvSrc=g=>(g&&(g.src==='manual'||g.src==='rule'||g.src==='void'))?g.src:'legacy';
+// 付与日 → 保存済みの付与（同じ日が複数あれば印のあるほう、さらに rev の大きいほう）
+function _lvStoredMap(empId){
+  const m={};
+  ((leaveGrants&&Array.isArray(leaveGrants[empId]))?leaveGrants[empId]:[]).forEach(g=>{
+    if(!g||!_isYmd(g.grantDate))return;
+    const p=m[g.grantDate];
+    if(!p){m[g.grantDate]=g;return;}
+    const sp=_lvSrc(p)!=='legacy',sg=_lvSrc(g)!=='legacy';
+    if((sg&&!sp)||(sg===sp&&(g.rev||0)>(p.rev||0)))m[g.grantDate]=g;
+  });
+  return m;
+}
+// 付与の一覧（付与日の昇順）。src: legacy＝付与済みの記録／auto＝就業規則で自動／rule＝固定／manual＝個別調整
+function lvGrants(empId,until,cfgOv){
+  const acc=accounts.find(a=>a.id===empId);
+  const cfg=cfgOv!==undefined?cfgOv:lvCfg(acc);
+  const map=_lvStoredMap(empId);
+  let T='';const out=[];
+  Object.keys(map).forEach(d=>{
+    const g=map[d],src=_lvSrc(g);
+    if(src==='void')return;
+    if(src==='legacy'&&d>LEAVE_RULE_SINCE)return; // 旧方式の付与予定 → 計算に置き換える
+    // 付与済みの記録（と、それを調整したもの）がある時期までは計算しない。自動・固定の回を調整したものは含めない
+    const fromLegacy=src==='legacy'||(src==='manual'&&g.orig&&g.orig.src==='legacy');
+    if(fromLegacy&&d<=LEAVE_RULE_SINCE&&d>T)T=d;
+    out.push({id:g.id||`g_${empId}_${d}`,empId,grantDate:d,expiryDate:_isYmd(g.expiryDate)?g.expiryDate:addYears(d,2),
+      days:Math.max(0,_lvNum(g.days)),hourlyHours:Math.max(0,_lvNum(g.hourlyHours)),src,note:g.note||'',orig:g.orig||null,rev:g.rev||0,adjBy:g.adjBy||'',adjAt:g.adjAt||''});
+  });
+  if(cfg){
+    const from=cfg.ruleFrom||'';
+    lvRuleList(cfg,until||addYears(todayKey(),1)).forEach(r=>{
+      if(T&&r.grantDate<=T)return;          // 付与済みの記録がある時期は計算しない
+      if(from&&r.grantDate<from)return;     // 「今後から」で保存した日より前は計算しない（その前の回は固定済み）
+      const s=map[r.grantDate];
+      if(s&&(_lvSrc(s)==='manual'||_lvSrc(s)==='rule'))return; // 調整・固定がある日はそちら
+      out.push({id:`g_${empId}_${r.grantDate}`,empId,grantDate:r.grantDate,expiryDate:r.expiryDate,days:r.days,hourlyHours:r.hourlyHours,src:'auto',n:r.n,total:r.total});
+    });
+  }
+  out.sort((a,b)=>a.grantDate.localeCompare(b.grantDate));
+  return out;
+}
+// 承認済みの申請（＋extra）を取得日の順に、その日に使える付与の古いほうから消化する
+function lvAlloc(empId,extra,cfgOv){
+  const reqs=(leaveRequests||[]).filter(q=>q&&q.empId===empId&&q.status==='approved'&&_isYmd(q.targetDate));
+  const ex=(extra||[]).filter(q=>q&&_isYmd(q.targetDate));
+  let until=addYears(todayKey(),1);
+  reqs.concat(ex).forEach(q=>{if(q.targetDate>until)until=q.targetDate;});
+  const grants=lvGrants(empId,until,cfgOv);
+  const rem=grants.map(g=>({day:g.days,hour:g.hourlyHours})),use=grants.map(()=>({day:0,hour:0}));
+  const list=reqs.map(q=>({q,x:0})).concat(ex.map(q=>({q,x:1})));
+  list.sort((a,b)=>a.q.targetDate.localeCompare(b.q.targetDate)||(a.x-b.x)||String(a.q.createdAt||'').localeCompare(String(b.q.createdAt||'')));
+  const shortBy={};let shortDay=0,shortHour=0;
+  list.forEach(({q})=>{
+    const nd=_leaveNeed(q),pool=nd.pool==='hour'?'hour':'day';let need=_lvNum(nd.amt);
+    for(let i=0;i<grants.length&&need>1e-9;i++){
+      const g=grants[i];if(!(g.grantDate<=q.targetDate&&q.targetDate<g.expiryDate))continue;
+      const t=Math.min(rem[i][pool],need);if(!(t>0))continue;
+      rem[i][pool]=_lvNum(rem[i][pool]-t);use[i][pool]=_lvNum(use[i][pool]+t);need=_lvNum(need-t);
+    }
+    if(need>1e-9){shortBy[q.id]=_lvNum((shortBy[q.id]||0)+need);if(pool==='hour')shortHour=_lvNum(shortHour+need);else shortDay=_lvNum(shortDay+need);}
+  });
+  return {grants,rem,use,shortBy,shortDay,shortHour};
+}
+// 今日時点の残数（従来と同じ項目名で返す。使用済み＝今使える付与から消化した分）
 function getLeaveBal(empId){
   const today=todayKey();
   const acc=accounts.find(a=>a.id===empId);
-  const hpd=(acc?.leaveConfig?.workHoursPerDay)||8;
-  const hasHourlyPool=(acc?.leaveConfig?.grantHourlyHours||0)>0;
-  // 有効な付与（付与日〜消滅期限内）を消滅期限の早い順にソート
-  const active=(leaveGrants[empId]||[]).filter(g=>g.grantDate<=today&&g.expiryDate>today)
-    .sort((a,b)=>a.expiryDate.localeCompare(b.expiryDate));
-  // 付与合計（日数プール＝日数単位、時間プール＝時間単位）
-  const totalDays=active.reduce((s,g)=>s+g.days,0);
-  const totalHourlyH=active.reduce((s,g)=>s+(g.hourlyHours||0),0);
-  // 承認済み申請を日付順に取得
-  const approved=leaveRequests.filter(r=>r.empId===empId&&r.status==='approved')
-    .sort((a,b)=>(a.targetDate||a.createdAt).localeCompare(b.targetDate||b.createdAt));
-  // 日数プール消化量（日数単位）: full=1日, half=0.5日
-  const dayUsed=approved.filter(r=>r.type==='full'||r.type==='half')
-    .reduce((s,r)=>s+(r.type==='full'?1:0.5),0);
-  // 時間プール消化量（時間単位）: hourly申請のhours
-  const hourlyUsed=approved.filter(r=>r.type==='hourly')
-    .reduce((s,r)=>s+r.hours,0);
-  // FIFO消化: 消滅期限の早い付与から消化し、付与毎の残数を計算
-  // --- 日数プール FIFO ---
-  let dayRemaining=dayUsed;
-  const grantDayDetails=active.map(g=>{
-    const grantDays=g.days;
-    const consumed=Math.min(grantDays,dayRemaining);
-    dayRemaining=Math.max(0,dayRemaining-consumed);
-    return{grantDate:g.grantDate,expiryDate:g.expiryDate,grantDays,remainDays:grantDays-consumed};
-  });
-  // --- 時間プール FIFO ---
-  let hourlyRemaining=hourlyUsed;
-  const grantHourlyDetails=hasHourlyPool?active.map(g=>{
-    const grantH=g.hourlyHours||0;
-    const consumed=Math.min(grantH,hourlyRemaining);
-    hourlyRemaining=Math.max(0,hourlyRemaining-consumed);
-    return{grantDate:g.grantDate,expiryDate:g.expiryDate,grantHourlyH:grantH,remainHourlyH:grantH-consumed};
-  }).filter(g=>g.grantHourlyH>0):[];
-  // 残数合計
-  const remDays=Math.max(0,totalDays-dayUsed);
-  const remHourlyH=hasHourlyPool?Math.max(0,totalHourlyH-hourlyUsed):0;
-  // 期限切れ付与（参考表示）
-  const expired=(leaveGrants[empId]||[]).filter(g=>g.expiryDate<=today);
-  const expiredDayUsedInExpired=expired.reduce((s,g)=>s+g.days,0); // 期限切れ分の付与日数
-  return{
-    totalDays,totalHourlyH,dayUsed,hourlyUsed,
-    remDays,remHourlyH,
-    hpd,active,hasHourlyPool,
-    grantDayDetails,grantHourlyDetails,
+  const cfg=lvCfg(acc);
+  const A=lvAlloc(empId);
+  const hpd=cfg?cfg.hpd:8;
+  const idx=[];A.grants.forEach((g,i)=>{if(g.grantDate<=today&&today<g.expiryDate)idx.push(i);});
+  const sum=f=>_lvNum(idx.reduce((s,i)=>s+f(i),0));
+  const totalDays=sum(i=>A.grants[i].days),totalHourlyH=sum(i=>A.grants[i].hourlyHours);
+  const remDays=sum(i=>A.rem[i].day),remHour=sum(i=>A.rem[i].hour);
+  const hasHourlyPool=!!(cfg&&cfg.useHourly)||A.grants.some(g=>g.hourlyHours>0&&today<g.expiryDate);
+  const remHourlyH=hasHourlyPool?remHour:0;
+  const grantDayDetails=idx.map(i=>({grantDate:A.grants[i].grantDate,expiryDate:A.grants[i].expiryDate,grantDays:A.grants[i].days,remainDays:A.rem[i].day}));
+  const grantHourlyDetails=hasHourlyPool?idx.filter(i=>A.grants[i].hourlyHours>0).map(i=>({grantDate:A.grants[i].grantDate,expiryDate:A.grants[i].expiryDate,grantHourlyH:A.grants[i].hourlyHours,remainHourlyH:A.rem[i].hour})):[];
+  return {
+    totalDays,totalHourlyH,dayUsed:_lvNum(totalDays-remDays),hourlyUsed:_lvNum(totalHourlyH-remHour),
+    remDays,remHourlyH,hpd,active:idx.map(i=>A.grants[i]),hasHourlyPool,grantDayDetails,grantHourlyDetails,
     // 後方互換用
-    remDayH:remDays*hpd,approvedDayH:dayUsed*hpd,totalH:totalDays*hpd,
-    remH:remDays*hpd+(hasHourlyPool?remHourlyH:0)
+    remDayH:_lvNum(remDays*hpd),approvedDayH:_lvNum((totalDays-remDays)*hpd),totalH:_lvNum(totalDays*hpd),remH:_lvNum(remDays*hpd+remHourlyH),
+    // alc39
+    grants:A.grants,rem:A.rem,use:A.use,next:A.grants.find(g=>g.grantDate>today)||null,shortDay:A.shortDay,shortHour:A.shortHour,shortBy:A.shortBy,cfg,today
   };
+}
+// 付与の量の表示（例: 10日＋時間休40時間）
+function _lvAmt(g){if(!g)return '';return `${_lvNum(g.days)}日${g.hourlyHours?`＋時間休${_lvNum(g.hourlyHours)}時間`:''}`;}
+const _lvAmtS=g=>g?`${_lvNum(g.days)}日${g.hourlyHours?`＋${_lvNum(g.hourlyHours)}h`:''}`:''; // 狭い枠用（例: 10日＋40h）
+// n回目の付与が就業規則のどの段か（正社員・有期: 入社時・1年…／パート等: 6か月・1年6か月…）
+function _lvNLabel(cfg,n){if(!cfg)return '';if(cfg.empType==='part')return n===0?'勤続6か月':`勤続${n}年6か月`;return n===0?'入社時':`勤続${n}年`;}
+// 期限が近い（60日以内に失効する）残
+function _lvExpiringSoon(bal,days){
+  const lim=(function(){const t=new Date();t.setDate(t.getDate()+(days||60));return [t.getFullYear(),String(t.getMonth()+1).padStart(2,'0'),String(t.getDate()).padStart(2,'0')].join('-');})();
+  const out=[];
+  (bal.grants||[]).forEach((g,i)=>{if(g.grantDate<=bal.today&&bal.today<g.expiryDate&&g.expiryDate<=lim){const r=bal.rem[i];if(r.day>0||r.hour>0)out.push({g,day:r.day,hour:r.hour});}});
+  return out;
+}
+/* ── alc39: 勤続（キャリアアップ助成金と同じ数え方）──
+   入社日から1か月ずつ区切り（例: 7/15入社なら 7/15〜8/14 が1か月目）、勤務した日が11日未満の月は数えない。
+   勤務した日＝出勤の記録がある日＋承認済みの全日休の日（所定労働時間分の時間休を含む）。
+   アプリの記録が始まる前（その人の最初の出勤記録より前・データ整理で消した期間）の月は記録がないので数える。
+   設定の「勤続から除く月数」を引く。表示は「勤続○年○ヵ月目」（入社した月を1ヵ月目と数える）。有給の付与日数には使わない（付与は在籍期間で決まる）。 */
+function _lvWinIdx(hire,d){
+  const[hy,hm]=hire.split('-').map(Number),[y,m]=d.split('-').map(Number);
+  let k=(y-hy)*12+(m-hm);
+  if(k<0)return -1;
+  if(d<lvAddMonths(hire,k))k--;
+  return k;
+}
+function lvTenure(empId,asOf,cfgOv){
+  const acc=accounts.find(a=>a.id===empId);const cfg=cfgOv!==undefined?cfgOv:lvCfg(acc);if(!cfg)return null;
+  const today=asOf||todayKey();
+  if(cfg.hire>today)return {future:true,hire:cfg.hire,confirmed:cfg.confirmed};
+  const days=new Set();let first='';
+  ((records&&records[empId])||[]).forEach(r=>{if(r&&r.checkin&&_isYmd(r.date)){days.add(r.date);if(!first||r.date<first)first=r.date;}});
+  (leaveRequests||[]).forEach(q=>{if(q&&q.empId===empId&&q.status==='approved'&&_isYmd(q.targetDate)&&(q.type==='full'||(q.type==='hourly'&&(parseFloat(q.hours)||0)>=cfg.hpd)))days.add(q.targetDate);});
+  let dataStart=first;
+  const ac=(settings&&_isYmd(settings.archiveCutoff))?settings.archiveCutoff:'';
+  if(dataStart&&ac&&ac>dataStart)dataStart=ac;
+  const cnt={};
+  days.forEach(d=>{if(d<cfg.hire||d>=today)return;const k=_lvWinIdx(cfg.hire,d);if(k>=0)cnt[k]=(cnt[k]||0)+1;});
+  let counted=0,excluded=0;
+  for(let k=0;k<2400;k++){
+    const s=lvAddMonths(cfg.hire,k),e=lvAddMonths(cfg.hire,k+1);
+    if(e>today)break; // 今の月（途中）
+    if(!dataStart||s<dataStart){counted++;continue;}
+    if((cnt[k]||0)>=11)counted++;else excluded++;
+  }
+  const adj=Math.min(cfg.adjM,counted),C=counted-adj;
+  return {hire:cfg.hire,confirmed:cfg.confirmed,years:Math.floor(C/12),months:C%12+1,counted:C,excluded,adj,dataStart};
+}
+function lvTenureLabel(t){if(!t)return '';if(t.future)return `入社前（${_lvDs(t.hire)} 入社）`;return `勤続${t.years}年${t.months}ヵ月目`;}
+// alc39: 残数カード（スタッフ・管理者自身の有給タブで共用）
+function _leaveBalCardHtml(bal){
+  const row=(l,v)=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--dim)">${l}</span><span style="color:var(--gn);font-weight:700">${v}</span></div>`;
+  const rowsD=bal.grantDayDetails.filter(g=>g.remainDays>0).map(g=>row(`${_lvDs(_lvLastDay(g.expiryDate))}まで`,`${g.remainDays}日`)).join('');
+  const rowsH=bal.hasHourlyPool?bal.grantHourlyDetails.filter(g=>g.remainHourlyH>0).map(g=>row(`${_lvDs(_lvLastDay(g.expiryDate))}まで`,`${g.remainHourlyH}h`)).join(''):'';
+  const nx=bal.next,soon=_lvExpiringSoon(bal,60);
+  return `<div class="leave-bal">
+      <div style="font-size:11px;color:var(--pu);font-weight:700;margin-bottom:4px">有給残数</div>
+      <div class="leave-big">${bal.remDays}<span style="font-size:18px;font-weight:400"> 日</span></div>
+      <div class="leave-sub">日数プール（全日休・半日休用）</div>
+      <div class="leave-row">
+        <div class="leave-mini"><div class="leave-mini-l">付与合計</div><div class="leave-mini-v">${bal.totalDays}日</div></div>
+        <div class="leave-mini"><div class="leave-mini-l">使用済み</div><div class="leave-mini-v">${bal.dayUsed}日</div></div>
+      </div>
+      ${rowsD?`<div style="margin-top:8px;padding:8px;background:rgba(180,127,247,.06);border-radius:8px"><div style="font-size:10px;color:var(--pu);font-weight:700;margin-bottom:4px">📅 期限別 日数残</div>${rowsD}</div>`:''}
+      ${bal.hasHourlyPool?`
+        <div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
+          <div class="leave-big" style="font-size:28px">${bal.remHourlyH}<span style="font-size:18px;font-weight:400"> 時間</span></div>
+          <div class="leave-sub">時間給プール（時間休用）</div>
+          <div class="leave-row">
+            <div class="leave-mini"><div class="leave-mini-l">⏱ 付与合計</div><div class="leave-mini-v">${bal.totalHourlyH}h</div></div>
+            <div class="leave-mini"><div class="leave-mini-l">⏱ 使用済み</div><div class="leave-mini-v">${bal.hourlyUsed}h</div></div>
+          </div>
+          ${rowsH?`<div style="margin-top:8px;padding:8px;background:rgba(61,214,140,.06);border-radius:8px"><div style="font-size:10px;color:var(--gn);font-weight:700;margin-bottom:4px">📅 期限別 時間給残</div>${rowsH}</div>`:''}
+        </div>`:''}
+      ${nx?`<div class="lv-next">🗓 次回の付与: <b>${_lvDs(nx.grantDate)}</b> に ${_lvAmt(nx)}</div>`:''}
+      ${soon.length?`<div class="lv-soon">⚠ もうすぐ期限: ${soon.map(x=>`${x.day?x.day+'日':''}${x.day&&x.hour?'＋':''}${x.hour?x.hour+'時間':''}（${_lvDs(_lvLastDay(x.g.expiryDate))}まで）`).join('、')}</div>`:''}
+    </div>`;
+}
+// alc39: 付与履歴（スタッフ・管理者自身の有給タブ）。有効・付与予定と、失効から1年以内の回を表示
+function _leaveGrantListHtml(bal){
+  const today=bal.today,since=addYears(today,-1);
+  const items=(bal.grants||[]).map((g,i)=>({g,i})).filter(x=>x.g.expiryDate>since);
+  if(!items.length)return '<div class="empty">付与記録なし</div>';
+  return items.map(({g,i})=>{
+    const st=g.expiryDate<=today?'exp':g.grantDate>today?'fut':'act';
+    const stl=st==='exp'?'color:var(--dim)':st==='fut'?'color:var(--yw)':'color:var(--gn)';
+    const r=bal.rem[i]||{day:0,hour:0};
+    const amt=(d,h)=>`${d}日${g.hourlyHours?`＋${h}h`:''}`;
+    const sub=st==='act'?`残 ${amt(r.day,r.hour)}`:st==='exp'?((r.day>0||r.hour>0)?`失効 ${amt(r.day,r.hour)}`:'使い切り'):'付与予定';
+    return `<div class="grant-item">
+      <div><div class="grant-l">${_lvDs(g.grantDate)} 付与</div><div class="grant-exp">使える期限: ${_lvDs(_lvLastDay(g.expiryDate))}まで</div></div>
+      <div style="text-align:right"><div class="grant-v" style="${stl}">${_lvNum(g.days)}日${g.hourlyHours?`＋${_lvNum(g.hourlyHours)}h`:''}</div><div style="font-size:10px;${stl}">${st==='exp'?'期限切れ・':st==='act'?'有効・':''}${sub}</div></div>
+    </div>`;
+  }).join('');
 }
 function renderLeaveTab(){
   const empId=session?.id;if(!empId)return;
-  const acc=curAcc(),cfg=acc?.leaveConfig;
-  if(!cfg?.grantDate){
+  const acc=curAcc();
+  if(!_lvConfigured(acc)){
     document.getElementById('leaveBal').innerHTML='<div class="card" style="text-align:center;padding:24px"><div style="font-size:32px;margin-bottom:8px">📋</div><div style="color:var(--dim);font-size:13px">有給設定が未登録です<br>管理者に設定を依頼してください</div></div>';
     document.getElementById('leaveNoConfig').style.display='block';
     document.getElementById('leaveForm').style.display='none';
@@ -3068,51 +3318,8 @@ function renderLeaveTab(){
   document.getElementById('leaveNoConfig').style.display='none';
   document.getElementById('leaveForm').style.display='block';
   const bal=getLeaveBal(empId);
-  // 期限別残数の表示
-  const grantDayRows=bal.grantDayDetails.filter(g=>g.remainDays>0).map(g=>
-    `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--dim)">〜${fmtDate(g.expiryDate)}</span><span style="color:var(--gn);font-weight:700">${g.remainDays}日</span></div>`
-  ).join('');
-  const grantHourlyRows=bal.hasHourlyPool?bal.grantHourlyDetails.filter(g=>g.remainHourlyH>0).map(g=>
-    `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--dim)">〜${fmtDate(g.expiryDate)}</span><span style="color:var(--gn);font-weight:700">${g.remainHourlyH}h</span></div>`
-  ).join(''):'';
-  document.getElementById('leaveBal').innerHTML=`
-    <div class="leave-bal">
-      <div style="font-size:11px;color:var(--pu);font-weight:700;margin-bottom:4px">有給残数</div>
-      <div class="leave-big">${bal.remDays}<span style="font-size:18px;font-weight:400"> 日</span></div>
-      <div class="leave-sub">日数プール（全日休・半日休用）</div>
-      <div class="leave-row">
-        <div class="leave-mini"><div class="leave-mini-l">付与合計</div><div class="leave-mini-v">${bal.totalDays}日</div></div>
-        <div class="leave-mini"><div class="leave-mini-l">使用済み</div><div class="leave-mini-v">${bal.dayUsed}日</div></div>
-      </div>
-      ${grantDayRows?`<div style="margin-top:8px;padding:8px;background:rgba(180,127,247,.06);border-radius:8px"><div style="font-size:10px;color:var(--pu);font-weight:700;margin-bottom:4px">📅 期限別 日数残</div>${grantDayRows}</div>`:''}
-      ${bal.hasHourlyPool?`
-        <div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
-          <div class="leave-big" style="font-size:28px">${bal.remHourlyH}<span style="font-size:18px;font-weight:400"> 時間</span></div>
-          <div class="leave-sub">時間給プール（時間休用）</div>
-          <div class="leave-row">
-            <div class="leave-mini"><div class="leave-mini-l">⏱ 付与合計</div><div class="leave-mini-v">${bal.totalHourlyH}h</div></div>
-            <div class="leave-mini"><div class="leave-mini-l">⏱ 使用済み</div><div class="leave-mini-v">${bal.hourlyUsed}h</div></div>
-          </div>
-          ${grantHourlyRows?`<div style="margin-top:8px;padding:8px;background:rgba(61,214,140,.06);border-radius:8px"><div style="font-size:10px;color:var(--gn);font-weight:700;margin-bottom:4px">📅 期限別 時間給残</div>${grantHourlyRows}</div>`:''}
-        </div>`:''}
-    </div>`;
-  // Grants
-  const today=todayKey();
-  const all=(leaveGrants[empId]||[]);
-  document.getElementById('leaveGrants').innerHTML=all.length?all.map(g=>{
-    const isActive=g.grantDate<=today&&g.expiryDate>today;
-    const expired=g.expiryDate<=today;
-    const future=g.grantDate>today;
-    const stl=expired?'color:var(--dim)':future?'color:var(--yw)':'color:var(--gn)';
-    const stlbl=expired?'期限切れ':future?'付与予定':'有効';
-    const dd=isActive?bal.grantDayDetails.find(x=>x.grantDate===g.grantDate):null;
-    const dh=isActive&&bal.hasHourlyPool?bal.grantHourlyDetails.find(x=>x.grantDate===g.grantDate):null;
-    const remInfo=dd?` (残${dd.remainDays}日${dh?`＋${dh.remainHourlyH}h`:''})` :'';
-    return`<div class="grant-item">
-      <div><div class="grant-l">${fmtDate(g.grantDate)} 付与</div><div class="grant-exp">有効期限: ${fmtDate(g.expiryDate)}</div></div>
-      <div style="text-align:right"><div class="grant-v" style="${stl}">${g.days}日${g.hourlyHours?`＋${g.hourlyHours}h`:''}${remInfo}</div><div style="font-size:10px;${stl}">${stlbl}</div></div>
-    </div>`;
-  }).join(''):'<div class="empty">付与記録なし</div>';
+  document.getElementById('leaveBal').innerHTML=_leaveBalCardHtml(bal);
+  document.getElementById('leaveGrants').innerHTML=_leaveGrantListHtml(bal);
   // History with year filter
   const allReqs=leaveRequests.filter(r=>r.empId===empId).sort((a,b)=>b.targetDate.localeCompare(a.targetDate));
   const typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
@@ -3144,7 +3351,6 @@ function updateLeaveTypeUI(){
   const hRow=document.getElementById('lr-hours-row');
   const hHint=document.getElementById('lr-hours-hint');
   if(hRow)hRow.style.display=showH?'block':'none';
-  const hpd=curAcc()?.leaveConfig?.workHoursPerDay||8;
   if(hHint){
     const _av=_leaveAvailHint(session?.id,type); // alc38: 残・申請中を表示（申請中を含めると足りない場合は申請時に警告）
     if(type==='full')hHint.textContent=`消化: 1日分（全日休）← 日数プール${_av}`;
@@ -3154,10 +3360,10 @@ function updateLeaveTypeUI(){
 }
 function submitLeaveReq(){
   const empId=session.id,acc=curAcc();
-  if(!acc?.leaveConfig?.grantDate){showToast('⚠ 有給設定が未登録です');return;}
+  if(!_lvConfigured(acc)){showToast('⚠ 有給設定が未登録です');return;}
   const targetDate=document.getElementById('lr-date').value;
   const type=document.getElementById('lr-type').value;
-  const hpd=acc.leaveConfig.workHoursPerDay||8;
+  const hpd=lvCfg(acc).hpd;
   let hours=0;
   if(type==='full')hours=hpd;
   else if(type==='half')hours=hpd/2;
@@ -3169,16 +3375,9 @@ function submitLeaveReq(){
   if(type==='hourly'&&!bal.hasHourlyPool){showToast('⚠ 時間休プールが未設定です。管理者に時間休付与を依頼するか、全日休・半日休で申請してください');return;}
   // ★同一日・同一種別の重複申請ガード（申請中・承認済みが既にある場合はブロック）
   if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
-  // 日数プール: full=1日, half=0.5日で残日数チェック / 時間プール: hourly申請で残時間チェック
-  if(type==='hourly'&&bal.hasHourlyPool){
-    if(hours>bal.remHourlyH){showToast(`⚠ 時間給残数が不足しています（残: ${bal.remHourlyH}時間）`);return;}
-  }else if(type==='full'||type==='half'){
-    const needDays=type==='full'?1:0.5;
-    if(needDays>bal.remDays){showToast(`⚠ 有給日数残が不足しています（残: ${bal.remDays}日）`);return;}
-  }else{
-    // hourlyだがhourlyPoolがない場合 → 日数プールから消化（時間換算）
-    if(hours>bal.remDayH){showToast(`⚠ 有給残数が不足しています（残: ${bal.remDayH}時間）`);return;}
-  }
+  // alc39: 取得日の時点で、承認済みの分だけで残数が足りなければ申請できない（次回付与の後の日付なら次回付与分も使える）
+  const _blk=_leaveSubmitBlock(empId,type,hours,targetDate);
+  if(_blk){showToast(_blk);return;}
   const doSubmit=()=>{
     // 確認ダイアログ中に同じ申請が入っていないか再確認（二重申請ガード）
     if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
@@ -3188,7 +3387,7 @@ function submitLeaveReq(){
     renderLeaveTab();showToast('✅ 有給申請を送信しました');
   };
   // alc38: 申請中を含めると残数が足りないときは警告（確認すれば申請できる。承認時に残数不足なら承認されない）
-  const _short=_leavePendingShortMsg(empId,type,hours);
+  const _short=_leavePendingShortMsg(empId,type,hours,targetDate);
   if(_short){confirmAction(_short,doSubmit,'このまま申請する');return;}
   doSubmit();
 }
@@ -3210,74 +3409,108 @@ function updateLeaveBadge(){
   const cnt=leaveRequests.filter(r=>r.status==='pending').length;
   const bd=document.getElementById('leaveBadge');if(bd)bd.classList.toggle('show',cnt>0);
 }
+/* alc39: 有給管理ページ
+   ・承認待ちは申請があるときだけ、ページの一番上に出す（承認・却下は役員トップと同じ apprLeave＝押した瞬間に最新を取り込んでから処理）。
+   ・職員ごとのカードに、勤続（○年○ヵ月目）・雇用区分・残数・次回の付与をまとめ、開くと付与の履歴（調整ボタン）と承認済みの取得記録（差し戻し）が出る。 */
+let _lvOpen=new Set(),_lvYear={};
+function lvToggle(empId){if(_lvOpen.has(empId))_lvOpen.delete(empId);else _lvOpen.add(empId);try{renderAdminLeave();}catch(e){}}
+function lvSetYear(empId,y){_lvYear[empId]=y;try{renderAdminLeave();}catch(e){}}
 function renderAdminLeave(){
-  const storeIds=new Set(storeAccounts().map(a=>a.id));
-  const pending=leaveRequests.filter(r=>r.status==='pending'&&storeIds.has(r.empId));
-  const approved=leaveRequests.filter(r=>r.status==='approved'&&storeIds.has(r.empId));
-  const typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
-  document.getElementById('pendingLeave').innerHTML=pending.length?pending.map(r=>{const _ck=_leaveApproveCheck(r);return`
-    <div class="pend-req">
-      <div class="pend-top"><div class="pend-name">👤 ${esc(r.empName)}</div><span class="req-status rs-pending">⏳ 申請中</span></div>
-      <div class="pend-info">${r.targetDate} ／ ${typeMap[r.type]||r.type} ／ ${r.hours}時間${r.note?` ／ ${esc(r.note)}`:''}${_leaveBalInfoHtml(r)}</div>
-      <div class="pend-btns">
-        <button class="app-btn ok" onclick="approveLeave('${r.id}')"${_ck.ok?'':' disabled style="opacity:.45"'}>✅ 承認</button>
-        <button class="app-btn ng" onclick="rejectLeave('${r.id}')">❌ 却下</button>
-      </div>
-    </div>`;}).join(''):'<div class="empty">承認待ちの申請はありません ✨</div>';
-  // 承認済み申請 → 従業員ごとアコーディオン＋年フィルター
-  const appEl=document.getElementById('approvedLeave');
-  if(appEl){
-    if(!approved.length){appEl.innerHTML='<div class="empty">承認済み申請はありません</div>';}
-    else{
-      const appYears=[...new Set(approved.map(r=>r.targetDate.slice(0,4)))].sort((a,b)=>b.localeCompare(a));
-      const selAY=adminLeaveYear||appYears[0]||new Date().getFullYear().toString();
-      const filtered=approved.filter(r=>r.targetDate.startsWith(selAY)).sort((a,b)=>b.targetDate.localeCompare(a.targetDate));
-      const empGroups={};
-      filtered.forEach(r=>{if(!empGroups[r.empId])empGroups[r.empId]={name:r.empName,reqs:[]};empGroups[r.empId].reqs.push(r);});
-      const yearBtns=appYears.length>1?`<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">${appYears.map(y=>`<button class="mb ${y===selAY?'mb-g':'mb-b'}" style="padding:4px 12px;font-size:11px" onclick="adminLeaveYear='${y}';renderAdminLeave()">${y}年</button>`).join('')}</div>`:'';
-      let html=yearBtns;
-      if(!Object.keys(empGroups).length){html+='<div class="empty">この年の承認済み申請はありません</div>';}
-      else{
-        Object.entries(empGroups).forEach(([eid,eg])=>{
-          const dayCount=eg.reqs.filter(r=>r.type==='full'||r.type==='half').reduce((s,r)=>s+(r.type==='full'?1:0.5),0);
-          const hourlyCount=eg.reqs.filter(r=>r.type==='hourly').reduce((s,r)=>s+r.hours,0);
-          const summary=`${dayCount?dayCount+'日':''}${dayCount&&hourlyCount?' ＋ ':''}${hourlyCount?hourlyCount+'h':''}`;
-          html+=`<div style="border:1px solid rgba(61,214,140,.2);border-radius:10px;margin-bottom:8px;overflow:hidden">
-            <div onclick="toggleApprovedEmp('ale_${eid}_${selAY}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:rgba(61,214,140,.04)">
-              <div><span style="font-weight:700;color:var(--ac)">👤 ${esc(eg.name)}</span><span style="font-size:11px;color:var(--dim);margin-left:8px">${eg.reqs.length}件（${summary}）</span></div>
-              <span style="font-size:10px;color:var(--dim)" id="ale_${eid}_${selAY}_icon">▼ 開く</span>
-            </div>
-            <div id="ale_${eid}_${selAY}" style="display:none;padding:0 10px 10px">`;
-          eg.reqs.forEach(r=>{
-            html+=`<div class="pend-req" style="border:1px solid rgba(61,214,140,.15);margin-top:6px">
-              <div class="pend-top"><div class="pend-name">${r.targetDate}</div><span class="req-status rs-approved" style="font-size:10px">✅</span></div>
-              <div class="pend-info">${typeMap[r.type]||r.type} ／ ${r.type==='hourly'?r.hours+'時間':r.type==='full'?'1日':'0.5日'}${r.note?` ／ ${esc(r.note)}`:''}<br><span style="font-size:10px;color:var(--dim)">承認: ${esc(r.reviewedBy||'')} ${r.reviewedAt?new Date(r.reviewedAt).toLocaleDateString('ja-JP'):''}</span></div>
-              <div class="pend-btns"><button class="app-btn" style="background:rgba(247,211,79,.15);color:var(--yw);font-size:10px;padding:3px 8px" onclick="returnLeave('${r.id}')">↩ 差し戻す</button></div>
-            </div>`;
-          });
-          html+=`</div></div>`;
-        });
-      }
-      appEl.innerHTML=html;
-    }
-  }
-  const emps=storeEmployees();
-  document.getElementById('leaveEmpList').innerHTML=emps.length?emps.map(e=>{
-    const cfg=e.leaveConfig;
-    const bal=cfg?.grantDate?getLeaveBal(e.id):null;
-    return`<div class="leave-cfg-row">
-      <div class="lcr-top">
-        <div class="lcr-name">👤 ${esc(e.name)}</div>
-        <div style="display:flex;gap:6px">
-          <button class="mb mb-b" style="font-size:10px;padding:4px 8px" onclick="exportLeaveCSV('${e.id}')">📥 有給CSV</button>
-          <button class="mb mb-g" onclick="openLCModal('${e.id}')">⚙ 設定</button>
-        </div>
-      </div>
-      <div class="lcr-info">
-        ${cfg?.grantDate?`付与日: ${fmtDate(cfg.grantDate)} ／ 年間${cfg.grantDays}日${cfg.grantHourlyHours?`＋${cfg.grantHourlyHours}h`:''} ／ 実働${cfg.workHoursPerDay}時間/日<br>日数残: <strong>${bal?.remDays}日</strong>（使用${bal?.dayUsed}日）${bal?.hasHourlyPool?` ／ 時間給残: <strong>${bal?.remHourlyH}時間</strong>（使用${bal?.hourlyUsed}h）`:''}` : '<span style="color:var(--yw)">⚠ 有給設定が未登録です</span>'}
-      </div>
-    </div>`;
+  const accs=storeAccounts();
+  const storeIds=new Set(accs.map(a=>a.id));
+  const nameById={};accs.forEach(a=>{nameById[a.id]=a.name;});
+  const pending=(leaveRequests||[]).filter(r=>r&&r.status==='pending'&&storeIds.has(r.empId))
+    .sort((a,b)=>String(a.targetDate||'').localeCompare(String(b.targetDate||''))); // 取得日の近い順（承認の順番＝残数の消化順）
+  const pc=document.getElementById('pendingLeaveCard');if(pc)pc.style.display=pending.length?'':'none';
+  const pt=document.getElementById('pendingLeaveTitle');if(pt)pt.textContent=`⏳ 承認待ちの有給申請（${pending.length}件）`;
+  const pe=document.getElementById('pendingLeave');
+  if(pe)pe.innerHTML=pending.length?pending.map(q=>{try{return _apprLeaveRowHtml(q,nameById);}catch(e){return '';}}).join(''):'<div class="empty">承認待ちの申請はありません ✨</div>';
+  const pendBy={};pending.forEach(q=>{pendBy[q.empId]=(pendBy[q.empId]||0)+1;});
+  const emps=accs.filter(a=>a.role!=='executive'); // 役員は除く（管理者は職員として表示）
+  const el=document.getElementById('leaveEmpList');
+  if(el)el.innerHTML=emps.length?emps.map(e=>{
+    try{return _lvEmpHtml(e,pendBy[e.id]||0);}
+    catch(err){console.warn('leave emp render',err);return `<div class="leave-cfg-row"><div class="lcr-name">👤 ${esc(e.name)}</div><div class="lcr-info" style="color:var(--rd)">表示できませんでした</div></div>`;}
   }).join(''):'<div class="empty">従業員が登録されていません</div>';
+}
+function _lvEmpHtml(e,pendCnt){
+  const cfg=lvCfg(e),t=cfg?lvTenure(e.id):null,bal=cfg?getLeaveBal(e.id):null,open=_lvOpen.has(e.id);
+  const tags=[];
+  if(e.role==='admin')tags.push('<span class="lv-tag" style="color:var(--yw)">🔑 管理者</span>');
+  if(cfg)tags.push(`<span class="lv-tag">${LV_TYPE_LBL[cfg.empType]}${cfg.weekDays<5?`・週${cfg.weekDays}日${cfg.over30?'（30時間以上）':''}`:''}${cfg.useHourly?'・時間休あり':''}</span>`);
+  if(cfg&&!cfg.confirmed)tags.push('<span class="lv-tag warn">⚠ 入社日・雇用区分が未確認</span>');
+  if(pendCnt)tags.push(`<span class="lv-tag pend">⏳ 申請中 ${pendCnt}件</span>`);
+  let ten='';
+  if(t)ten=t.future?`<div class="lv-ten">${esc(lvTenureLabel(t))}</div>`
+    :`<div class="lv-ten"><b>${esc(lvTenureLabel(t))}</b><span>（入社 ${_lvDs(t.hire)}${t.excluded?`／勤務11日未満の${t.excluded}か月を除く`:''}${t.adj?`／設定で${t.adj}か月を除く`:''}）</span></div>`;
+  let body='';
+  if(!bal){
+    body='<div class="lcr-info"><span style="color:var(--yw)">⚠ 有給設定が未登録です。「⚙ 設定」で入社日・雇用区分などを登録すると、就業規則どおりに付与が始まります</span></div>';
+  }else{
+    const nx=bal.next,soon=_lvExpiringSoon(bal,60);
+    body=`<div class="lv-sum">
+        <div class="lv-sum-i"><div class="lv-sum-l">日数の残</div><div class="lv-sum-v">${bal.remDays}<small>日</small></div></div>
+        ${bal.hasHourlyPool?`<div class="lv-sum-i"><div class="lv-sum-l">時間休の残</div><div class="lv-sum-v">${bal.remHourlyH}<small>時間</small></div></div>`:''}
+        <div class="lv-sum-i"><div class="lv-sum-l">次回の付与</div><div class="lv-sum-v sm">${nx?`${_lvDs(nx.grantDate)}<br>${_lvAmtS(nx)}${nx.src==='manual'?'<span style="font-size:10px;color:var(--yw)">（調整）</span>':''}`:'—'}</div></div>
+      </div>
+      ${soon.length?`<div class="lv-soon">⚠ もうすぐ期限: ${soon.map(x=>`${x.day?x.day+'日':''}${x.day&&x.hour?'＋':''}${x.hour?x.hour+'時間':''}（${_lvDs(_lvLastDay(x.g.expiryDate))}まで）`).join('、')}</div>`:''}
+      ${(bal.shortDay>0||bal.shortHour>0)?`<div class="lv-soon" style="color:var(--rd)">⚠ 承認済みの取得のうち ${bal.shortDay?bal.shortDay+'日':''}${bal.shortDay&&bal.shortHour?'＋':''}${bal.shortHour?bal.shortHour+'時間':''} が、その日に使える付与を超えています（付与の調整か、取得記録の差し戻しを確認してください）</div>`:''}
+      <button class="lv-open" onclick="lvToggle('${e.id}')">${open?'▲ 閉じる':'▼ 付与の履歴・取得記録を見る'}</button>
+      ${open?_lvDetailHtml(e,bal):''}`;
+  }
+  return `<div class="leave-cfg-row lv-emp" id="lvEmp_${e.id}">
+    <div class="lcr-top">
+      <div class="lcr-name">👤 ${esc(e.name)}</div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="mb mb-b" style="font-size:10px;padding:4px 8px" onclick="exportLeaveCSV('${e.id}')">📥 有給CSV</button>
+        <button class="mb mb-g" onclick="openLCModal('${e.id}')">⚙ 設定</button>
+      </div>
+    </div>
+    ${tags.length?`<div class="lv-tags">${tags.join('')}</div>`:''}
+    ${ten}
+    ${body}
+  </div>`;
+}
+function _lvDetailHtml(e,bal){
+  const today=bal.today,typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
+  // 付与の履歴: 有効・付与予定と、期限切れは直近2回まで
+  const gs=(bal.grants||[]).map((g,i)=>({g,i}));
+  const exp=gs.filter(x=>x.g.expiryDate<=today),live=gs.filter(x=>x.g.expiryDate>today);
+  const shown=exp.slice(-2).concat(live);
+  const gRows=shown.length?shown.map(({g,i})=>{
+    const st=g.expiryDate<=today?'exp':g.grantDate>today?'fut':'act';
+    const r=bal.rem[i]||{day:0,hour:0},u=bal.use[i]||{day:0,hour:0};
+    const amt=(d,h)=>`${d}日${g.hourlyHours?`＋${h}時間`:''}`;
+    const stTxt=st==='act'?`有効・残 ${amt(r.day,r.hour)}`:st==='exp'?`期限切れ・${(r.day>0||r.hour>0)?`失効 ${amt(r.day,r.hour)}`:'使い切り'}`:(u.day>0||u.hour>0)?`付与予定・予約 ${amt(u.day,u.hour)}`:'付与予定';
+    const stl=st==='exp'?'color:var(--dim)':st==='fut'?'color:var(--yw)':'color:var(--gn)';
+    const extra=g.src==='manual'?`<div class="grant-exp">調整: ${esc(g.adjBy||'')}${g.adjAt?` ${_lvDs(String(g.adjAt).slice(0,10))}`:''}${g.note?`／理由: ${esc(g.note)}`:''}${g.orig?`／調整前 ${_lvAmt(g.orig)}`:''}</div>`
+      :g.src==='auto'&&g.total!=null?`<div class="grant-exp">就業規則（${_lvNLabel(bal.cfg,g.n)}）計${g.total}日</div>`:'';
+    return `<div class="grant-item lv-g">
+      <div style="min-width:0"><div class="grant-l">${_lvDs(g.grantDate)} 付与 <span class="lv-src ${g.src}">${LV_SRC_LBL[g.src]||''}</span></div>
+        <div class="grant-exp">使える期限: ${_lvDs(_lvLastDay(g.expiryDate))}まで</div>${extra}</div>
+      <div style="text-align:right;flex-shrink:0"><div class="grant-v" style="${stl}">${_lvAmt(g)}</div><div style="font-size:11px;${stl}">${stTxt}</div>
+        ${st!=='exp'?`<button class="lv-adj-btn" onclick="openLgAdj('${e.id}','${g.grantDate}')">✎ 調整</button>`:''}</div>
+    </div>`;
+  }).join(''):'<div class="empty" style="padding:12px">付与がありません</div>';
+  // 承認済みの取得記録（年ごと）
+  const reqs=(leaveRequests||[]).filter(q=>q&&q.empId===e.id&&q.status==='approved'&&_isYmd(q.targetDate)).sort((a,b)=>b.targetDate.localeCompare(a.targetDate));
+  const years=[...new Set(reqs.map(q=>q.targetDate.slice(0,4)))].sort((a,b)=>b.localeCompare(a));
+  const sy=(_lvYear[e.id]&&years.indexOf(_lvYear[e.id])>=0)?_lvYear[e.id]:(years[0]||'');
+  const yr=reqs.filter(q=>q.targetDate.startsWith(sy));
+  const dayCnt=_lvNum(yr.filter(q=>q.type==='full'||q.type==='half').reduce((s,q)=>s+(q.type==='full'?1:0.5),0));
+  const hrCnt=_lvNum(yr.filter(q=>q.type==='hourly').reduce((s,q)=>s+(parseFloat(q.hours)||0),0));
+  const yBtns=years.length>1?`<div style="display:flex;gap:6px;margin:4px 0 8px;flex-wrap:wrap">${years.map(y=>`<button class="mb ${y===sy?'mb-g':'mb-b'}" style="padding:4px 12px;font-size:11px" onclick="lvSetYear('${e.id}','${y}')">${y}年</button>`).join('')}</div>`:'';
+  const rRows=yr.length?yr.map(q=>`<div class="lv-rec">
+      <div style="min-width:0"><div><b>${esc(q.targetDate)}</b>　${typeMap[q.type]||esc(q.type)} ${q.type==='hourly'?_lvNum(q.hours)+'時間':q.type==='full'?'1日':'0.5日'}</div>
+        <div class="lv-rec-sub">${q.note?`備考: ${esc(q.note)}／`:''}承認: ${esc(q.reviewedBy||'')} ${q.reviewedAt?new Date(q.reviewedAt).toLocaleDateString('ja-JP'):''}</div></div>
+      <button class="lv-ret-btn" onclick="returnLeave('${q.id}')">↩ 差し戻す</button>
+    </div>`).join(''):'<div class="empty" style="padding:12px">承認済みの取得記録はありません</div>';
+  return `<div class="lv-detail">
+    <div class="lv-sec">付与の履歴 <span>（自動＝就業規則で計算／記録＝これまでの付与／調整＝個別に変更）</span></div>
+    ${gRows}
+    <div class="lv-sec" style="margin-top:12px">承認済みの取得記録 ${sy?`<span>（${sy}年: ${dayCnt?dayCnt+'日':''}${dayCnt&&hrCnt?'＋':''}${hrCnt?hrCnt+'時間':''}${!dayCnt&&!hrCnt?'0件':''}）</span>`:''}</div>
+    ${yBtns}${rRows}
+  </div>`;
 }
 function toggleApprovedEmp(id){
   const el=document.getElementById(id);if(!el)return;
@@ -3286,9 +3519,9 @@ function toggleApprovedEmp(id){
   else{el.style.display='none';if(icon)icon.textContent='▼ 開く';}
 }
 /* ── alc38: 有給の残数判定（承認時のブロック・申請時の警告・残数表示で共用） ──
-   ・残数は従来どおり getLeaveBal（承認済みだけを消化として数える）。
-   ・承認時: その申請を足すと残数を超えるなら承認できない（却下か、本人の取消）。
-   ・申請時: 承認済みだけでは足りるが「申請中」を含めると足りない場合は、警告して確認すれば申請できる
+   ・alc39: 残数は lvAlloc（承認済みを取得日の順に、その日に使える付与から消化）で判定する。
+   ・承認時: その申請を足すと、取得日の時点で足りない（または他の承認済みが足りなくなる）なら承認できない（却下か、本人の取消）。
+   ・申請時: 承認済みだけで足りないなら申請できない。承認済みだけでは足りるが「申請中」を含めると足りない場合は、警告して確認すれば申請できる
      （先に申請した分が承認されると、この申請は承認時にブロックされる）。 */
 const _lvNum=v=>Math.round((parseFloat(v)||0)*100)/100;
 function _leaveNeed(r){
@@ -3302,16 +3535,25 @@ function _leavePendingSum(empId,pool,excludeId){
   return _lvNum((leaveRequests||[]).filter(q=>q&&q.empId===empId&&q.status==='pending'&&q.id!==excludeId)
     .reduce((s,q)=>{const n=_leaveNeed(q);return n.pool===pool?s+n.amt:s;},0));
 }
-// 申請 r を今承認できるか（承認済みだけで計算した残数で判定）
+// 取得日 td の時点で使える残（承認済みを消化した後）
+function _lvAvailAt(A,td,pool){return _lvNum(A.grants.reduce((s,g,i)=>(g.grantDate<=td&&td<g.expiryDate)?s+A.rem[i][pool]:s,0));}
+// 申請 r を今承認できるか（承認済みに r を足して、取得日の時点で全部をまかなえるか）
 function _leaveApproveCheck(r){
   const n=_leaveNeed(r);
   const unit=n.pool==='hour'?'時間':'日',label=n.pool==='hour'?'時間給残':'有給残';
   const acc=accounts.find(a=>a.id===r.empId);
-  if(!acc||!(acc.leaveConfig&&acc.leaveConfig.grantDate))return {ok:false,reason:'noconfig',rem:0,need:n.amt,after:0,unit,label,pool:n.pool};
+  if(!acc||!_lvConfigured(acc))return {ok:false,reason:'noconfig',rem:0,need:n.amt,after:0,unit,label,pool:n.pool};
   const bal=getLeaveBal(r.empId);
   if(n.pool==='hour'&&!bal.hasHourlyPool)return {ok:false,reason:'nopool',rem:0,need:n.amt,after:0,unit,label,pool:n.pool};
-  const rem=_lvNum(n.pool==='hour'?bal.remHourlyH:bal.remDays);
-  return {ok:n.amt<=rem+1e-9,reason:'',rem,need:_lvNum(n.amt),after:_lvNum(rem-n.amt),unit,label,pool:n.pool};
+  const pool=n.pool==='hour'?'hour':'day',td=_isYmd(r.targetDate)?r.targetDate:bal.today;
+  const base=lvAlloc(r.empId),cid=r.id||'__cand';
+  const w=lvAlloc(r.empId,[Object.assign({},r,{id:cid,status:'approved'})]);
+  const sh=a=>pool==='hour'?a.shortHour:a.shortDay;
+  const mine=_lvNum(w.shortBy[cid]||0);
+  const rem=_lvAvailAt(base,td,pool);
+  const ok=mine<=1e-9&&_lvNum(sh(w)-mine-sh(base))<=1e-9;
+  const atNote=td!==bal.today&&rem!==_lvNum(pool==='hour'?bal.remHourlyH:bal.remDays); // 取得日の時点の残が今日の残と違う（次回付与の後・失効の後）
+  return {ok,reason:'',rem,need:_lvNum(n.amt),after:_lvNum(rem-n.amt),unit,label,pool:n.pool,td,atNote};
 }
 function _leaveBlockMsg(r,ck){
   if(ck.reason==='noconfig')return `⚠ ${r.empName||''}さんは有給設定が未登録のため承認できません（有給管理の「設定」から登録してください）`;
@@ -3324,33 +3566,53 @@ function _leaveBalInfoHtml(r){
     const ck=_leaveApproveCheck(r);
     const others=_leavePendingSum(r.empId,ck.pool,r.id);
     const oth=others>0?`　<span style="color:var(--yw)">他に申請中 ${others}${ck.unit}</span>`:'';
+    const at=ck.atNote?`（${_lvDs(ck.td)}時点）`:'';
     if(!ck.ok){
-      const why=ck.reason==='noconfig'?'有給設定が未登録':ck.reason==='nopool'?'時間給プール未設定':`${ck.label} ${ck.rem}${ck.unit}／必要 ${ck.need}${ck.unit}`;
+      const why=ck.reason==='noconfig'?'有給設定が未登録':ck.reason==='nopool'?'時間給プール未設定':`${ck.label} ${ck.rem}${ck.unit}${at}／必要 ${ck.need}${ck.unit}`;
       return `<div style="font-size:12px;margin-top:4px"><span style="color:var(--rd);font-weight:700">⚠ 承認できません</span>（${why}）${oth}</div>`;
     }
-    return `<div style="font-size:12px;margin-top:4px">${ck.label} ${ck.rem}${ck.unit} → 承認後 <b>${ck.after}${ck.unit}</b>${oth}</div>`;
+    return `<div style="font-size:12px;margin-top:4px">${ck.label} ${ck.rem}${ck.unit} → 承認後 <b>${ck.after}${ck.unit}</b>${at}${oth}</div>`;
   }catch(e){return '';}
 }
 // 申請フォームの「残・申請中」表示（申請者への事前の注意）
 function _leaveAvailHint(empId,type){
   try{
-    const acc=accounts.find(a=>a.id===empId);if(!acc||!acc.leaveConfig||!acc.leaveConfig.grantDate)return '';
+    const acc=accounts.find(a=>a.id===empId);if(!acc||!_lvConfigured(acc))return '';
     const bal=getLeaveBal(empId),hour=(type==='hourly');
     if(hour&&!bal.hasHourlyPool)return '';
     const rem=_lvNum(hour?bal.remHourlyH:bal.remDays),u=hour?'時間':'日';
     const pend=_leavePendingSum(empId,hour?'hour':'day',null);
-    if(pend<=0)return `（残 ${rem}${u}）`;
-    return `（残 ${rem}${u}・うち申請中 ${pend}${u} → 実質あと ${_lvNum(Math.max(0,rem-pend))}${u}）`;
+    // alc39: 次回の付与が近ければ添える（次回付与の後の日付なら、その分も使える）
+    const nx=bal.next,soon=nx&&(function(){const t=new Date();t.setDate(t.getDate()+90);return nx.grantDate<=[t.getFullYear(),String(t.getMonth()+1).padStart(2,'0'),String(t.getDate()).padStart(2,'0')].join('-');})();
+    const nxs=(soon&&(hour?nx.hourlyHours>0:nx.days>0))?`・${_lvDs(nx.grantDate)}に${hour?nx.hourlyHours+'時間':nx.days+'日'}付与予定`:'';
+    if(pend<=0)return `（残 ${rem}${u}${nxs}）`;
+    return `（残 ${rem}${u}・うち申請中 ${pend}${u} → 実質あと ${_lvNum(Math.max(0,rem-pend))}${u}${nxs}）`;
   }catch(e){return '';}
 }
-// 申請時の確認: 承認済みだけでは足りるが、申請中を含めると足りないとき true（警告して確認）
-function _leavePendingShortMsg(empId,type,hours){
-  const n=type==='hourly'?{pool:'hour',amt:parseFloat(hours)||0}:{pool:'day',amt:type==='full'?1:0.5};
+// alc39: 申請前のチェック。取得日の時点で、承認済みの分だけで足りなければメッセージ（申請できない）
+function _leaveSubmitBlock(empId,type,hours,targetDate){
+  const pool=type==='hourly'?'hour':'day',td=_isYmd(targetDate)?targetDate:todayKey();
+  const cand={id:'__new',empId,type,hours:parseFloat(hours)||0,targetDate:td,status:'approved',createdAt:'9999'};
+  const a0=lvAlloc(empId),a1=lvAlloc(empId,[cand]);
+  const sh=a=>pool==='hour'?a.shortHour:a.shortDay;
+  if(_lvNum(sh(a1)-sh(a0))<=1e-9)return '';
+  const avail=_lvAvailAt(a0,td,pool),at=td!==todayKey()?`${_lvDs(td)}時点の`:'';
+  return pool==='hour'?`⚠ 時間給残数が不足しています（${at}残: ${avail}時間）`:`⚠ 有給日数残が不足しています（${at}残: ${avail}日）`;
+}
+// 申請時の確認: 承認済みだけでは足りるが、申請中を含めると足りないときメッセージ（警告して確認）
+function _leavePendingShortMsg(empId,type,hours,targetDate){
+  const td=_isYmd(targetDate)?targetDate:todayKey();
+  const cand={id:'__new',empId,type,hours:parseFloat(hours)||0,targetDate:td,status:'approved',createdAt:'9999'};
+  const n=_leaveNeed(cand),pool=n.pool==='hour'?'hour':'day',u=pool==='hour'?'時間':'日';
+  const pendSum=_leavePendingSum(empId,pool,null);
+  if(pendSum<=0)return '';
+  const pend=(leaveRequests||[]).filter(q=>q&&q.empId===empId&&q.status==='pending').map(q=>Object.assign({},q,{status:'approved'}));
+  const sh=a=>pool==='hour'?a.shortHour:a.shortDay;
+  const a0=lvAlloc(empId,pend),a1=lvAlloc(empId,pend.concat([cand]));
+  if(_lvNum(sh(a1)-sh(a0))<=1e-9)return '';
   const bal=getLeaveBal(empId);
-  const rem=_lvNum(n.pool==='hour'?bal.remHourlyH:bal.remDays),u=n.pool==='hour'?'時間':'日';
-  const pend=_leavePendingSum(empId,n.pool,null);
-  if(pend<=0||n.amt<=rem-pend+1e-9)return '';
-  return `⚠ 申請中の有給（${pend}${u}）を含めると残数が足りません。\n残 ${rem}${u} − 申請中 ${pend}${u} → あと ${_lvNum(Math.max(0,rem-pend))}${u}（今回の申請 ${_lvNum(n.amt)}${u}）\n\nこのまま申請はできますが、先に申請した分が承認されて残数が足りなくなると、この申請は承認できません（却下か取消が必要になります）。\n申請しますか？`;
+  const rem=_lvNum(pool==='hour'?bal.remHourlyH:bal.remDays);
+  return `⚠ 申請中の有給（${pendSum}${u}）を含めると残数が足りません。\n残 ${rem}${u} − 申請中 ${pendSum}${u} → あと ${_lvNum(Math.max(0,rem-pendSum))}${u}（今回の申請 ${_lvNum(n.amt)}${u}）\n\nこのまま申請はできますが、先に申請した分が承認されて残数が足りなくなると、この申請は承認できません（却下か取消が必要になります）。\n申請しますか？`;
 }
 function approveLeave(id){
   const r=leaveRequests.find(x=>x.id===id);if(!r)return false;
@@ -3369,33 +3631,235 @@ function rejectLeave(id){
   return true;
 }
 function returnLeave(id){
-  const r=leaveRequests.find(x=>x.id===id);if(!r)return;
+  const r=leaveRequests.find(x=>x.id===id);if(!r)return Promise.resolve(false);
   const typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
-  confirmAction(`${r.empName}さんの${r.targetDate} ${typeMap[r.type]||r.type}（${r.hours}時間）を差し戻しますか？\n差し戻すと従業員が再申請または取消できるようになります。`,()=>{
-    r.status='pending';r.reviewedAt=null;r.reviewedBy=null;
-    S.set('ka_leave_requests',leaveRequests);renderAdminLeave();showToast(`↩ ${r.empName}さんの有給申請を差し戻しました`);
-  },'差し戻す');
+  return new Promise(res=>confirmAction(`${r.empName}さんの${r.targetDate} ${typeMap[r.type]||r.type}（${r.hours}時間）を差し戻しますか？\n差し戻すと従業員が再申請または取消できるようになります。`,async()=>{
+    // alc39: 差し戻しも最新を取り込んでから（他の端末の処理を古い一覧で上書きしない）
+    const ok=await _lvFresh(()=>{
+      const q=leaveRequests.find(x=>x.id===id);
+      if(!q||q.status!=='approved'){showToast(`ℹ この申請は既に${q?({pending:'申請中',rejected:'却下',cancelled:'取消'}[q.status]||'処理済み'):'見つかりません'}です（最新に更新しました）`);return false;}
+      q.status='pending';q.reviewedAt=null;q.reviewedBy=null;
+      S.set('ka_leave_requests',leaveRequests);
+      return true;
+    },'差し戻しませんでした');
+    try{renderAdminLeave();}catch(e){}
+    try{updateLeaveBadge();}catch(e){}
+    if(ok){showToast(`↩ ${r.empName}さんの有給申請を差し戻しました`);await _lvPushCheck();}
+    res(ok);
+  },'差し戻す',()=>res(false)));
+}
+
+/* ── alc39: 有給設定・付与の個別調整の保存 ──
+   保存の直前にサーバーの最新（アカウント・付与・申請）を取り込んでから書き込む（古い端末の値で他の変更を上書きしない）。
+   最新を確認できないとき（オフライン・通信エラー・送信待ち）は保存しない。 */
+async function _lvFresh(fn,verb){
+  if(_actionGuard.has('lv')){showToast('⏳ 処理中です。少しお待ちください');return false;}
+  _actionGuard.add('lv');
+  try{
+    const need=['ka_accounts','ka_leave_grants','ka_leave_requests'];
+    const res=await apprRefresh({keys:need});
+    if(!_apprFreshOk(res,need)){showToast(_apprFreshMsg(res,need,verb||'保存しませんでした'));return false;}
+    return !!fn();
+  }catch(e){console.warn('leave save failed',e);showToast('⚠ 保存できませんでした');return false;}
+  finally{_actionGuard.delete('lv');}
+}
+async function _lvPushCheck(){
+  await _withTimeout(DB._pushQueue,20000);
+  try{
+    const ks=['ka_accounts','ka_leave_grants'];
+    if(ks.some(k=>((DB._inflight&&DB._inflight[k])||0)>0))showToast('⏳ 送信に時間がかかっています。届かなかった場合は、電波の良い場所でアプリを開き直してから確認してください');
+    else if(DB._dirtyKeys&&ks.some(k=>DB._dirtyKeys.has(k)))showToast('⚠ 通信できず送信が保留中です。電波の良い場所でアプリを開き直してください（自動で再送します）');
+  }catch(e){}
+}
+// 付与を保存（同じ付与日は1件にまとめ、rev を上げる＝同期で新しいほうが残る）
+function _lgPut(empId,entry){
+  if(!leaveGrants[empId]||!Array.isArray(leaveGrants[empId]))leaveGrants[empId]=[];
+  let maxRev=0;leaveGrants[empId].forEach(g=>{if(g&&g.grantDate===entry.grantDate)maxRev=Math.max(maxRev,g.rev||0);});
+  const keep=leaveGrants[empId].filter(g=>!(g&&g.grantDate===entry.grantDate));
+  entry.rev=maxRev+1;
+  keep.push(entry);keep.sort((a,b)=>String(a.grantDate).localeCompare(String(b.grantDate)));
+  leaveGrants[empId]=keep;
+}
+// 保存前の試算（付与の記録を一時的に足して計算し、元に戻す）
+function _lvWithStored(empId,extra,fn){
+  const saved=leaveGrants[empId],had=Object.prototype.hasOwnProperty.call(leaveGrants,empId);
+  try{
+    const base=(Array.isArray(saved)?saved:[]).filter(g=>!(extra||[]).some(x=>x&&g&&x.grantDate===g.grantDate));
+    leaveGrants[empId]=base.concat(extra||[]);
+    return fn();
+  }finally{if(had)leaveGrants[empId]=saved;else delete leaveGrants[empId];}
+}
+// 有給設定モーダル
+function _lcmRead(){
+  const g=id=>document.getElementById(id);
+  const type=(g('lcm-type')||{}).value||'regular',wd=parseInt((g('lcm-wd')||{}).value,10)||5;
+  return {hireDate:(g('lcm-hire')||{}).value||'',empType:LV_TYPE_LBL[type]?type:'regular',weekDays:wd,over30h:wd>=5?true:!!(g('lcm-o30')||{}).checked,
+    workHoursPerDay:parseFloat((g('lcm-hpd')||{}).value)||8,useHourly:type!=='part'&&!!(g('lcm-usehr')||{}).checked,
+    tenureAdjMonths:Math.max(0,Math.min(600,parseInt((g('lcm-adj')||{}).value,10)||0))};
+}
+// 今日より前の「自動」の回が、今の設定と新しい設定で変わるか
+function _lcmPastDiff(empId,newCfg){
+  const acc=accounts.find(a=>a.id===empId),oldCfg=lvCfg(acc),today=todayKey();
+  if(!oldCfg)return {diff:false,oldList:[],newList:[]}; // 初めて設定する人は残す付与が無い → 入社日からそのまま計算（入社日の付与を落とさない）
+  const pick=cfg=>lvGrants(empId,today,cfg).filter(g=>g.src==='auto'&&g.grantDate<today);
+  const a=oldCfg?pick(oldCfg):[],b=newCfg?pick(newCfg):[];
+  const key=l=>l.map(g=>`${g.grantDate}:${g.days}:${g.hourlyHours}`).join('|');
+  return {diff:key(a)!==key(b),oldList:a,newList:b};
+}
+// 保存したときの付与の一覧（試算）
+function _lcmAfterSave(empId,merged,recalc){
+  const cfg=lvCfg(null,merged),d=_lcmPastDiff(empId,cfg),today=todayKey();
+  if(d.diff&&!recalc){
+    const frozen=d.oldList.map(g=>({id:g.id,empId,grantDate:g.grantDate,expiryDate:g.expiryDate,days:g.days,hourlyHours:g.hourlyHours,src:'rule'}));
+    const cfg2=lvCfg(null,Object.assign({},merged,{ruleFrom:today}));
+    return {d,frozen,cfg:cfg2,grants:_lvWithStored(empId,frozen,()=>lvGrants(empId,addYears(today,1),cfg2))};
+  }
+  return {d,frozen:[],cfg,grants:lvGrants(empId,addYears(today,1),cfg)};
 }
 function openLCModal(empId){
   lcmEmpId=empId;
-  const acc=accounts.find(a=>a.id===empId),cfg=acc?.leaveConfig||{};
+  const acc=accounts.find(a=>a.id===empId),cfg=lvCfg(acc);
   document.getElementById('lcm-name').textContent=acc?.name||'';
-  document.getElementById('lcm-date').value=cfg.grantDate||'';
-  document.getElementById('lcm-days').value=cfg.grantDays||10;
-  document.getElementById('lcm-hpd').value=cfg.workHoursPerDay||8;
-  document.getElementById('lcm-hourly').value=cfg.grantHourlyHours||0;
+  const set=(id,v)=>{const el=document.getElementById(id);if(!el)return;if(el.type==='checkbox')el.checked=!!v;else el.value=v;};
+  set('lcm-hire',cfg?cfg.hire:'');
+  set('lcm-type',cfg?cfg.empType:'regular');
+  set('lcm-wd',String(cfg?cfg.weekDays:5));
+  set('lcm-o30',cfg?cfg.over30:false);
+  set('lcm-hpd',cfg?cfg.hpd:8);
+  set('lcm-adj',cfg?cfg.adjM:0);
+  set('lcm-usehr',cfg?cfg.useHourly:true);
+  set('lcm-recalc',false);
+  const n=document.getElementById('lcm-note');
+  if(n)n.innerHTML=cfg&&!cfg.confirmed?'⚠ 入社日・雇用区分が未確認です。今は以前の「初回付与日」を入社日とみなし、正社員として計算しています。正しい内容に直して保存してください。':'';
+  lcmPreview();
   document.getElementById('lcModal').classList.add('open');
 }
 function closeLCModal(){document.getElementById('lcModal').classList.remove('open');lcmEmpId=null;}
-function saveLCConfig(){
+function lcmPreview(){
+  const el=document.getElementById('lcm-preview');if(!el)return;
+  const acc=accounts.find(a=>a.id===lcmEmpId);if(!acc){el.innerHTML='';return;}
+  const inp=_lcmRead();
+  const o30r=document.getElementById('lcm-o30-row');if(o30r)o30r.style.display=inp.weekDays<=4?'':'none';
+  const hrr=document.getElementById('lcm-hr-row');if(hrr)hrr.style.display=inp.empType==='part'?'none':'';
+  const rr=document.getElementById('lcm-recalc-row'),rn=document.getElementById('lcm-recalc-note');
+  if(!_isYmd(inp.hireDate)){el.innerHTML='<div style="color:var(--yw)">入社日を入れると、勤続と付与の予定がここに出ます</div>';if(rr)rr.style.display='none';if(rn)rn.style.display='none';return;}
+  const merged=Object.assign({},acc.leaveConfig||{},inp);
+  const recalc=!!(document.getElementById('lcm-recalc')||{}).checked;
+  const sim=_lcmAfterSave(lcmEmpId,merged,recalc);
+  if(rr)rr.style.display=sim.d.diff?'':'none';
+  if(rn){rn.style.display=sim.d.diff?'':'none';
+    rn.innerHTML=sim.d.diff?`今日より前の付与の計算が変わります（今: ${sim.d.oldList.map(g=>`${_lvDs(g.grantDate)} ${_lvAmt(g)}`).join('、')||'なし'} → 新しい設定: ${sim.d.newList.map(g=>`${_lvDs(g.grantDate)} ${_lvAmt(g)}`).join('、')||'なし'}）。<br>チェックしない場合は、付与済みの回を今のまま残し、今日以降の付与から新しい設定で計算します（雇用区分・勤務日数が変わったとき）。`:'';}
+  const today=todayKey();
+  const t=lvTenure(lcmEmpId,null,sim.cfg);
+  const shown=sim.grants.filter(g=>g.expiryDate>today).slice(0,5);
+  el.innerHTML=`<div style="font-weight:700;margin-bottom:4px">${esc(lvTenureLabel(t))}${t&&!t.future?`<span style="font-weight:400;color:var(--dim)">（入社 ${_lvDs(t.hire)}${t.excluded?`／勤務11日未満の${t.excluded}か月を除く`:''}${t.adj?`／${t.adj}か月を除く`:''}）</span>`:''}</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:4px">この設定での付与（有効・予定）</div>
+    ${shown.length?shown.map(g=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--bd)"><span>${_lvDs(g.grantDate)} <span class="lv-src ${g.src}">${LV_SRC_LBL[g.src]||''}</span></span><span style="font-family:var(--mo)">${_lvAmt(g)}${g.grantDate>today?'（予定）':''}</span></div>`).join(''):'<div>（なし）</div>'}`;
+}
+async function saveLCConfig(){
   if(!lcmEmpId)return;
-  const acc=accounts.find(a=>a.id===lcmEmpId);if(!acc)return;
-  const grantDate=document.getElementById('lcm-date').value;
-  if(!grantDate){showToast('⚠ 付与日を入力してください');return;}
-  acc.leaveConfig={grantDate,grantDays:parseInt(document.getElementById('lcm-days').value)||10,workHoursPerDay:parseFloat(document.getElementById('lcm-hpd').value)||8,grantHourlyHours:parseInt(document.getElementById('lcm-hourly').value)||0};
-  S.set('ka_accounts',accounts);
-  generateLeaveGrants(lcmEmpId);
-  closeLCModal();renderAdminLeave();showToast('✅ 有給設定を保存しました');
+  const empId=lcmEmpId,inp=_lcmRead();
+  if(!_isYmd(inp.hireDate)){showToast('⚠ 入社日を入力してください');return;}
+  if(inp.hireDate>addYears(todayKey(),1)){showToast('⚠ 入社日が1年以上先になっています。日付を確認してください');return;}
+  if(!(inp.workHoursPerDay>0&&inp.workHoursPerDay<=24)){showToast('⚠ 1日の所定労働時間を確認してください');return;}
+  const recalc=!!(document.getElementById('lcm-recalc')||{}).checked;
+  const me=(curAcc()||{}).name||'';
+  const ok=await _lvFresh(()=>{
+    const acc=accounts.find(a=>a.id===empId);if(!acc){showToast('⚠ 対象の職員が見つかりません');return false;}
+    const merged=Object.assign({},acc.leaveConfig||{},inp);
+    const sim=_lcmAfterSave(empId,merged,recalc); // 取り込んだ最新で計算し直す
+    const hpdOld=(lvCfg(acc)||{}).hpd||8,now=new Date().toISOString();
+    sim.frozen.forEach(g=>_lgPut(empId,Object.assign({},g,{hoursPerDay:hpdOld,frozenAt:now,frozenBy:me})));
+    if(sim.frozen.length||(sim.d.diff&&!recalc))merged.ruleFrom=todayKey();
+    const ncfg=lvCfg(null,merged),today=todayKey();
+    const rl=lvRuleList(ncfg,addYears(today,1));
+    const cur=rl.filter(r=>r.grantDate<=today).pop()||rl[0]||null;
+    merged.grantDate=lvFirstGrant(ncfg); // 互換: 初回付与日
+    if(cur){merged.grantDays=cur.days;merged.grantHourlyHours=cur.hourlyHours;}
+    merged.workHoursPerDay=ncfg.hpd;merged.updatedAt=now;merged.updatedBy=me;
+    acc.leaveConfig=merged;
+    S.set('ka_accounts',accounts);
+    if(sim.frozen.length)S.set('ka_leave_grants',leaveGrants);
+    return true;
+  });
+  if(!ok)return;
+  closeLCModal();try{renderAdminLeave();}catch(e){}
+  showToast('✅ 有給設定を保存しました');
+  await _lvPushCheck();
+}
+// 付与の個別調整（出勤率8割未満で付与しない・日数を変える など）
+let _lga=null;
+function openLgAdj(empId,grantDate){
+  const acc=accounts.find(a=>a.id===empId);if(!acc)return;
+  const bal=getLeaveBal(empId),g=(bal.grants||[]).find(x=>x.grantDate===grantDate);
+  if(!g){showToast('⚠ 付与が見つかりません');return;}
+  _lga={empId,grantDate};
+  const cfg=lvCfg(acc),rule=cfg?lvRuleList(cfg,grantDate).find(r=>r.grantDate===grantDate):null;
+  const info=document.getElementById('lga-info');
+  if(info)info.innerHTML=`${esc(acc.name)}さん／<b>${_lvDs(grantDate)} 付与</b>（${LV_SRC_LBL[g.src]||''}）<br>今の値: ${_lvAmt(g)}${g.src==='manual'&&g.orig?`（調整前: ${_lvAmt(g.orig)}）`:''}${rule?`<br>就業規則の計算: ${_lvAmt(rule)}（計${rule.total}日）`:''}<br><span style="color:var(--dim)">0日にすると、その回は付与しません（出勤率8割未満など）。自動の計算で上書きされません。</span>`;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+  set('lga-days',_lvNum(g.days));set('lga-hours',_lvNum(g.hourlyHours));set('lga-note',g.src==='manual'?(g.note||''):'');
+  const hr=document.getElementById('lga-h-row');if(hr)hr.style.display=(cfg&&cfg.useHourly)||g.hourlyHours>0?'':'none';
+  const rb=document.getElementById('lga-reset');if(rb)rb.style.display=g.src==='manual'?'':'none';
+  document.getElementById('lgAdjModal').classList.add('open');
+}
+function closeLgAdj(){const m=document.getElementById('lgAdjModal');if(m)m.classList.remove('open');_lga=null;}
+async function saveLgAdj(){
+  if(!_lga)return;
+  const {empId,grantDate}=_lga;
+  const days=parseFloat((document.getElementById('lga-days')||{}).value);
+  const hrRow=document.getElementById('lga-h-row'),hrShown=!hrRow||hrRow.style.display!=='none';
+  const hours=hrShown?parseFloat((document.getElementById('lga-hours')||{}).value||'0'):0;
+  const note=String((document.getElementById('lga-note')||{}).value||'').trim();
+  if(!(days>=0&&days<=40)||Math.round(days*2)!==days*2){showToast('⚠ 日数は0〜40の範囲で、0.5日単位で入力してください');return;}
+  if(!(hours>=0&&hours<=80)||Math.round(hours)!==hours){showToast('⚠ 時間休は0〜80時間の範囲で、1時間単位で入力してください');return;}
+  if(!note){showToast('⚠ 調整の理由を入力してください');return;}
+  const me=(curAcc()||{}).name||'';
+  const doSave=async()=>{
+    const ok=await _lvFresh(()=>{
+      const acc=accounts.find(a=>a.id===empId);if(!acc)return false;
+      const cur=lvGrants(empId,addYears(todayKey(),1)).find(x=>x.grantDate===grantDate);
+      if(!cur){showToast('⚠ 付与が見つかりませんでした（最新に更新しました）');return false;}
+      const orig=(cur.src==='manual'&&cur.orig)?cur.orig:{days:cur.days,hourlyHours:cur.hourlyHours,src:cur.src};
+      _lgPut(empId,{id:cur.id,empId,grantDate,expiryDate:cur.expiryDate,days:_lvNum(days),hourlyHours:_lvNum(hours),hoursPerDay:(lvCfg(acc)||{}).hpd||8,src:'manual',note,orig,adjBy:me,adjAt:new Date().toISOString()});
+      S.set('ka_leave_grants',leaveGrants);
+      return true;
+    });
+    if(!ok)return false;
+    closeLgAdj();try{renderAdminLeave();}catch(e){}
+    showToast('✅ 付与を調整しました');
+    await _lvPushCheck();
+    return true;
+  };
+  // 承認済みの取得が付与を超えるようになるなら確認する
+  const before=lvAlloc(empId);
+  const after=_lvWithStored(empId,[{grantDate,expiryDate:addYears(grantDate,2),days,hourlyHours:hours,src:'manual'}],()=>lvAlloc(empId));
+  const inc=_lvNum((after.shortDay-before.shortDay)),incH=_lvNum(after.shortHour-before.shortHour);
+  if(inc>0||incH>0)return new Promise(res=>confirmAction(`⚠ この調整で、承認済みの有給 ${inc>0?inc+'日':''}${inc>0&&incH>0?'＋':''}${incH>0?incH+'時間':''} が付与を超えます（残数がマイナスになります）。\n保存しますか？`,async()=>res(await doSave()),'保存する',()=>res(false)));
+  return doSave();
+}
+function resetLgAdj(){
+  if(!_lga)return Promise.resolve(false);
+  const {empId,grantDate}=_lga,me=(curAcc()||{}).name||'';
+  return new Promise(res=>confirmAction('この回の調整を取り消して、調整前の値に戻しますか？',async()=>{
+    const ok=await _lvFresh(()=>{
+      const m=_lvStoredMap(empId)[grantDate];
+      if(!m||_lvSrc(m)!=='manual'){showToast('ℹ この回は調整されていません（最新に更新しました）');return false;}
+      const o=m.orig||{},now=new Date().toISOString();
+      let ent;
+      if(o.src==='legacy'||o.src==='rule'){
+        ent=Object.assign({},m,{days:_lvNum(o.days),hourlyHours:_lvNum(o.hourlyHours),note:'',orig:null,resetBy:me,resetAt:now});
+        if(o.src==='rule')ent.src='rule';else delete ent.src;
+      }else ent={id:m.id||`g_${empId}_${grantDate}`,empId,grantDate,expiryDate:m.expiryDate||addYears(grantDate,2),days:0,hourlyHours:0,src:'void',resetBy:me,resetAt:now};
+      _lgPut(empId,ent);S.set('ka_leave_grants',leaveGrants);
+      return true;
+    });
+    if(!ok){res(false);return;}
+    closeLgAdj();try{renderAdminLeave();}catch(e){}
+    showToast('↩ 調整を取り消しました');
+    await _lvPushCheck();
+    res(true);
+  },'元に戻す',()=>res(false)));
 }
 
 // ═══════════════════════════════════
@@ -3636,7 +4100,7 @@ function renderAdmin(){
     const mr=(records[e.id]||[]).filter(r=>r.date.startsWith(month));
     const days=mr.filter(r=>r.workMinutes).length,work=mr.reduce((s,r)=>s+(r.workMinutes||0),0),ot=mr.reduce((s,r)=>s+(r.overtimeMinutes||0),0),km=mr.reduce((s,r)=>s+(r.todayKm||0),0);
     const brk=mr.filter(r=>(r.workMinutes||0)>360).length*60,netWork=work-brk;
-    const vc=calcVisits(e.id,month),bal=e.leaveConfig?.grantDate?getLeaveBal(e.id):null,ny=calcNenmatsu(e.id,month);
+    const vc=calcVisits(e.id,month),bal=_lvConfigured(e)?getLeaveBal(e.id):null,ny=calcNenmatsu(e.id,month);
     const isCurrentMonth=month===thisMonth();
     const td=todayMap[e.id]||{},todayRec=(records[e.id]||[]).find(r=>r.date===dk);
     let chipCls='tc-a',chipLbl=isCurrentMonth?'未出勤':'';
@@ -3966,6 +4430,8 @@ function executeArchive(){
   // Step 4: 保存＋同期
   S.set('ka_records',records);
   S.set('ka_visits',visits);
+  // alc39: 勤続（11日未満の月を除く数え方）で、記録を消した期間を「記録なし＝数える」と扱えるよう、整理した日付を残す
+  try{if(!_isYmd(settings.archiveCutoff)||settings.archiveCutoff<cutoff){settings.archiveCutoff=cutoff;S.set('ka_settings',settings);}}catch(e){}
   closeArchiveModal();
   renderStorageInfo();
   showToast('✅ データ整理が完了しました');
@@ -4505,6 +4971,8 @@ function _mergeRecLike(remote,local){
   // realRemote && !realLocal は remote優先の既定でそのまま本物が残る（対応不要）
   return m;
 }
+// alc39: 有給の付与（同じ付与日）が両方にあるとき、改訂番号 rev の大きいほう（後から調整・固定・取消したほう）を残す。同じならサーバー優先（従来どおり）
+function _lgMergePick(remote,local){return ((local&&local.rev)||0)>((remote&&remote.rev)||0)?local:remote;}
 function _kvMergeByEmp(local,remote,keyFn,mergeFn){
   const out={};const ids=new Set([...Object.keys(local||{}),...Object.keys(remote||{})]);
   ids.forEach(id=>out[id]=_kvMergeArr((local||{})[id]||[],(remote||{})[id]||[],keyFn,mergeFn));
@@ -4518,7 +4986,7 @@ function kvMergeForPull(key,localVal,remoteVal){
       Object.keys(merged).forEach(id=>{if(Array.isArray(merged[id]))merged[id].sort((a,b)=>(b.date||'').localeCompare(a.date||''));});
       return merged;
     }
-    if(key==='ka_leave_grants')return _kvMergeByEmp(localVal,remoteVal,e=>e.grantDate||e.id||e.date);
+    if(key==='ka_leave_grants')return _kvMergeByEmp(localVal,remoteVal,e=>e.grantDate||e.id||e.date,_lgMergePick);
     if(key==='ka_today')return Object.assign({},localVal||{},remoteVal||{}); // remote優先・local固有empIdは保持
     if(key==='ka_accounts'||key==='ka_stores'||key==='ka_leave_requests'||key==='ka_fuel')return _kvMergeArr(localVal,remoteVal,e=>e.id);
   }catch(e){console.warn('kv merge failed',key,e);}
@@ -4537,7 +5005,7 @@ function _kvMergeRaced(key,before,now,remote){
         if(kk===undefined||bm[kk]===JSON.stringify(e))return; // 取得中に変わっていない → サーバー優先のまま
         const out=Array.isArray(base[emp])?base[emp]:(base[emp]=[]);
         const i=out.findIndex(x=>{try{return kf(x)===kk;}catch(_){return false;}});
-        const v=(key==='ka_leave_grants')?e:_mergeRecLike(e,i>=0?out[i]:{}); // 端末優先（サーバーにしかない項目は補う）
+        const v=(key==='ka_leave_grants')?((i>=0&&((out[i]&&out[i].rev)||0)>(e.rev||0))?out[i]:e):_mergeRecLike(e,i>=0?out[i]:{}); // 端末優先（サーバーにしかない項目は補う）。alc39: 付与はサーバーの rev が大きければサーバー
         if(i>=0)out[i]=v;else out.push(v);
       });
     });
@@ -6758,16 +7226,16 @@ function updateLeaveTypeUIA(){
   const showH=type==='hourly';
   const hRow=document.getElementById('alr-hours-row');if(hRow)hRow.style.display=showH?'block':'none';
   const hHint=document.getElementById('alr-hours-hint');
-  const hpd=curAcc()?.leaveConfig?.workHoursPerDay||8;
+  const hpd=(lvCfg(curAcc())||{}).hpd||8;
   const _av=_leaveAvailHint(session?.id,type); // alc38: 残・申請中を表示
   if(hHint){if(type==='full')hHint.textContent=`消化時間: ${hpd}時間（全日休）${_av}`;else if(type==='half')hHint.textContent=`消化時間: ${hpd/2}時間（半日休）${_av}`;else hHint.textContent=_av?`時間給プール${_av}`:'';}
 }
 function renderLeaveTabA(){
   const empId=session?.id;if(!empId)return;
-  const acc=curAcc(),cfg=acc?.leaveConfig;
+  const acc=curAcc();
   const ncEl=document.getElementById('aLeaveNoConfig'),fmEl=document.getElementById('aLeaveForm');
-  if(!cfg?.grantDate){
-    const bl=document.getElementById('aLeaveBal');if(bl)bl.innerHTML='<div class="card" style="text-align:center;padding:24px"><div style="font-size:32px;margin-bottom:8px">📋</div><div style="color:var(--dim);font-size:13px">有給設定が未登録です<br>従業員管理タブから自分自身に設定してください</div></div>';
+  if(!_lvConfigured(acc)){
+    const bl=document.getElementById('aLeaveBal');if(bl)bl.innerHTML=`<div class="card" style="text-align:center;padding:24px"><div style="font-size:32px;margin-bottom:8px">📋</div><div style="color:var(--dim);font-size:13px">有給設定が未登録です<br>${acc&&acc.role==='executive'?'役員の有給は有給管理の対象外です':'有給管理タブの「⚙ 設定」から自分自身に設定してください'}</div></div>`;
     if(ncEl)ncEl.style.display='block';if(fmEl)fmEl.style.display='none';
     const gg=document.getElementById('aLeaveGrants');if(gg)gg.innerHTML='<div class="empty">付与記録なし</div>';
     const lh=document.getElementById('aLeaveHistory');if(lh)lh.innerHTML='<div class="empty">申請履歴なし</div>';
@@ -6776,35 +7244,9 @@ function renderLeaveTabA(){
   if(ncEl)ncEl.style.display='none';if(fmEl)fmEl.style.display='block';
   const bal=getLeaveBal(empId);
   const blEl=document.getElementById('aLeaveBal');
-  const grantDayRowsA=bal.grantDayDetails.filter(g=>g.remainDays>0).map(g=>
-    `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--dim)">〜${fmtDate(g.expiryDate)}</span><span style="color:var(--gn);font-weight:700">${g.remainDays}日</span></div>`
-  ).join('');
-  const grantHourlyRowsA=bal.hasHourlyPool?bal.grantHourlyDetails.filter(g=>g.remainHourlyH>0).map(g=>
-    `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="color:var(--dim)">〜${fmtDate(g.expiryDate)}</span><span style="color:var(--gn);font-weight:700">${g.remainHourlyH}h</span></div>`
-  ).join(''):'';
-  if(blEl)blEl.innerHTML=`<div class="leave-bal">
-    <div style="font-size:11px;color:var(--pu);font-weight:700;margin-bottom:4px">有給残数</div>
-    <div class="leave-big">${bal.remDays}<span style="font-size:18px;font-weight:400"> 日</span></div>
-    <div class="leave-sub">日数プール（全日休・半日休用）</div>
-    <div class="leave-row">
-      <div class="leave-mini"><div class="leave-mini-l">付与合計</div><div class="leave-mini-v">${bal.totalDays}日</div></div>
-      <div class="leave-mini"><div class="leave-mini-l">使用済み</div><div class="leave-mini-v">${bal.dayUsed}日</div></div>
-    </div>
-    ${grantDayRowsA?`<div style="margin-top:8px;padding:8px;background:rgba(180,127,247,.06);border-radius:8px"><div style="font-size:10px;color:var(--pu);font-weight:700;margin-bottom:4px">📅 期限別 日数残</div>${grantDayRowsA}</div>`:''}
-    ${bal.hasHourlyPool?`<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)"><div class="leave-big" style="font-size:28px">${bal.remHourlyH}<span style="font-size:18px;font-weight:400"> 時間</span></div><div class="leave-sub">時間給プール（時間休用）</div><div class="leave-row"><div class="leave-mini"><div class="leave-mini-l">⏱ 付与合計</div><div class="leave-mini-v">${bal.totalHourlyH}h</div></div><div class="leave-mini"><div class="leave-mini-l">⏱ 使用済み</div><div class="leave-mini-v">${bal.hourlyUsed}h</div></div></div>${grantHourlyRowsA?`<div style="margin-top:8px;padding:8px;background:rgba(61,214,140,.06);border-radius:8px"><div style="font-size:10px;color:var(--gn);font-weight:700;margin-bottom:4px">📅 期限別 時間給残</div>${grantHourlyRowsA}</div>`:''}</div>`:''}
-  </div>`;
-  const today=todayKey();
-  const all=(leaveGrants[empId]||[]);
+  if(blEl)blEl.innerHTML=_leaveBalCardHtml(bal); // alc39: スタッフと同じ表示（次回の付与・期限が近い残も）
   const ggEl=document.getElementById('aLeaveGrants');
-  if(ggEl)ggEl.innerHTML=all.length?all.map(g=>{
-    const isActive=g.grantDate<=today&&g.expiryDate>today,expired=g.expiryDate<=today,future=g.grantDate>today;
-    const stl=expired?'color:var(--dim)':future?'color:var(--yw)':'color:var(--gn)';
-    const stlbl=expired?'期限切れ':future?'付与予定':'有効';
-    const dd=isActive?bal.grantDayDetails.find(x=>x.grantDate===g.grantDate):null;
-    const dh=isActive&&bal.hasHourlyPool?bal.grantHourlyDetails.find(x=>x.grantDate===g.grantDate):null;
-    const remInfo=dd?` (残${dd.remainDays}日${dh?`＋${dh.remainHourlyH}h`:''})` :'';
-    return`<div class="grant-item"><div><div class="grant-l">${fmtDate(g.grantDate)} 付与</div><div class="grant-exp">有効期限: ${fmtDate(g.expiryDate)}</div></div><div style="text-align:right"><div class="grant-v" style="${stl}">${g.days}日${g.hourlyHours?`＋${g.hourlyHours}h`:''}${remInfo}</div><div style="font-size:10px;${stl}">${stlbl}</div></div></div>`;
-  }).join(''):'<div class="empty">付与記録なし</div>';
+  if(ggEl)ggEl.innerHTML=_leaveGrantListHtml(bal);
   const allReqsA=leaveRequests.filter(r=>r.empId===empId).sort((a,b)=>b.targetDate.localeCompare(a.targetDate));
   const typeMap={full:'全日休',half:'半日休',hourly:'時間休'};
   const statusMap={pending:{cls:'rs-pending',lbl:'⏳ 申請中'},approved:{cls:'rs-approved',lbl:'✅ 承認済'},rejected:{cls:'rs-rejected',lbl:'❌ 却下'},cancelled:{cls:'rs-cancelled',lbl:'— 取消'}};
@@ -6821,33 +7263,7 @@ function renderLeaveTabA(){
   }
   updateLeaveTypeUIA();
 }
-function submitLeaveReqA(){
-  const empId=session.id,acc=curAcc();
-  if(!acc?.leaveConfig?.grantDate){showToast('⚠ 有給設定が未登録です');return;}
-  const targetDate=document.getElementById('alr-date').value;
-  const type=document.getElementById('alr-type').value;
-  const hpd=acc.leaveConfig.workHoursPerDay||8;
-  let hours=0;
-  if(type==='full')hours=hpd;else if(type==='half')hours=hpd/2;
-  else hours=parseFloat(document.getElementById('alr-hours').value)||0;
-  if(!targetDate){showToast('⚠ 日付を入力してください');return;}
-  if(hours<=0){showToast('⚠ 時間数を入力してください');return;}
-  const bal=getLeaveBal(empId);
-  if(type==='hourly'&&!bal.hasHourlyPool){showToast('⚠ 時間休プールが未設定です。時間休付与を設定するか、全日休・半日休で申請してください');return;}
-  if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
-  if(type==='hourly'&&bal.hasHourlyPool){if(hours>bal.remHourlyH){showToast(`⚠ 時間給残数不足（残: ${bal.remHourlyH}時間）`);return;}}
-  else if(type==='full'||type==='half'){const needDays=type==='full'?1:0.5;if(needDays>bal.remDays){showToast(`⚠ 有給日数残不足（残: ${bal.remDays}日）`);return;}}
-  else{if(hours>bal.remDayH){showToast(`⚠ 有給残数不足（残: ${bal.remDayH}時間）`);return;}}
-  const doSubmit=()=>{
-    if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
-    const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,note:document.getElementById('alr-note').value,status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
-    leaveRequests.push(req);S.set('ka_leave_requests',leaveRequests);
-    document.getElementById('alr-note').value='';renderLeaveTabA();showToast('✅ 有給申請を送信しました');
-  };
-  const _short=_leavePendingShortMsg(empId,type,hours); // alc38
-  if(_short){confirmAction(_short,doSubmit,'このまま申請する');return;}
-  doSubmit();
-}
+function submitLeaveReqA(){return aSubmitLeave();} // alc39: 画面からは使っていない旧版 → 管理者の申請（aSubmitLeave）と同じ処理にまとめる
 function cancelLeaveReqA(id){
   const r=leaveRequests.find(x=>x.id===id);if(!r||r.empId!==session.id)return;
   if(r.status==='approved'){showToast('⚠ 承認済みの申請は取消できません。有給管理タブから差し戻してください。');return;}
@@ -7498,7 +7914,6 @@ function aUpdateLeaveUI(){
   const showH=type==='hourly';
   const hRow=document.getElementById('alr-hours-row');if(hRow)hRow.style.display=showH?'block':'none';
   const hHint=document.getElementById('alr-hours-hint');
-  const hpd=curAcc()?.leaveConfig?.workHoursPerDay||8;
   if(hHint){
     const _av=_leaveAvailHint(session?.id,type); // alc38
     if(type==='full')hHint.textContent=`消化: 1日分（全日休）← 日数プール${_av}`;
@@ -7508,10 +7923,10 @@ function aUpdateLeaveUI(){
 }
 function aSubmitLeave(){
   const empId=session.id,acc=curAcc();
-  if(!acc?.leaveConfig?.grantDate){showToast('⚠ 有給設定が未登録です（従業員管理から設定してください）');return;}
+  if(!_lvConfigured(acc)){showToast('⚠ 有給設定が未登録です（有給管理タブの「⚙ 設定」から設定してください）');return;}
   const targetDate=document.getElementById('alr-date')?.value;
   const type=document.getElementById('alr-type')?.value;
-  const hpd=acc.leaveConfig.workHoursPerDay||8;
+  const hpd=lvCfg(acc).hpd;
   let hours=0;
   if(type==='full')hours=hpd;
   else if(type==='half')hours=hpd/2;
@@ -7521,9 +7936,8 @@ function aSubmitLeave(){
   const bal=getLeaveBal(empId);
   if(type==='hourly'&&!bal.hasHourlyPool){showToast('⚠ 時間休プールが未設定です。時間休付与を設定するか、全日休・半日休で申請してください');return;}
   if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
-  if(type==='hourly'&&bal.hasHourlyPool){if(hours>bal.remHourlyH){showToast(`⚠ 時間給残数が不足しています（残: ${bal.remHourlyH}時間）`);return;}}
-  else if(type==='full'||type==='half'){const needDays=type==='full'?1:0.5;if(needDays>bal.remDays){showToast(`⚠ 有給日数残が不足しています（残: ${bal.remDays}日）`);return;}}
-  else{if(hours>bal.remDayH){showToast(`⚠ 有給残数が不足しています（残: ${bal.remDayH}時間）`);return;}}
+  const _blk=_leaveSubmitBlock(empId,type,hours,targetDate); // alc39: 取得日の時点で、承認済みだけで足りなければ申請できない
+  if(_blk){showToast(_blk);return;}
   const doSubmit=()=>{
     if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
     const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,
@@ -7533,7 +7947,7 @@ function aSubmitLeave(){
     const noteEl=document.getElementById('alr-note');if(noteEl)noteEl.value='';
     renderLeaveTabA();showToast('✅ 有給申請を送信しました');
   };
-  const _short=_leavePendingShortMsg(empId,type,hours); // alc38: 申請中を含めると不足 → 警告して確認
+  const _short=_leavePendingShortMsg(empId,type,hours,targetDate); // alc38: 申請中を含めると不足 → 警告して確認
   if(_short){confirmAction(_short,doSubmit,'このまま申請する');return;}
   doSubmit();
 }
