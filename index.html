@@ -547,7 +547,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.11.03-alc40 (自家用車の給油枠カード: 今日画面に「会社カードで給油できる量（未給油のストック）」を大きく表示・給油済み／未給油／超過のバー・次回の指定量（0.1L切り捨て）・給油の記録で給油後の未給油を試算し超過は確認してから記録・金額の入力は撤去し給油量（L）だけを管理・累計は月をまたいで繰越／CSVで同じ日の複数の有給（半日休＋時間休など）が1件しか出なかった不具合を修正（全件を「＋」でつなぎ時間は合計）／有給を就業規則どおりに毎年自動で付与（正社員・有期契約は入社日から15〜20日・パート等は入社6か月後の月の1日から週の日数ごとの日数・時間休は年5日分の枠）／残数は取得日に使える付与の古い順に消化し2年で失効／有給管理を職員ごとにまとめ（勤続○年○ヵ月目＝キャリアアップ助成金の数え方・残数・次回の付与・付与の履歴・取得記録）、承認待ちは申請があるときだけ一番上に／付与の個別調整（0日も可）／有給設定に入社日・雇用区分・週の所定労働日数など／役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.11.03-alc41 (CSVの「給油金額(円)」列を削除・締めチェックの金額表示も撤去／自家用車の給油枠カード: 今日画面に「会社カードで給油できる量（未給油のストック）」を大きく表示・給油済み／未給油／超過のバー・次回の指定量（0.1L切り捨て）・給油の記録で給油後の未給油を試算し超過は確認してから記録・金額の入力は撤去し給油量（L）だけを管理・累計は月をまたいで繰越／CSVで同じ日の複数の有給（半日休＋時間休など）が1件しか出なかった不具合を修正（全件を「＋」でつなぎ時間は合計）／有給を就業規則どおりに毎年自動で付与（正社員・有期契約は入社日から15〜20日・パート等は入社6か月後の月の1日から週の日数ごとの日数・時間休は年5日分の枠）／残数は取得日に使える付与の古い順に消化し2年で失効／有給管理を職員ごとにまとめ（勤続○年○ヵ月目＝キャリアアップ助成金の数え方・残数・次回の付与・付与の履歴・取得記録）、承認待ちは申請があるときだけ一番上に／付与の個別調整（0日も可）／有給設定に入社日・雇用区分・週の所定労働日数など／役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -1474,7 +1474,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=40;
+const APP_BUILD=41;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -2743,7 +2743,7 @@ function buildAttendanceCsv(month,targetStoreId){
   const headers=['店舗','氏名','役職','職種','②-1時間','日付','出勤','退勤','勤務時間(分)','休憩控除後(分)','残業(分)','常勤出勤','残業理由','走行距離(km)','体調','アルコール','アルコール(退勤)','酒気確認(出勤)','酒気確認(退勤)','酒気確認指示事項','メモ・利用目的','自動退勤',
     '営業','介護30分','介護40分','介護60分','介護90分','医療保険','担当者会議','退院前カンファ','契約','外部研修','時間外訪問','オンコール','エンゼルケア','年末年始手当',
     '有給種別','有給時間(h)','残業承認状態','支給残業(分)【30分以内は全額＋31分以上は承認済みのみ】',
-    '車両','業務走行(km)【自家用車】','会社カード給油(L)','給油金額(円)','給油枠(L)／累計残高(L)【自家用車】'];
+    '車両','業務走行(km)【自家用車】','会社カード給油(L)','給油枠(L)／累計残高(L)【自家用車】']; // alc41: 「給油金額(円)」列は削除（給油量だけを管理）
   const rows=[headers];
   targetAccs.forEach(emp=>{
     const stName=stores.find(s=>s.id===emp.storeId)?.name||'';
@@ -2793,7 +2793,7 @@ function buildAttendanceCsv(month,targetStoreId){
         isNY?'¥10,000':'',
         dayLeave?dayLeave.type:'', dayLeave?dayLeave.hours:'',
         (recOdoOnly||emp.role==='executive')?'':(rec?otStatusLabel(rec):''), (recOdoOnly||emp.role==='executive')?'':(rec?countedOT(rec,emp.id):''),
-        emp.vehicle==='own'?'自家用車':'リース', (emp.vehicle==='own'&&rec&&rec.bizKm!=null)?rec.bizKm:'', dayFuel.length?dayFuel.reduce((s,f)=>s+(parseFloat(f.liters)||0),0):'', (function(y){return y>0?y:'';})(dayFuel.reduce((s,f)=>s+(parseFloat(f.yen)||0),0)), ''
+        emp.vehicle==='own'?'自家用車':'リース', (emp.vehicle==='own'&&rec&&rec.bizKm!=null)?rec.bizKm:'', dayFuel.length?dayFuel.reduce((s,f)=>s+(parseFloat(f.liters)||0),0):'', ''
       ]);
     }
     // 月次集計行
@@ -2825,7 +2825,7 @@ function buildAttendanceCsv(month,targetStoreId){
       nyc.amount>0?`${nyc.count}日 ¥${nyc.amount.toLocaleString()}`:'',
       lvSummary?`${lvSummary}（${lvBalStr}）`:'',lvTotalH||'',
       '',mRecs.reduce((s,r)=>s+countedOT(r,emp.id),0),
-      emp.vehicle==='own'?'自家用車':'リース', emp.vehicle==='own'?fuelStat(emp.id,month).mKm:'', emp.vehicle==='own'?fuelStat(emp.id,month).mL:'', (emp.vehicle==='own'&&fuelStat(emp.id,month).mYen>0)?fuelStat(emp.id,month).mYen:'', emp.vehicle==='own'?(function(st){return `枠${st.mAllow}／残高${st.balance>0?'+':''}${st.balance}`;})(fuelStat(emp.id,month)):'']);
+      emp.vehicle==='own'?'自家用車':'リース', emp.vehicle==='own'?fuelStat(emp.id,month).mKm:'', emp.vehicle==='own'?fuelStat(emp.id,month).mL:'', emp.vehicle==='own'?(function(st){return `枠${st.mAllow}／残高${st.balance>0?'+':''}${st.balance}`;})(fuelStat(emp.id,month)):'']);
     // alc34: 36協定の年度累計（年360時間の管理用）
     rows.push([stName,emp.name,'【年度計】',empProf,empShortMin+'分','',
       '',otYearLabel(month),'','',yearOT(emp.id,month),`年360時間の上限に対し${(yearOT(emp.id,month)/OT_YEAR_LIMIT*100).toFixed(0)}%`]);
@@ -4593,7 +4593,7 @@ function fuelStat(empId,month){
   const cKm=sum(recs.filter(r=>r.date<=mEnd),r=>r.bizKm), cL=sum(logs.filter(f=>f.date<=mEnd),f=>f.liters);
   const cAllowRaw=cKm/eff,balanceRaw=cAllowRaw-cL;
   // alc40: 画面用の値（未給油は小数第1位で切り捨て、超過は切り上げ）。balance（四捨五入）は CSV・締めチェックで従来どおり使う
-  return {eff,mKm:r1(mKm),mAllow:r1(mKm/eff),mL:r1(sum(mLogs,f=>f.liters)),mYen:Math.round(sum(mLogs,f=>f.yen)),mCount:mLogs.length,cKm:r1(cKm),cAllow:r1(cKm/eff),cL:r1(cL),balance:r1(cKm/eff-cL),
+  return {eff,mKm:r1(mKm),mAllow:r1(mKm/eff),mL:r1(sum(mLogs,f=>f.liters)),mCount:mLogs.length,cKm:r1(cKm),cAllow:r1(cKm/eff),cL:r1(cL),balance:r1(cKm/eff-cL),
     cAllowRaw,cLRaw:cL,balanceRaw,avail:_fl1(Math.max(0,balanceRaw)),overL:balanceRaw<0?_cl1(-balanceRaw):0};
 }
 const FUEL_OVER_WARN_L=5; // 累計でこのL以上の超過は締めチェックで警告
@@ -6195,7 +6195,7 @@ function _fuelCloseHtml(ids,month,nameById){
     return `<div class="dcfm" style="margin-bottom:8px">
       <div class="dcfm-row"><span><b>${esc(nameById[id]||acc.name||'')}</b>（燃費 ${st.eff} km/L）</span><span class="v" style="color:${col}">累計残高 ${st.balance>0?'+':''}${st.balance} L${over?' ⚠ 超過':''}</span></div>
       <div class="dcfm-row"><span>${esc(month)} 業務走行 → 負担枠</span><span class="v">${st.mKm} km → ${st.mAllow} L</span></div>
-      <div class="dcfm-row"><span>${esc(month)} 会社カード給油</span><span class="v">${st.mL} L（${st.mCount}回${st.mYen>0?'・¥'+st.mYen.toLocaleString():''}）</span></div>
+      <div class="dcfm-row"><span>${esc(month)} 会社カード給油</span><span class="v">${st.mL} L（${st.mCount}回）</span></div>
       ${vehicleWarnHtml(acc)?`<div style="margin-top:4px">${vehicleWarnHtml(acc)}</div>`:''}
     </div>`;
   }).join('');
