@@ -167,6 +167,33 @@ select.fi{appearance:none;cursor:pointer}
 .leave-mini{background:rgba(0,0,0,.3);border-radius:8px;padding:8px;text-align:center}
 .leave-mini-l{font-size:10px;color:var(--dim);margin-bottom:2px}
 .leave-mini-v{font-family:var(--mo);font-size:14px;font-weight:600}
+/* alc40: 自家用車の給油枠カード（今日画面） */
+.fuel-tag{font-size:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:999px;padding:2px 8px;color:var(--dim);letter-spacing:0;text-transform:none;font-weight:600}
+.fuel-sub{font-size:12px;color:var(--dim);line-height:1.6}
+.fuel-big{font-family:var(--mo);font-size:40px;font-weight:700;color:var(--gn);line-height:1;margin:4px 0 2px}
+.fuel-big small{font-size:18px;font-weight:400;margin-left:4px}
+.fuel-bar{height:22px;border-radius:8px;background:rgba(0,0,0,.35);border:1px solid var(--bd);overflow:hidden;display:flex;margin-top:10px}
+.fuel-bar>div{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;min-width:0}
+.fuel-bar .fb-f{background:linear-gradient(90deg,#4f8ef7,#6ea3ff);color:#fff}
+.fuel-bar .fb-u{background:repeating-linear-gradient(135deg,rgba(61,214,140,.18) 0 6px,rgba(61,214,140,.38) 6px 12px);color:var(--gn)}
+.fuel-bar .fb-o{background:repeating-linear-gradient(135deg,rgba(247,95,95,.25) 0 6px,rgba(247,95,95,.5) 6px 12px);color:var(--rd)}
+.fuel-bar .fb-n{background:linear-gradient(90deg,#3dd68c,#7fe8b4);color:#0f1117}
+.fuel-legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--dim);margin:6px 0 10px}
+.fuel-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.fuel-tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.fuel-tile{background:rgba(0,0,0,.3);border-radius:8px;padding:8px 4px;text-align:center;min-width:0}
+.fuel-tile .l{font-size:10px;color:var(--dim);margin-bottom:3px}
+.fuel-tile .v{font-family:var(--mo);font-size:16px;font-weight:700;color:var(--tx)}
+.fuel-calc{font-size:11.5px;color:var(--dim);line-height:1.75;background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:10px}
+.fuel-calc b{color:var(--tx)}
+.fuel-note{font-size:12px;border-radius:8px;padding:9px 10px;margin-bottom:10px;line-height:1.55}
+.fuel-note.ok{background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.35)}
+.fuel-note.ng{background:rgba(247,95,95,.1);border:1px solid rgba(247,95,95,.4)}
+.fuel-hist{font-size:12px;border-top:1px solid var(--bd);padding-top:8px;margin-top:10px}
+.fuel-hist .fh{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--bd)}
+.fuel-hist .fh span:last-child{font-family:var(--mo);color:var(--dim);white-space:nowrap}
+html[data-theme="light"] .fuel-tile,html[data-theme="light"] .fuel-bar{background:rgba(0,0,0,.06)}
+@media(prefers-color-scheme:light){html:not([data-theme="dark"]) .fuel-tile,html:not([data-theme="dark"]) .fuel-bar{background:rgba(0,0,0,.06)}}
 
 .grant-item{background:var(--sf2);border-radius:8px;padding:10px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
 .grant-l{font-size:12px}.grant-exp{font-size:11px;color:var(--dim);margin-top:2px}
@@ -520,7 +547,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.10.29-alc39 (有給を就業規則どおりに毎年自動で付与（正社員・有期契約は入社日から15〜20日・パート等は入社6か月後の月の1日から週の日数ごとの日数・時間休は年5日分の枠）／残数は取得日に使える付与の古い順に消化し2年で失効／有給管理を職員ごとにまとめ（勤続○年○ヵ月目＝キャリアアップ助成金の数え方・残数・次回の付与・付与の履歴・取得記録）、承認待ちは申請があるときだけ一番上に／付与の個別調整（0日も可）／有給設定に入社日・雇用区分・週の所定労働日数など／役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.11.03-alc40 (自家用車の給油枠カード: 今日画面に「会社カードで給油できる量（未給油のストック）」を大きく表示・給油済み／未給油／超過のバー・次回の指定量（0.1L切り捨て）・給油の記録で給油後の未給油を試算し超過は確認してから記録・金額の入力は撤去し給油量（L）だけを管理・累計は月をまたいで繰越／CSVで同じ日の複数の有給（半日休＋時間休など）が1件しか出なかった不具合を修正（全件を「＋」でつなぎ時間は合計）／有給を就業規則どおりに毎年自動で付与（正社員・有期契約は入社日から15〜20日・パート等は入社6か月後の月の1日から週の日数ごとの日数・時間休は年5日分の枠）／残数は取得日に使える付与の古い順に消化し2年で失効／有給管理を職員ごとにまとめ（勤続○年○ヵ月目＝キャリアアップ助成金の数え方・残数・次回の付与・付与の履歴・取得記録）、承認待ちは申請があるときだけ一番上に／付与の個別調整（0日も可）／有給設定に入社日・雇用区分・週の所定労働日数など／役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -555,6 +582,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <!-- TODAY -->
   <div id="pg-today" class="page active">
     <div class="card" id="todayStatusEmp" style="display:none"></div>
+    <div class="card" id="fuelCardEmp" style="display:none"></div><!-- alc40: 自家用車の給油枠 -->
     <!-- alc37: 選任された確認者（運転管理者・副・補助者）向け。トップで判定できる -->
     <div class="card" id="alcTopCardEmp" style="display:none">
       <div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px">🍃 酒気帯び確認<button class="hbtn" onclick="alcRefreshBtn(this)">🔄 最新を取得</button></div>
@@ -776,6 +804,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <!-- ADMIN: 今日 -->
   <div id="pg-admin-today" class="page">
     <div class="card" id="todayStatusAdm" style="display:none"></div>
+    <div class="card" id="fuelCardAdm" style="display:none"></div><!-- alc40: 自家用車の給油枠 -->
     <!-- alc37: 選任された確認者（運転管理者・副・補助者）向け。トップで判定できる -->
     <div class="card" id="alcTopCardAdm" style="display:none">
       <div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px">🍃 酒気帯び確認<button class="hbtn" onclick="alcRefreshBtn(this)">🔄 最新を取得</button></div>
@@ -1030,6 +1059,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   </div>
   <div style="padding:13px">
     <div class="card" id="todayStatusExec" style="display:none"></div>
+    <div class="card" id="fuelCardExec" style="display:none"></div><!-- alc40: 自家用車の給油枠 -->
     <div class="card dispPrefs" style="display:none"></div>
     <div class="card">
       <div class="ct">🕐 今日（自分の打刻）</div>
@@ -1126,10 +1156,11 @@ html[data-bigtext="1"] body{zoom:1.15}
 <div class="modal-ov" id="fuelModal">
   <div class="modal">
     <div class="modal-title">⛽ 給油を記録（会社カード）</div>
-    <p style="font-size:12px;color:var(--dim);margin-bottom:10px">会社のカードで給油したときに入力してください。業務走行から計算した「会社負担枠（L）」の範囲内で給油できます。レシートは従来どおり提出してください。</p>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:10px">会社のカードで給油したときに入力してください。給油できる量は「まだ給油していない分（未給油）」までです。スタンドでは量（L）を指定して給油し、給油量（L）だけを記録してください（金額の入力は不要。レシートは従来どおり提出）。</p>
     <div id="fuel-info" style="font-size:12px;line-height:1.8;padding:8px 10px;background:var(--sf2);border-radius:8px;margin-bottom:10px"></div>
-    <div class="fr"><label class="fl">給油量 (L) <span style="color:var(--rd)">必須</span></label><input type="number" inputmode="decimal" class="fi" id="fuel-l" min="0" step="0.01" placeholder="例: 32.5"></div>
-    <div class="fr"><label class="fl">金額 (円) <span style="color:var(--rd)">必須</span></label><input type="number" inputmode="decimal" class="fi" id="fuel-yen" min="0" step="1" placeholder="例: 5600"></div>
+    <div class="fr"><label class="fl">給油量 (L) <span style="color:var(--rd)">必須</span>　<span style="color:var(--dim);font-weight:400">レシートどおりに</span></label><input type="number" inputmode="decimal" class="fi" id="fuel-l" min="0" step="0.01" placeholder="例: 12.0" oninput="fuelPreview()"></div>
+    <div id="fuel-preview" style="margin:-4px 0 10px"></div><!-- alc40: 入力した量で給油後の未給油を試算 -->
+    <!-- alc40: 金額の入力は撤去（給油量だけを管理。レシートは従来どおり提出） -->
     <div class="fr"><label class="fl">給油時のオドメーター (km)</label><input type="number" inputmode="decimal" class="fi" id="fuel-odo" min="0" step="0.1" placeholder="任意"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
       <button class="sbv" onclick="document.getElementById('fuelModal').classList.remove('open')" style="background:var(--sf2);border:1px solid var(--bd);color:var(--dim)">キャンセル</button>
@@ -1443,7 +1474,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=39;
+const APP_BUILD=40;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -2411,12 +2442,15 @@ const HOL_FUEL_KM=10; // 休日利用でこの距離以上なら本人に給油�
 function renderHolBtn(){
   if(!session)return;
   const own=isOwnCar(session.id),ph=own?null:holPhase(session.id);
+  const hideOwn=own&&_fuelCardShown; // alc40: 給油枠カードにボタンがあるので、自家用車の人は打刻カード側のボタンを隠す
   document.querySelectorAll('.hol-btn').forEach(b=>{
+    b.style.display=hideOwn?'none':'';
     if(own){b.textContent='⛽ 給油を記録（会社カード）';b.style.borderColor='';}
     else if(ph==='end'){b.textContent='🚗 休日利用：使用終了（終了ODOを入力）';b.style.borderColor='var(--yw)';}
     else{b.textContent='🚗 休日利用（走行距離・利用目的）';b.style.borderColor='';}
   });
   document.querySelectorAll('.hol-hint').forEach(p=>{
+    p.style.display=hideOwn?'none':'';
     p.textContent=own?'※ 自家用車：会社のカードで給油したら必ずここで記録してください（業務走行から会社負担枠を計算します）'
       :ph==='end'?'※ 使用開始を記録済みです。使用が終わったら終了時のオドメーターを入力してください'
       :'※ 出勤せず車両のみ使用した日はこちら（使用開始前と終了後の2回、オドメーターを記録）';
@@ -2726,7 +2760,8 @@ function buildAttendanceCsv(month,targetStoreId){
       const dk=`${y}-${m}-${String(d).padStart(2,'0')}`;
       const rec=recs.find(r=>r.date===dk);
       const vis=viss.find(v=>v.date===dk);
-      const dayLeave=empLeaves.find(lr=>lr.targetDate===dk);
+      const dayLeaves=empLeaves.filter(lr=>lr.targetDate===dk); // alc40: 同じ日の承認済み有給を全部（半日休＋時間休など）。以前は1件しか出なかった
+      const dayLeave=dayLeaves.length?{type:dayLeaves.length===1?(leaveTypeMap[dayLeaves[0].type]||''):dayLeaves.map(lr=>`${leaveTypeMap[lr.type]||lr.type}(${_lvNum(lr.hours)}h)`).join('＋'),hours:_lvNum(dayLeaves.reduce((s2,lr)=>s2+(parseFloat(lr.hours)||0),0))}:null;
       const dayFuel=(fuelLogs||[]).filter(f=>f&&f.empId===emp.id&&f.date===dk); // alc36
       if(!rec&&!vis&&!dayLeave&&!dayFuel.length)continue; // データがない日はスキップ
       // 30分/40分の振り分け: スタッフの設定に応じてc30の値を正しい列に配置
@@ -2756,9 +2791,9 @@ function buildAttendanceCsv(month,targetStoreId){
         vis?.medical||'', vis?.staff||'', vis?.pre||'', vis?.contract||'',
         vis?.training||'', vis?.overtime||'', vis?.oncall||'', vis?.angel||'',
         isNY?'¥10,000':'',
-        dayLeave?leaveTypeMap[dayLeave.type]||'':'', dayLeave?dayLeave.hours:'',
+        dayLeave?dayLeave.type:'', dayLeave?dayLeave.hours:'',
         (recOdoOnly||emp.role==='executive')?'':(rec?otStatusLabel(rec):''), (recOdoOnly||emp.role==='executive')?'':(rec?countedOT(rec,emp.id):''),
-        emp.vehicle==='own'?'自家用車':'リース', (emp.vehicle==='own'&&rec&&rec.bizKm!=null)?rec.bizKm:'', dayFuel.length?dayFuel.reduce((s,f)=>s+(parseFloat(f.liters)||0),0):'', dayFuel.length?dayFuel.reduce((s,f)=>s+(parseFloat(f.yen)||0),0):'', ''
+        emp.vehicle==='own'?'自家用車':'リース', (emp.vehicle==='own'&&rec&&rec.bizKm!=null)?rec.bizKm:'', dayFuel.length?dayFuel.reduce((s,f)=>s+(parseFloat(f.liters)||0),0):'', (function(y){return y>0?y:'';})(dayFuel.reduce((s,f)=>s+(parseFloat(f.yen)||0),0)), ''
       ]);
     }
     // 月次集計行
@@ -2790,7 +2825,7 @@ function buildAttendanceCsv(month,targetStoreId){
       nyc.amount>0?`${nyc.count}日 ¥${nyc.amount.toLocaleString()}`:'',
       lvSummary?`${lvSummary}（${lvBalStr}）`:'',lvTotalH||'',
       '',mRecs.reduce((s,r)=>s+countedOT(r,emp.id),0),
-      emp.vehicle==='own'?'自家用車':'リース', emp.vehicle==='own'?fuelStat(emp.id,month).mKm:'', emp.vehicle==='own'?fuelStat(emp.id,month).mL:'', emp.vehicle==='own'?fuelStat(emp.id,month).mYen:'', emp.vehicle==='own'?(function(st){return `枠${st.mAllow}／残高${st.balance>0?'+':''}${st.balance}`;})(fuelStat(emp.id,month)):'']);
+      emp.vehicle==='own'?'自家用車':'リース', emp.vehicle==='own'?fuelStat(emp.id,month).mKm:'', emp.vehicle==='own'?fuelStat(emp.id,month).mL:'', (emp.vehicle==='own'&&fuelStat(emp.id,month).mYen>0)?fuelStat(emp.id,month).mYen:'', emp.vehicle==='own'?(function(st){return `枠${st.mAllow}／残高${st.balance>0?'+':''}${st.balance}`;})(fuelStat(emp.id,month)):'']);
     // alc34: 36協定の年度累計（年360時間の管理用）
     rows.push([stName,emp.name,'【年度計】',empProf,empShortMin+'分','',
       '',otYearLabel(month),'','',yearOT(emp.id,month),`年360時間の上限に対し${(yearOT(emp.id,month)/OT_YEAR_LIMIT*100).toFixed(0)}%`]);
@@ -4556,20 +4591,74 @@ function fuelStat(empId,month){
   const mKm=sum(recs.filter(r=>String(r.date).startsWith(month)),r=>r.bizKm);
   const mLogs=logs.filter(f=>String(f.date).startsWith(month));
   const cKm=sum(recs.filter(r=>r.date<=mEnd),r=>r.bizKm), cL=sum(logs.filter(f=>f.date<=mEnd),f=>f.liters);
-  return {eff,mKm:r1(mKm),mAllow:r1(mKm/eff),mL:r1(sum(mLogs,f=>f.liters)),mYen:Math.round(sum(mLogs,f=>f.yen)),mCount:mLogs.length,cKm:r1(cKm),cAllow:r1(cKm/eff),cL:r1(cL),balance:r1(cKm/eff-cL)};
+  const cAllowRaw=cKm/eff,balanceRaw=cAllowRaw-cL;
+  // alc40: 画面用の値（未給油は小数第1位で切り捨て、超過は切り上げ）。balance（四捨五入）は CSV・締めチェックで従来どおり使う
+  return {eff,mKm:r1(mKm),mAllow:r1(mKm/eff),mL:r1(sum(mLogs,f=>f.liters)),mYen:Math.round(sum(mLogs,f=>f.yen)),mCount:mLogs.length,cKm:r1(cKm),cAllow:r1(cKm/eff),cL:r1(cL),balance:r1(cKm/eff-cL),
+    cAllowRaw,cLRaw:cL,balanceRaw,avail:_fl1(Math.max(0,balanceRaw)),overL:balanceRaw<0?_cl1(-balanceRaw):0};
 }
 const FUEL_OVER_WARN_L=5; // 累計でこのL以上の超過は締めチェックで警告
+// alc40: 表示用の丸め。_fl1＝小数第1位で切り捨て（給油できる量）、_cl1＝切り上げ（超過分）、_fuelNum＝入力値をそのまま（最大2桁）
+const _fl1=v=>Math.floor((v+1e-9)*10)/10;
+const _cl1=v=>Math.ceil((v-1e-9)*10)/10;
+const _fuelNum=v=>String(Math.round((parseFloat(v)||0)*100)/100);
 function _carLine(id,r,ci){
   try{
     if(isOwnCar(id)){
       const st=fuelStat(id,thisMonth());
-      const col=st.balance<-FUEL_OVER_WARN_L?'var(--rd)':st.balance<0?'var(--yw)':'var(--gn)';
-      const today=(r&&r.bizKm!=null)?`　本日 <b>${r.bizKm} km</b>`:'';
-      return `<br>🚗 自家用車${today}　今月の業務走行 <b>${st.mKm} km</b> → 会社負担枠 <b>${st.mAllow} L</b>／会社カード給油 <b>${st.mL} L</b>　累計残高 <b style="color:${col}">${st.balance>0?'+':''}${st.balance} L</b>${st.balance<0?'<span style="color:'+col+'">（枠を超えています）</span>':''} <button class="mb mb-b" style="margin-left:6px" onclick="openFuelModal()">⛽ 給油を記録</button>`;
+      const over=st.balanceRaw<0,col=over?'var(--rd)':'var(--gn)';
+      const today=(r&&r.bizKm!=null)?`　本日の業務走行 <b>${_fuelNum(r.bizKm)} km</b>`:'';
+      return `<br>🚗 自家用車${today}　給油できる量 <b style="color:${col}">${over?`0 L（${st.overL} L 超過）`:`${st.avail} L`}</b><span style="color:var(--dim)">（詳しくは下の ⛽ カード）</span>`;
     }
     if(!ci&&holPhase(id)==='end'){const rec=holTodayRec(id);return `<br>🚗 <span style="color:var(--yw)">休日利用中</span>（開始ODO ${rec.holStart} km）— 使用後に「休日利用」ボタンから終了ODOを入力してください`;}
   }catch(e){}
   return '';
+}
+/* ── alc40: 給油枠カード（今日画面・自家用車の人だけ）。未給油（ストック）を大きく、給油済み／未給油／超過をバーで ── */
+let _fuelCardShown=false;
+function _fuelBarHtml(st,addL){
+  const allow=Math.max(0,st.cAllowRaw||0),fueled=Math.max(0,st.cLRaw||0),add=Math.max(0,addL||0);
+  if(allow<=0&&fueled+add<=0)return `<div class="fuel-bar"><div class="fb-u" style="width:100%">まだ業務走行の記録がありません</div></div>`;
+  const total=Math.max(allow,fueled+add,0.0001),pct=v=>Math.max(0,Math.min(100,v/total*100));
+  const inAllow=Math.min(fueled,allow),fueledOver=Math.max(0,fueled-allow);
+  const addIn=Math.max(0,Math.min(add,allow-fueled)),addOver=Math.max(0,add-addIn);
+  const unf=Math.max(0,allow-fueled-add),over=fueledOver+addOver;
+  const seg=(cls,v,label)=>{const w=pct(v);if(w<=0)return '';return `<div class="${cls}" style="width:${w.toFixed(1)}%">${w>=24?label:''}</div>`;};
+  return `<div class="fuel-bar">${seg('fb-f',inAllow,over>0?`枠 ${_fl1(allow)} L を使い切り`:`給油済み ${_fuelNum(inAllow)} L`)}${seg('fb-n',addIn,`今回 +${_fuelNum(addIn)}`)}${seg('fb-o',over,`超過 +${_cl1(over)}`)}${seg('fb-u',unf,`未給油 ${_fl1(unf)} L`)}</div>`;
+}
+function _fuelCardHtml(id){
+  const month=thisMonth(),dk=todayKey(),st=fuelStat(id,month);
+  const r=(records[id]||[]).find(x=>x&&x.date===dk);
+  const over=st.balanceRaw<0,avail=st.avail,overL=st.overL,kmToOffset=Math.ceil(overL*st.eff);
+  const big=over?`<div class="fuel-big" style="color:var(--rd)">0<small>L</small></div>`:`<div class="fuel-big">${avail}<small>L</small></div>`;
+  const lead=over?`<div class="fuel-sub"><b style="color:var(--rd)">枠を ${overL} L 超えて給油しています。</b>今後の業務走行 約${kmToOffset} km 分で相殺されるまで、会社カードでの給油はお待ちください</div>`
+    :avail>0?`<div class="fuel-sub">次回の給油は <b style="color:var(--gn)">${avail} L まで</b> と指定してください</div>`
+    :`<div class="fuel-sub">業務走行（帰宅ODOの入力）が増えると、給油できる量が増えます</div>`;
+  const logs=(fuelLogs||[]).filter(f=>f&&f.empId===id&&_isYmd(f.date)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||((b.createdAt||0)-(a.createdAt||0))).slice(0,3);
+  const hist=logs.length?`<div class="fuel-hist"><div style="color:var(--dim);margin-bottom:2px">給油の記録（直近）</div>${logs.map(f=>`<div class="fh"><span>${_lvDs(f.date)}　<b>${_fuelNum(f.liters)} L</b></span><span>${f.odo!=null?'ODO '+Number(f.odo).toLocaleString():''}</span></div>`).join('')}</div>`:'';
+  const todayLine=(r&&r.bizKm!=null)?`<br>本日の業務走行 <b>${_fuelNum(r.bizKm)} km</b>${(r.odometer!=null&&r.odoEnd!=null)?`（出勤ODO ${Number(r.odometer).toLocaleString()} → 帰宅ODO ${Number(r.odoEnd).toLocaleString()}）`:''}`
+    :(r&&r.checkin&&!r.checkout)?'<br>本日の業務走行：退勤時に帰宅ODOを入力すると加算されます':'';
+  const warn=over?(st.balanceRaw<-FUEL_OVER_WARN_L?`<div class="fuel-note ng">${FUEL_OVER_WARN_L} L 以上超えているため、管理者の締めチェックに「超過」として表示されています。帰宅ODOの入力漏れがないか確認し、管理者に相談してください</div>`
+    :`<div class="fuel-note ng">${FUEL_OVER_WARN_L} L 以上超えると管理者の締めチェックに「超過」として表示されます（今は ${overL} L なので表示のみ）</div>`):'';
+  const locked=isMonthLocked(month,id);
+  return `<div class="ct" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>⛽ 会社カードで給油できる量</span><span class="fuel-tag">自家用車・燃費 ${st.eff} km/L</span></div>
+    <div class="fuel-sub">まだ給油していない分（ストック）</div>${big}${lead}
+    ${_fuelBarHtml(st,0)}
+    <div class="fuel-legend"><span><i style="background:#5a97f7"></i>給油済み（会社カード）${_fuelNum(st.cLRaw)} L</span>${over?`<span><i style="background:rgba(247,95,95,.6)"></i>超過（枠より多く給油）${overL} L</span>`:`<span><i style="background:rgba(61,214,140,.5)"></i>未給油＝まだ使える枠 ${avail} L</span>`}</div>
+    <div class="fuel-tiles"><div class="fuel-tile"><div class="l">枠の合計（累計）</div><div class="v">${_fl1(st.cAllowRaw)} L</div></div><div class="fuel-tile"><div class="l">給油済み（累計）</div><div class="v" style="color:var(--ac)">${_fuelNum(st.cLRaw)} L</div></div><div class="fuel-tile"><div class="l">未給油</div><div class="v" style="color:${over?'var(--rd)':'var(--gn)'}">${over?'−'+overL:avail} L</div></div></div>
+    <div class="fuel-calc">業務走行（累計）<b>${_fuelNum(st.cKm)} km</b> ÷ 燃費 <b>${st.eff} km/L</b> ＝ 枠 <b>${_fl1(st.cAllowRaw)} L</b><br>今月：走行 <b>${_fuelNum(st.mKm)} km</b> → <b>＋${_fl1(st.mKm/st.eff)} L</b>　／　給油 <b>${_fuelNum(st.mL)} L</b>（${st.mCount}回）${todayLine}</div>
+    ${warn}
+    <button class="sbv" onclick="openFuelModal()"${locked?' disabled style="opacity:.5"':''}>⛽ 給油を記録（会社カード）</button>${locked?'<div class="fuel-sub" style="text-align:center;margin-top:4px">🔒 今月はロック中のため記録できません</div>':''}
+    ${hist}`;
+}
+function renderFuelCard(){
+  const els=['fuelCardEmp','fuelCardAdm','fuelCardExec'].map(i=>document.getElementById(i)).filter(Boolean);
+  _fuelCardShown=false;
+  if(!els.length)return;
+  const id=session&&session.id;
+  let html='';
+  if(id&&isOwnCar(id)){try{html=_fuelCardHtml(id);}catch(e){console.warn('fuel card',e);html='';}}
+  els.forEach(e=>{e.innerHTML=html;e.style.display=html?'':'none';});
+  _fuelCardShown=!!html;
 }
 function openFuelModal(){
   if(!session)return;
@@ -4577,21 +4666,48 @@ function openFuelModal(){
   ['fuel-l','fuel-yen','fuel-odo'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   const st=fuelStat(session.id,thisMonth());
   const inf=document.getElementById('fuel-info');
-  if(inf)inf.innerHTML=`今月の業務走行 <b>${st.mKm} km</b>（燃費 ${st.eff} km/L）→ 会社負担枠 <b>${st.mAllow} L</b><br>今月の会社カード給油 <b>${st.mL} L</b>（${st.mCount}回・¥${st.mYen.toLocaleString()}）<br>累計の残高 <b style="color:${st.balance<0?'var(--rd)':'var(--gn)'}">${st.balance>0?'+':''}${st.balance} L</b>${st.balance<0?'　⚠ 枠を超えています（翌月の業務走行で相殺されます）':''}`;
+  if(inf){
+    inf.className=st.balanceRaw<0?'fuel-note ng':'fuel-note ok';
+    inf.innerHTML=st.balanceRaw<0?`⚠ 枠を <b>${st.overL} L</b> 超えて給油しているため、いま給油できる量は <b>0 L</b> です。今後の業務走行 約${Math.ceil(st.overL*st.eff)} km 分で相殺されるまでお待ちください（記録は必要です）`
+      :`いま給油できる量：<b style="color:var(--gn)">${st.avail} L</b>（未給油のストック）<br>スタンドでは「<b>${st.avail} L</b>」と指定して給油してください`;
+  }
+  const pv=document.getElementById('fuel-preview');if(pv)pv.innerHTML='';
   document.getElementById('fuelModal').classList.add('open');
+}
+// alc40: 給油量を入力すると、給油後の未給油をその場で試算
+function fuelPreview(){
+  if(!session)return;
+  const el=document.getElementById('fuel-preview');if(!el)return;
+  const L=parseFloat((document.getElementById('fuel-l')||{}).value);
+  if(!(L>0)){el.innerHTML='';return;}
+  const st=fuelStat(session.id,thisMonth()),after=st.balanceRaw-L;
+  const line=after>=-1e-9?`給油後の未給油：<b style="color:var(--gn)">${_fl1(after)} L</b>（枠 ${_fl1(st.cAllowRaw)} L − 給油 ${_fuelNum(st.cLRaw+L)} L）`
+    :`<span style="color:var(--rd)">⚠ いま給油できる量（${st.avail} L）を <b>${_cl1(L-Math.max(0,st.balanceRaw))} L</b> 超えます</span>（記録はできます。超えた分は今後の業務走行で相殺されます）`;
+  el.innerHTML=`${_fuelBarHtml(st,L)}<div class="fuel-sub" style="margin-top:4px">${line}</div>`;
 }
 function submitFuel(){
   if(!session)return;
   const L=parseFloat(document.getElementById('fuel-l')?.value),yen=parseFloat(document.getElementById('fuel-yen')?.value),odoS=document.getElementById('fuel-odo')?.value;
   if(!(L>0)){showToast('⚠ 給油量（L）を入力してください');return;}
-  if(!(yen>=0)){showToast('⚠ 金額（円）を入力してください');return;}
   const odo=odoS!==''&&!isNaN(parseFloat(odoS))?Math.max(0,parseFloat(odoS)):null;
-  fuelLogs.push({id:uid('fuel'),empId:session.id,date:todayKey(),liters:Math.round(L*100)/100,yen:Math.round(yen),odo,createdAt:Date.now()});
-  S.set('ka_fuel',fuelLogs);
-  document.getElementById('fuelModal').classList.remove('open');
-  try{renderTodayStatus();}catch(e){}
-  const st=fuelStat(session.id,thisMonth());
-  showToast(`⛽ 給油 ${L} L を記録しました（累計残高 ${st.balance>0?'+':''}${st.balance} L）`);
+  const empId=session.id;
+  const doSave=()=>{
+    if(!session||session.id!==empId)return;
+    fuelLogs.push({id:uid('fuel'),empId,date:todayKey(),liters:Math.round(L*100)/100,yen:(yen>=0)?Math.round(yen):null,odo,createdAt:Date.now()}); // alc40: 金額は入力欄を撤去（null）。旧データの金額はそのまま
+    S.set('ka_fuel',fuelLogs);
+    document.getElementById('fuelModal').classList.remove('open');
+    try{renderTodayStatus();}catch(e){}
+    const st=fuelStat(empId,thisMonth());
+    showToast(st.balanceRaw<0?`⛽ 給油 ${_fuelNum(L)} L を記録しました（枠を ${st.overL} L 超過。今後の業務走行で相殺されます）`:`⛽ 給油 ${_fuelNum(L)} L を記録しました（残りの給油できる量 ${st.avail} L）`);
+  };
+  // alc40: 給油できる量を超えるときは確認（記録はできる＝超えた分は今後の業務走行で相殺）
+  const st0=fuelStat(empId,thisMonth());
+  if(L>st0.balanceRaw+1e-9){
+    const ex=_cl1(L-Math.max(0,st0.balanceRaw));
+    confirmAction(`⚠ いま給油できる量（${st0.avail} L）を ${ex} L 超えています。\n記録しますか？（超えた分は今後の業務走行で相殺されます）`,doSave,'記録する');
+    return;
+  }
+  doSave();
 }
 // 退勤まとめ画面: 自家用車の人は帰宅時ODOを必須入力
 function _ownCarOdoHtml(rec,draft){
@@ -5796,6 +5912,7 @@ function renderTodayStatus(){
   ['todayStatusEmp','todayStatusAdm','todayStatusExec'].forEach(function(x){const e=document.getElementById(x);if(e){e.innerHTML=html;e.style.display='';}});
   try{renderDisplayPrefs();}catch(e){}
   try{renderSyncPill();}catch(e){}
+  try{renderFuelCard();}catch(e){} // alc40: 自家用車の給油枠カード
   try{renderHolBtn();}catch(e){}
   // 旧・分散表示は統合カードに集約（重複を避ける）
   ['alcStatusEmp','alcStatusAdm','alcStatusExec','otStatusEmp','otStatusAdm','otStatusExec'].forEach(function(x){const e=document.getElementById(x);if(e)e.innerHTML='';});
@@ -6078,7 +6195,7 @@ function _fuelCloseHtml(ids,month,nameById){
     return `<div class="dcfm" style="margin-bottom:8px">
       <div class="dcfm-row"><span><b>${esc(nameById[id]||acc.name||'')}</b>（燃費 ${st.eff} km/L）</span><span class="v" style="color:${col}">累計残高 ${st.balance>0?'+':''}${st.balance} L${over?' ⚠ 超過':''}</span></div>
       <div class="dcfm-row"><span>${esc(month)} 業務走行 → 負担枠</span><span class="v">${st.mKm} km → ${st.mAllow} L</span></div>
-      <div class="dcfm-row"><span>${esc(month)} 会社カード給油</span><span class="v">${st.mL} L（${st.mCount}回・¥${st.mYen.toLocaleString()}）</span></div>
+      <div class="dcfm-row"><span>${esc(month)} 会社カード給油</span><span class="v">${st.mL} L（${st.mCount}回${st.mYen>0?'・¥'+st.mYen.toLocaleString():''}）</span></div>
       ${vehicleWarnHtml(acc)?`<div style="margin-top:4px">${vehicleWarnHtml(acc)}</div>`:''}
     </div>`;
   }).join('');
