@@ -547,7 +547,7 @@ html[data-bigtext="1"] body{zoom:1.15}
   <div class="auth-card">
     <div class="auth-logo">📋</div>
     <div class="auth-title">勤怠・訪問管理</div>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.11.03-alc41 (CSVの「給油金額(円)」列を削除・締めチェックの金額表示も撤去／自家用車の給油枠カード: 今日画面に「会社カードで給油できる量（未給油のストック）」を大きく表示・給油済み／未給油／超過のバー・次回の指定量（0.1L切り捨て）・給油の記録で給油後の未給油を試算し超過は確認してから記録・金額の入力は撤去し給油量（L）だけを管理・累計は月をまたいで繰越／CSVで同じ日の複数の有給（半日休＋時間休など）が1件しか出なかった不具合を修正（全件を「＋」でつなぎ時間は合計）／有給を就業規則どおりに毎年自動で付与（正社員・有期契約は入社日から15〜20日・パート等は入社6か月後の月の1日から週の日数ごとの日数・時間休は年5日分の枠）／残数は取得日に使える付与の古い順に消化し2年で失効／有給管理を職員ごとにまとめ（勤続○年○ヵ月目＝キャリアアップ助成金の数え方・残数・次回の付与・付与の履歴・取得記録）、承認待ちは申請があるときだけ一番上に／付与の個別調整（0日も可）／有給設定に入社日・雇用区分・週の所定労働日数など／役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:2px">v2026.11.03-alc42 (有給の重複申請ガードを「同じ日・種別・時間数・備考が全く同じ」ときだけに緩和（同じ日に別の時間休を申請できる。備考に取得時間を書く運用）／CSVの「給油金額(円)」列を削除・締めチェックの金額表示も撤去／自家用車の給油枠カード: 今日画面に「会社カードで給油できる量（未給油のストック）」を大きく表示・給油済み／未給油／超過のバー・次回の指定量（0.1L切り捨て）・給油の記録で給油後の未給油を試算し超過は確認してから記録・金額の入力は撤去し給油量（L）だけを管理・累計は月をまたいで繰越／CSVで同じ日の複数の有給（半日休＋時間休など）が1件しか出なかった不具合を修正（全件を「＋」でつなぎ時間は合計）／有給を就業規則どおりに毎年自動で付与（正社員・有期契約は入社日から15〜20日・パート等は入社6か月後の月の1日から週の日数ごとの日数・時間休は年5日分の枠）／残数は取得日に使える付与の古い順に消化し2年で失効／有給管理を職員ごとにまとめ（勤続○年○ヵ月目＝キャリアアップ助成金の数え方・残数・次回の付与・付与の履歴・取得記録）、承認待ちは申請があるときだけ一番上に／付与の個別調整（0日も可）／有給設定に入社日・雇用区分・週の所定労働日数など／役員トップに「承認待ち（店舗別）」: 残業・早出・有給をその場で承認／却下（押した瞬間に最新を確認・通信できないときは処理しない・表示後に内容が変わった申請は出し直し・店舗ごとの残業一括承認・未申請の参考表示・締めチェックへ移動）／有給は残数不足なら承認できない・申請中を含めて不足する申請は申請者に警告／ロック中の月は残業の承認・却下を不可に／同期: 送信中の変更（承認など）を古いサーバー値で巻き戻さない（続けて承認・自動再送・同期が重なったときの競合を修正）／酒気確認: 複数の確認者で「確認済みが未確認のまま残る／巻き戻る」を修正（同期後の全画面再描画・確認済みは同じ改訂番号の未確認に負けない・写真再送で確認済みを戻さない・判定前に最新確認＋「既に判定済み」案内・送信後の再検証で収束）／管理者・スタッフの確認者も「今日」画面で判定可／🔄最新を取得ボタン／変更番号 ka_alc_ver で軽量取り込み／ライト表示でカード内ボタンが見えない不具合／残業(分)の保存値に承認済み早出を反映（退勤・勤怠修正で一本化）／承認済みの日の時刻修正は再承認待ちに／早出承認で31分超なら残業申請を自動作成／自動退勤で出勤が終業より遅い日は勤務0・残業0／店舗サマリー当日チップの「undefined」／出勤日は休日利用を拒否／締めチェック・承認の対象店舗を酒気確認と統一／早出理由の持ち越し防止／「時刻に戻る」で写真を保持／まとめ画面の送信中表示／役員は残業・早出の申請と集計の対象外／ダイヤルは時計と同じ桁の繰り上げ・繰り下げ／休日利用は使用開始・終了の2点ODOで10km以上なら本人に給油を促す／自家用車の業務利用（車両プロファイル・帰宅ODOで業務走行・会社負担の給油枠と会社カード給油の突合・締めチェックとCSV）／新打刻: 出退勤をダイヤル式で確定／前残業は廃止し残業は後残業のみ／退勤後に本日の勤務時間を確認・修正／残業31分以上はジャンル選択＋理由で申請→管理者承認／CSVに残業承認状態と有給サマリー／各フローに戻る導線／iPhone・iPadのヘッダー修正／今日のステータスカード／締めチェック画面と残業一括承認／ライト・ダーク自動と文字サイズ／今月の残業累計と36協定警告／管理者タブを3グループに整理／通信状態の表示と自動再送・写真再送／読込時のデータ整合性チェック／未送信キーの残骸(null)を無害化／36協定の年度累計360時間（起算月は設定可・既定11月）／勤務時間設定時に法定休憩の過不足を警告／早出は承認した日のみ残業に加算／残業・早出の申請は送信前に必須入力（出勤ダイヤル直後の早出理由／まとめ画面の残業ジャンル・理由）／退勤は全員「まとめ」で確認してから送信／退勤忘れの翌日に本人へお知らせ／始業5分超前の打刻はルール提示ポップアップ／本日のまとめで出勤時刻もダイヤルで修正可／スタッフ設定の勤務時間カードを廃止)</div>
     <div class="auth-sub">メールアドレス（管理者/役員）またはユーザー名（スタッフ）とパスワードでログイン</div>
     <div class="fr"><label class="fl">メールアドレス / ユーザー名</label><input class="fi" id="li-user" autocomplete="username" placeholder="例: admin@gmail.com またはユーザー名"></div>
     <div class="fr"><label class="fl">パスワード</label><input class="fi" type="password" id="li-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
@@ -693,7 +693,7 @@ html[data-bigtext="1"] body{zoom:1.15}
         </div>
         <div class="fr" id="lr-hours-row" style="display:none"><label class="fl">時間数</label><input type="number" inputmode="decimal" class="fi" id="lr-hours" min="1" step="1" placeholder="例: 2"></div>
         <div class="fr" id="lr-hours-hint" style="font-size:12px;color:var(--dim);margin-bottom:10px"></div>
-        <div class="fr"><label class="fl">備考</label><input type="text" class="fi" id="lr-note" placeholder="理由など（任意）"></div>
+        <div class="fr"><label class="fl">備考</label><input type="text" class="fi" id="lr-note" placeholder="時間休は取得時間（例: 9:00〜10:00）。理由など"></div>
         <button class="sbv" onclick="submitLeaveReq()">📤 申請する</button>
       </div>
     </div>
@@ -917,7 +917,7 @@ html[data-bigtext="1"] body{zoom:1.15}
         </div>
         <div class="fr" id="alr-hours-row" style="display:none"><label class="fl">時間数</label><input type="number" inputmode="decimal" class="fi" id="alr-hours" min="1" step="1" placeholder="例: 2"></div>
         <div class="fr" id="alr-hours-hint" style="font-size:12px;color:var(--dim);margin-bottom:10px"></div>
-        <div class="fr"><label class="fl">備考</label><input type="text" class="fi" id="alr-note" placeholder="理由など（任意）"></div>
+        <div class="fr"><label class="fl">備考</label><input type="text" class="fi" id="alr-note" placeholder="時間休は取得時間（例: 9:00〜10:00）。理由など"></div>
         <button class="sbv" onclick="aSubmitLeave()">📤 申請する</button>
       </div>
     </div>
@@ -1474,7 +1474,7 @@ html[data-bigtext="1"] body{zoom:1.15}
 // SUPABASE AUTH
 // ═══════════════════════════════════
 // ★アプリのビルド番号（デプロイのたびに +1 する）。端末が古いキャッシュ版のまま使い続けるのを防ぐ自動更新に使用。
-const APP_BUILD=41;
+const APP_BUILD=42;
 (function autoUpdate(){
   try{
     if(sessionStorage.getItem('au_done'))return; // 1セッション1回のみ（無限リロード防止）
@@ -3390,7 +3390,7 @@ function updateLeaveTypeUI(){
     const _av=_leaveAvailHint(session?.id,type); // alc38: 残・申請中を表示（申請中を含めると足りない場合は申請時に警告）
     if(type==='full')hHint.textContent=`消化: 1日分（全日休）← 日数プール${_av}`;
     else if(type==='half')hHint.textContent=`消化: 0.5日分（半日休）← 日数プール${_av}`;
-    else hHint.textContent=`時間数を入力 ← 時間給プール${_av}`;
+    else hHint.textContent=`時間数を入力 ← 時間給プール${_av}　備考に取得時間（例: 9:00〜10:00）を書いてください`;
   }
 }
 function submitLeaveReq(){
@@ -3408,14 +3408,15 @@ function submitLeaveReq(){
   const bal=getLeaveBal(empId);
   // ★時間給プール未設定（0h）の人は時間休を申請できない（消化されず残数が減らない不整合の防止）
   if(type==='hourly'&&!bal.hasHourlyPool){showToast('⚠ 時間休プールが未設定です。管理者に時間休付与を依頼するか、全日休・半日休で申請してください');return;}
-  // ★同一日・同一種別の重複申請ガード（申請中・承認済みが既にある場合はブロック）
-  if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
+  // ★重複申請ガード（alc42: 同じ日・種別・時間数・備考が全く同じときだけ弾く。警告して申請させない）
+  const _noteIn=(document.getElementById('lr-note')||{}).value||'';
+  const _dup0=_leaveDupMsg(empId,targetDate,type,hours,_noteIn);if(_dup0){showToast(_dup0);return;}
   // alc39: 取得日の時点で、承認済みの分だけで残数が足りなければ申請できない（次回付与の後の日付なら次回付与分も使える）
   const _blk=_leaveSubmitBlock(empId,type,hours,targetDate);
   if(_blk){showToast(_blk);return;}
   const doSubmit=()=>{
     // 確認ダイアログ中に同じ申請が入っていないか再確認（二重申請ガード）
-    if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
+    const _dup1=_leaveDupMsg(empId,targetDate,type,hours,(document.getElementById('lr-note')||{}).value||'');if(_dup1){showToast(_dup1);return;}
     const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,note:document.getElementById('lr-note').value,status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
     leaveRequests.push(req);S.set('ka_leave_requests',leaveRequests);
     document.getElementById('lr-note').value='';
@@ -3623,6 +3624,16 @@ function _leaveAvailHint(empId,type){
     if(pend<=0)return `（残 ${rem}${u}${nxs}）`;
     return `（残 ${rem}${u}・うち申請中 ${pend}${u} → 実質あと ${_lvNum(Math.max(0,rem-pend))}${u}${nxs}）`;
   }catch(e){return '';}
+}
+// alc42: 重複申請のガード。同じ日・同じ種別・同じ時間数・同じ備考（取得時間）が申請中／承認済みにあるときだけ弾く
+//        （時間休は備考に取得時間を書く運用＝ユーザー指示 2026-11-03。同じ日に別の時間休は申請できる。全く同じ内容だけ二重申請として止める）
+function _leaveDupMsg(empId,targetDate,type,hours,note){
+  const nz=v=>String(v==null?'':v).replace(/\s+/g,'');
+  const h=_lvNum(hours),n=nz(note);
+  const dup=(leaveRequests||[]).find(r=>r&&r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved')&&_lvNum(r.hours)===h&&nz(r.note)===n);
+  if(!dup)return '';
+  const lbl={full:'全日休',half:'半日休',hourly:'時間休'}[type]||type;
+  return `⚠ 同じ内容の申請が既にあります（${_lvDs(targetDate)} ${lbl}${type==='hourly'?' '+h+'時間':''}${n?'「'+String(note).trim()+'」':'・備考なし'}＝${dup.status==='approved'?'承認済み':'申請中'}）。別の時間休なら、備考に取得時間（例: 9:00〜10:00）を書いて区別してください`;
 }
 // alc39: 申請前のチェック。取得日の時点で、承認済みの分だけで足りなければメッセージ（申請できない）
 function _leaveSubmitBlock(empId,type,hours,targetDate){
@@ -8035,7 +8046,7 @@ function aUpdateLeaveUI(){
     const _av=_leaveAvailHint(session?.id,type); // alc38
     if(type==='full')hHint.textContent=`消化: 1日分（全日休）← 日数プール${_av}`;
     else if(type==='half')hHint.textContent=`消化: 0.5日分（半日休）← 日数プール${_av}`;
-    else hHint.textContent=`時間数を入力 ← 時間給プール${_av}`;
+    else hHint.textContent=`時間数を入力 ← 時間給プール${_av}　備考に取得時間（例: 9:00〜10:00）を書いてください`;
   }
 }
 function aSubmitLeave(){
@@ -8052,11 +8063,11 @@ function aSubmitLeave(){
   if(hours<=0){showToast('⚠ 時間数を入力してください');return;}
   const bal=getLeaveBal(empId);
   if(type==='hourly'&&!bal.hasHourlyPool){showToast('⚠ 時間休プールが未設定です。時間休付与を設定するか、全日休・半日休で申請してください');return;}
-  if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
+  const _dup0=_leaveDupMsg(empId,targetDate,type,hours,document.getElementById('alr-note')?.value||'');if(_dup0){showToast(_dup0);return;} // alc42: 全く同じ内容だけ弾く
   const _blk=_leaveSubmitBlock(empId,type,hours,targetDate); // alc39: 取得日の時点で、承認済みだけで足りなければ申請できない
   if(_blk){showToast(_blk);return;}
   const doSubmit=()=>{
-    if(leaveRequests.some(r=>r.empId===empId&&r.targetDate===targetDate&&r.type===type&&(r.status==='pending'||r.status==='approved'))){showToast('⚠ 同じ日付・種別の申請が既にあります（申請中／承認済み）');return;}
+    const _dup1=_leaveDupMsg(empId,targetDate,type,hours,document.getElementById('alr-note')?.value||'');if(_dup1){showToast(_dup1);return;}
     const req={id:uid('req'),empId,empName:acc.name,targetDate,type,hours,
       note:document.getElementById('alr-note')?.value||'',
       status:'pending',createdAt:new Date().toISOString(),reviewedAt:null,reviewedBy:null};
